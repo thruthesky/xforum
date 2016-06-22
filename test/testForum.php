@@ -11,9 +11,8 @@ class testForum extends forum {
     public function runTest() {
         $this->testInstance();
         $this->testCreateForum();
+        $this->testForumCount();
     }
-
-
 
     private function testInstance()
     {
@@ -90,8 +89,35 @@ class testForum extends forum {
         $category = get_category_by_slug($slug);
         isTrue( $category->cat_name == $param['cat_name'], "Category name should be $param[cat_name]");
 
+        // delete the garbage.
+        $re = forum()->http_query( ["do"=>"forum_delete", "cat_ID"=>$category->term_id] );
+        isTrue($re['success'], "failed on do=forum_delete");
+    }
 
+    private function testForumCount()
+    {
+        // count forums
+        $cat = forum()->getForumCategory();
+        $categories = lib()->get_categories_with_depth( $cat->term_id );
+        $no_of_categories = count($categories);
 
+        // create the forum again
+        $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
+        $param = [];
+        $param['do'] = 'forum_create';
+        $param['cat_name'] = 'Test Forum';
+        $param['category_nicename'] = 'cat-count-test' . uniqid();
+        $param['category_parent'] = $parent->term_id;
+        $param['category_description'] = "This is a category created by unit test";
+        $re = forum()->http_query( $param );
+        isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_create. {$re['data']['code']} : {$re['data']['message']}");
+
+        // count the forums again
+        $cat = forum()->getForumCategory();
+        $categories2 = lib()->get_categories_with_depth( $cat->term_id, 0, 'no-cache' );
+        $new_no_of_categories = count($categories2);
+
+        isTrue( ($no_of_categories + 1) == $new_no_of_categories, "No of categories is wrong. prev: $no_of_categories, new: $new_no_of_categories");
     }
 }
 

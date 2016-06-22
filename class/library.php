@@ -99,16 +99,16 @@ class library
      *
      * @todo add unit test
      */
-    public function get_categories_with_depth($cat_ID, $depth = 0 ) {
+    public function get_categories_with_depth($cat_ID, $depth = 0, $cache_domian = 'core' ) {
         static $output;
         if ( $depth == 0 ) $output = [];
         $depth ++;
-        $categories = get_categories( ['parent' => $cat_ID, 'hide_empty'=>false] );
+        $categories = get_categories( ['parent' => $cat_ID, 'hide_empty'=>false, 'cache_domain' => $cache_domian] );
         if ( count($categories) > 0 ) {
             foreach ( $categories as $category ) {
                 $category->depth = $depth - 1;
                 $output[] = $category;
-                $this->get_categories_with_depth( $category->term_id, $depth );
+                $this->get_categories_with_depth( $category->term_id, $depth, $cache_domian );
             }
         }
         return $output;
