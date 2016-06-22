@@ -262,6 +262,10 @@ class forum {
      *              Since this, admin can manually remove the category from post category.
      *              This is just for a safety of prevention that one may accidentally delete a forum.
      *
+     * @code Examples
+     *      http://work.org/wordpress-4.5.3/?do=forum_delete&cat_ID=86&return_url=http%3A%2F%2Fwork.org%2Fwordpress-4.5.3%2Fwp-admin%2Fadmin.php%3Fpage%3Dxforum%252Ftemplate%252Fadmin.php
+     *      <a href="<?php echo forum()->doURL('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a>
+     * @endcode
      */
     public function forum_delete() {
         if ( ! function_exists('wp_insert_category') ) require_once (ABSPATH . "/wp-admin/includes/taxonomy.php");

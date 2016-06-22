@@ -6,20 +6,21 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
 
 
 
-if ( isset($_REQUEST['category_id']) ) { // editing
-    $category = get_category( $_REQUEST['category_id'] );
-    $category_id = $category->term_id;
+if ( $cat_ID = in('cat_ID') ) { // editing
+    $category = get_category( $cat_ID );
     $parent_category = get_category($category->parent);
+    $url_action = forum()->doURL('forum_update');
 }
 else {
     $category = null;
     $parent_category = get_category_by_slug(FORUM_CATEGORY_SLUG);
+    $url_action = forum()->doURL('forum_create');
 }
 
 ?>
 
 <style>
-    <?php if ( isset($_REQUEST['category_id']) ) : ?>
+    <?php if ( $cat_ID ) : ?>
     .forum-list {
         display: none;
     }
@@ -44,7 +45,7 @@ else {
             $('.forum-list').show();
         });
         <?php if ( $category ) : ?>
-        $('.forum-create [name="parent"]').val("<?php echo $category->parent?>");
+        $('.forum-create [name="category_parent"]').val("<?php echo $parent_category->term_id?>");
         <?php endif; ?>
 
         $('body').on('submit', '.forum-create form', function(e) {
@@ -58,8 +59,9 @@ else {
             console.log(url);
 
             $.get(url, function(re){
+                console.log(re);
                 if ( re['success'] ) {
-                    location.reload( true );
+                    //location.reload( true );
                 }
                 else {
                     alert( "ERROR CODE: " + re['data']['code'] + ", message: " + re['data']['message']);
@@ -88,7 +90,7 @@ else {
 
 
 
-        <form action="<?php echo forum()->doURL('forum_create')?>" method="post">
+        <form action="<?php echo $url_action?>" method="post">
             <?php if ( $category ) { ?>
                 <input type="hidden" name="cat_ID"  value="<?php if ( $category ) echo $category->term_id ?>">
             <?php } ?>
@@ -118,7 +120,7 @@ else {
             <fieldset class="form-group">
                 <label for="ForumParent"><?php _e('Parent Forum', 'xforum')?></label>
                 <select name="category_parent" class="form-control" id="ForumParent">
-                    <option value=""><?php _e('Select Parent Forum', 'xforum')?></option>
+                    <option value="<?php echo $parent_category->term_id?>"><?php _e('Select Parent Forum', 'xforum')?></option>
                     <?php
                     foreach ( $categories as $_category ) {
                         $pads = str_repeat( '----', $_category->depth );
@@ -182,8 +184,8 @@ else {
                             </a>
                         </div>
                         <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->listURL($category->slug)?>"><?php echo $category->slug?></a></div>
-                        <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->adminURL()?>&category_id=<?php echo $category->term_id?>">Edit</a></div>
-                        <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->doURL('forum_delete')?>&category_id=<?php echo $category->term_id?>">Delete</a></div>
+                        <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->adminURL()?>&cat_ID=<?php echo $category->term_id?>">Edit</a></div>
+                        <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->doURL('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a></div>
                         <div class="col-xs-2 col-sm-1"><?php echo $category->count?></div>
                         <div class="col-xs-12 col-sm-4"><?php echo $category->description?></div>
                     </div>

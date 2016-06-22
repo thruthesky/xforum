@@ -97,7 +97,12 @@ class library
     echo '</select>';
      * @endcode
      *
-     * @todo add unit test
+     * @attention 기본적으로 get_categories() 는 캐시를 하는데, cache-domain 을 사용하면, 캐시를 하지 않는다.
+     *
+     * $categories = lib()->get_categories_with_depth( $cat->term_id );
+     * $categories2 = lib()->get_categories_with_depth( $cat->term_id, 0, 'no-cache' );
+     *
+     *
      */
     public function get_categories_with_depth($cat_ID, $depth = 0, $cache_domian = 'core' ) {
         static $output;
