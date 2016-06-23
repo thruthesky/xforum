@@ -9,7 +9,7 @@ foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
     }
 }
 
-$class = in('test');
+$class = in('class');
 msg("main.php : going to test : " . $class);
 
 
@@ -18,9 +18,20 @@ if ( $class == 'all' ) {
 }
 else testClass( $class );
 
+
+xlog("xforum.php ends -----------------------");
+exit;
+
+
+
+/** function */
+
 function testClass( $class ) {
     $obj = new $class();
-    $obj->runTest();
+    if ( $method = in('method') ) {
+        $obj->$method();
+    }
+    else $obj->runTest();
 }
 
 

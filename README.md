@@ -15,8 +15,10 @@ access index.php with "test=testAll" or "test=testForum", etc...
 * the value of 'test' key is the name of the class file.
 
 
-ie) curl http://work.org/wordpress-4.5.3/?test=testAll
 
+$ curl "http://work.org/wordpress-4.5.3/?class=all"
+$ curl "http://work.org/wordpress-4.5.3/?class=testFunction"
+$ curl "http://work.org/wordpress-4.5.3/?class=testForum&method=crud"
 
 
 

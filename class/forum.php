@@ -8,15 +8,12 @@
  *
  */
 class forum {
+
+    static $entity;
+
     public function __construct()
     {
 
-    }
-
-
-    public function adminURL()
-    {
-        return home_url('wp-admin/admin.php?page=xforum%2Ftemplate%2Fadmin.php');
     }
 
 
@@ -106,6 +103,7 @@ class forum {
 
 
 
+
     /**
      *
      * This method is called by 'http://abc.com/forum/submit' with $_REQUEST['do']
@@ -135,11 +133,14 @@ class forum {
         else {
             $do_list = [
                 'forum_create',
-                'forum_update',
+                'forum_edit',
                 'forum_delete',
-                'post_create', 'post_delete',
-                'comment_create', 'comment_delete',
-                'file_upload', 'file_delete',
+                'post_create',
+                'post_delete',
+                'comment_create',
+                'comment_delete',
+                'file_upload',
+                'file_delete',
                 'blogger_getUsersBlogs',
                 'login',
             ];
@@ -148,7 +149,7 @@ class forum {
             }
             else {
                 $error = "You cannot call the method - '$what' because the method is not listed on 'do-list'.";
-                wp_send_json_error([ 'code' => -4444, 'message' => $error ]);
+                ferror( -4444, $error );
             }
         }
         exit; // no effect...
@@ -179,9 +180,9 @@ class forum {
      */
     public function forum_create() {
 
-        if ( ! in('category_nicename') ) wp_send_json_error(['code'=>50020,'message'=>'category_nicename(Forum ID) is not provided']);
-        if ( ! in('category_description') ) wp_send_json_error(['code'=>50021,'message'=>'category_description is not provided']);
-        if ( ! in('cat_name') ) wp_send_json_error(['code'=>50022,'message'=>'cat_name(Forum Name) is not provided']);
+        if ( ! in('category_nicename') ) ferror(-50020, 'category_nicename(Forum ID) is not provided');
+        if ( ! in('category_description') ) wp_send_json_error(['code'=>-50021,'message'=>'category_description is not provided']);
+        if ( ! in('cat_name') ) wp_send_json_error(['code'=>-50022,'message'=>'cat_name(Forum Name) is not provided']);
         $catarr = array(
             'cat_name' =>in('cat_name'),
             'category_description' => in('category_description'),
@@ -201,13 +202,12 @@ class forum {
         wp_send_json_success();
     }
 
-    public function forum_update() {
-
-        if ( ! in('cat_ID') ) wp_send_json_error(['code'=>50014,'message'=>'cat_ID is not provided']);
-        if ( ! in('category_parent') ) wp_send_json_error(['code'=>50015,'message'=>'category_parent is not provided']);
-        if ( ! in('category_nicename') ) wp_send_json_error(['code'=>50016,'message'=>'category_nicename is not provided']);
-        if ( ! in('category_description') ) wp_send_json_error(['code'=>50017,'message'=>'category_description is not provided']);
-        if ( ! in('cat_name') ) wp_send_json_error(['code'=>50018,'message'=>'cat_name(Forum Name) is not provided']);
+    public function forum_edit() {
+        if ( ! in('cat_ID') ) ferror(-50014, 'cat_ID is not provided');
+        if ( ! in('category_parent') ) ferror(-50015, 'category_parent is not provided');
+        if ( ! in('category_nicename') ) ferror(-50016,'category_nicename is not provided');
+        if ( ! in('category_description') ) ferror(-50017, 'category_description is not provided');
+        if ( ! in('cat_name') ) ferror(-50018, 'cat_name(Forum Name) is not provided');
         $catarr = array(
             'cat_ID' => in('cat_ID'),
             'cat_name' =>in('cat_name'),
@@ -253,6 +253,38 @@ class forum {
     }
 
 
+
+    public function create() {
+        self::$entity = [];
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     * @return $this
+     */
+    public function set( $key, $value ) {
+        self::$entity[ $key ] = $value;
+        return $this;
+    }
+
+
+    /**
+     * @return int|object - returns INT on success.
+     */
+    public function save() {
+        $term_ID = $this->createOrUpdate( self::$entity );
+        if ( is_wp_error( $term_ID ) ) return $term_ID->get_error_message();
+        return $term_ID;
+    }
+
+
+
+
+
+
+
     /**
      *
      *
@@ -290,10 +322,40 @@ class forum {
         else {
             wp_send_json_error(['code'=>-50010, 'message'=>'cat_ID is empty']);
         }
-
-
     }
 
+    /**
+     *
+     * Deletes a category.
+     *
+     * @param $cat_ID
+     * @return bool|string - false on success, otherwise error message.
+     */
+    public function delete($cat_ID)
+    {
+        if ( empty($cat_ID) ) return 'cat_ID is empty';
+        if ( ! is_numeric($cat_ID) ) return 'cat_ID is not a numeric';
+        $category = get_category( $cat_ID );
+        if ( empty($category) ) return 'category does not exists by that cat_ID';
+        $term_ID = wp_insert_category([
+            'cat_ID' => $category->term_id,
+            'category_nicename' => 'deleted-from-xforum-' . $category->slug,
+            'cat_name' => "Deleted : " . $category->name,
+            'category_parent' => 0,
+        ]);
+        if ( is_wp_error( $term_ID ) ) return $term_ID->get_error_message();
+        return false;
+    }
+
+
+
+
+    /**
+     *
+     * @param $param
+     * @return array|mixed|object
+     *
+     */
     public function http_query($param)
     {
         $url = home_url( '?' . http_build_query( $param ) );
@@ -330,9 +392,49 @@ class forum {
         wp_redirect( in('return_url') );
     }
 
+
+    /**
+     * @deprecated - use urlAdminPage()
+     *
+     */
+    public function adminURL()
+    {
+        return $this->urlAdminPage();
+    }
+
+    public function urlAdminPage() {
+        return home_url('wp-admin/admin.php?page=xforum%2Ftemplate%2Fadmin.php');
+    }
+
+
+    public function urlForumCreate()
+    {
+        return home_url('wp-admin/admin.php?page=xforum%2Ftemplate%2Fadmin.php&amp;template=adminForumCreate');
+    }
+
+
+    /**
+     * @deprecated - use urlForumList
+     */
     public function listURL($slug)
     {
-        return home_url("?do=forum_list&id=$slug");
+        return $this->urlForumList($slug);
+    }
+
+    public function urlForumList($slug)
+    {
+        return home_url("?forum=list&id=$slug");
+    }
+
+    public function urlAdminForumEdit($term_id)
+    {
+        return $this->urlAdminPage() . "&template=adminForumEdit&cat_ID=$term_id";
+    }
+
+    public function categories()
+    {
+        $forum_category = forum()->getForumCategory();
+        return lib()->get_categories_with_depth( $forum_category->term_id );
     }
 
 

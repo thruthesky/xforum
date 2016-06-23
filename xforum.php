@@ -21,19 +21,28 @@ include DIR_XFORUM . 'etc/function.php';
 include_once DIR_CLASS . 'library.php';
 include_once DIR_CLASS . 'forum.php';
 include_once DIR_CLASS . 'post.php';
+include_once DIR_CLASS . 'user.php';
+include DIR_XFORUM . 'etc/action.php';
 
 
 
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');
-if ( in('test') ) { // must be here
-    include DIR_XFORUM . 'test/main.php';
-    xlog("xforum.php ends -----------------------");
-    exit;
+if ( in('class') ) {
+    add_action('wp_loaded', function() {
+        include DIR_XFORUM . 'test/main.php';
+    });
+}
+else if ( $script = in('script') ) {
+    add_action('wp_loaded', function() use ( $script) {
+        include DIR_XFORUM . "script/$script.php";
+        xlog("xforum.php ends -----------------------");
+        exit;
+    });
 }
 else {
-    include DIR_XFORUM . 'etc/action.php';
-    xlog("xforum.php ends -----------------------");
+
 }
+xlog("xforum.php ends -----------------------");
 
 
 

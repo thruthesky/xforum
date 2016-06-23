@@ -10,8 +10,9 @@ class testFunction {
 
     public function runTest() {
         $this->testInput();
-
     }
+
+
 
     private function testInput()
     {

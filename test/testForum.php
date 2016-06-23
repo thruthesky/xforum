@@ -10,7 +10,8 @@ class testForum extends forum {
 
     public function runTest() {
         $this->testInstance();
-        $this->testCreateForum();
+        $this->crud();
+        $this->testForumCRUDRemote();
         $this->testForumCount();
     }
 
@@ -26,7 +27,7 @@ class testForum extends forum {
         isTrue( forum() instanceof post == false, "forum instance" );
     }
 
-    private function testCreateForum()
+    private function testForumCRUDRemote()
     {
         $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
         isTrue( $parent, "Forum category does not exists");
@@ -78,11 +79,11 @@ class testForum extends forum {
 
         // update. change the category name.
         $category = get_category_by_slug($slug);
-        $param['do'] = 'forum_update';
+        $param['do'] = 'forum_edit';
         $param['cat_ID'] = $category->term_id;
         $param['cat_name'] = 'Test Forum Name Has Changed';
         $re = forum()->http_query( $param );
-        isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_update : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
+        isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_edit : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
 
 
         // and check if the category name has changed.
@@ -118,6 +119,28 @@ class testForum extends forum {
         $new_no_of_categories = count($categories2);
 
         isTrue( ($no_of_categories + 1) == $new_no_of_categories, "No of categories is wrong. prev: $no_of_categories, new: $new_no_of_categories");
+    }
+
+    final public function crud()
+    {
+
+        $forum_category = get_category_by_slug(FORUM_CATEGORY_SLUG);
+
+        $test_slug = "test-slug" . uniqid();
+        // create the forum of the slug
+        $cat_ID = forum()->create()
+            ->set('cat_name', 'test-name')
+            ->set('category_nicename', $test_slug)
+            ->set('category_parent', $forum_category->term_id)
+            ->set('category_description', 'test-description')
+            ->save();
+        isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+
+
+        // delete the forum
+        $re = forum()->delete($cat_ID);
+        isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
+
     }
 }
 

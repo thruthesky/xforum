@@ -38,3 +38,63 @@ function xlog( $message ) {
     error_log( $message ); //
 }
 
+
+/**
+ * @deprecated use forum()->url...
+ */
+function url_forum_create() {           echo get_url_forum_create(); }
+
+/**
+ * @deprecated use forum()->url...
+ */
+function get_url_forum_create() {       return forum()->urlForumCreate(); }
+
+/**
+ * @deprecated use forum()->url...
+ */
+function url_admin_page() {           echo get_url_admin_page(); }
+
+/**
+ * @deprecated use forum()->url...
+ */
+function get_url_admin_page() {       return forum()->urlAdminPage(); }
+
+
+/**
+ * It echoes / displays / alerts / goes back depending on the input.
+ *
+ * @param $code
+ * @param $message
+ *
+ * @note if in('on_error') == 'alert_and_go_back', it alerts error and go back.
+ */
+function ferror( $code, $message ) {
+
+    if ( in('on_error') == 'alert_and_go_back' ) {
+        echo <<<EOH
+            <script>
+            alert("ERROR: $code, $message");
+            history.go(-1);
+            </script>
+EOH;
+        exit;
+    }
+    else {
+        wp_send_json_error(['code'=>$code,'message'=>$message]);
+    }
+}
+
+
+/**
+ * Alerts a message in JS and go back & Exits the script.
+ * @param $msg
+ */
+function jsBack($msg) {
+    echo <<<EOH
+        <script>
+            alert("$msg");
+            history.go(-1);
+        </script>
+EOH;
+    exit;
+}
