@@ -23,6 +23,7 @@ include_once DIR_CLASS . 'forum.php';
 include_once DIR_CLASS . 'post.php';
 include_once DIR_CLASS . 'user.php';
 include DIR_XFORUM . 'etc/action.php';
+include DIR_XFORUM . 'etc/filter.php';
 
 
 

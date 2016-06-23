@@ -13,6 +13,7 @@ class testForum extends forum {
         $this->crud();
         $this->testForumCRUDRemote();
         $this->testForumCount();
+        $this->testTemplate();
     }
 
     private function testInstance()
@@ -140,6 +141,116 @@ class testForum extends forum {
         // delete the forum
         $re = forum()->delete($cat_ID);
         isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
+
+    }
+
+    private function deleteTemplates() {
+        $template_name = 'flower';
+        $theme_default_list = get_stylesheet_directory() . "/template-forum/default/list.php";
+        $plugin_default_list = DIR_XFORUM . "template/default/list.php";
+        $theme_flower_list = get_stylesheet_directory() . "/template-forum/$template_name/list.php";
+        $plugin_flower_list = DIR_XFORUM . "template/$template_name/list.php";
+
+        @unlink($theme_default_list);
+        @unlink($theme_flower_list);
+        @unlink($plugin_default_list);
+        @unlink($plugin_flower_list);
+    }
+
+    public function testTemplate()
+    {
+
+        // test with a forum. the template name is 'flower'
+        $template_name = 'flower';
+        $forum_category = get_category_by_slug(FORUM_CATEGORY_SLUG);
+        $test_slug = "test-slug" . uniqid();
+
+
+        // create 'flower' plugin folders.
+
+
+        @mkdir( DIR_XFORUM . "template/$template_name");
+        @mkdir( get_stylesheet_directory() . "/template-forum/default", 0777, true);
+        @mkdir( get_stylesheet_directory() . "/template-forum/$template_name", 0777, true);
+
+
+
+        // delete all the template files of 'flower' before you begin test.
+
+        $this->deleteTemplates();
+
+        $theme_default_list = get_stylesheet_directory() . "/template-forum/default/list.php";
+        $plugin_default_list = DIR_XFORUM . "template/default/list.php";
+        $theme_flower_list = get_stylesheet_directory() . "/template-forum/$template_name/list.php";
+        $plugin_flower_list = DIR_XFORUM . "template/$template_name/list.php";
+
+
+
+        // test on non existing forum.
+        // must be plugin/default/list since no template exists.
+        $this->deleteTemplates();
+        $path = forum()->locateTemplate( 0, 'list' );
+        isTrue( $path == $plugin_default_list, "2: path: $path vs expectation: $plugin_default_list");
+
+
+
+
+
+        // create the forum of the slug
+        $cat_ID = forum()->create()
+            ->set('cat_name', 'test-name')
+            ->set('category_nicename', $test_slug)
+            ->set('category_parent', $forum_category->term_id)
+            ->set('category_description', 'test-description')
+            ->save();
+        isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+
+
+
+        // put the template sa $template_name
+        forum()->meta($cat_ID, 'template', $template_name);
+
+
+        // check if the template name set properly.
+        $category = get_category_by_slug( $test_slug );
+        isTrue( forum()->meta( $category->cat_ID, 'template') == $template_name, "Template name was not set properly.");
+
+
+
+
+        // get the location of the template. it should not exist since you didn't create it.
+
+        // must be default since the plugin/flower/list does not exists.
+        // plugin/template/flower/list.php does not exist. it falls back to default.
+        $path = forum()->locateTemplate( $cat_ID, 'list' );
+        isTrue( $path == $plugin_default_list, "3: path: $path vs expectation: $plugin_default_list");
+
+
+        // touch the template under plugin template.
+        // so plugin/flower/list should exist.
+        touch( $plugin_flower_list );
+        $path = forum()->locateTemplate( $cat_ID, 'list' );
+        isTrue( $path == $plugin_flower_list, "4: path: $path, expectation: $plugin_flower_list");
+
+
+        // touch default template on theme.
+        touch ( $theme_flower_list );
+        $path = forum()->locateTemplate( $cat_ID, 'list' );
+        isTrue( $path == $theme_flower_list, "5: path: $path, expectation: $theme_flower_list");
+
+
+        // remove all templates. & create theme/template/flower/list.php
+        $this->deleteTemplates();
+        touch ( $theme_flower_list );
+        $path = forum()->locateTemplate( $cat_ID, 'list' );
+        isTrue( $path == $theme_flower_list, "6: path: $path, expectation: $theme_flower_list");
+
+
+        // delete the forum
+        $re = forum()->delete($cat_ID);
+        isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
+
+
 
     }
 }

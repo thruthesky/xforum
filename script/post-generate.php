@@ -18,7 +18,6 @@ else {
         ->set('category_parent', $forum_category->term_id)
         ->set('category_description', 'This is the description of test forum.')
         ->save();
-
 }
 
 

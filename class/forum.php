@@ -363,20 +363,31 @@ class forum {
         return $re;
     }
 
+
     /**
      *
-     * @attention if $value is empty, then it will only delete the meta.
+     * Sets / Updates / Gets the value of meta tag of the category ( forum )
+     *
+     * @attention if $value is empty, then it return the value. If you want to delete the meta data, just call delete_term_meta().
      *
      * @param $term_ID
      * @param $key
      * @param $value
      *
-     * @todo unit test
+     *
+     * @return mixed|null - return null on setting/updating. return value of string on getting.
      */
     public function meta($term_ID, $key, $value = null)
     {
-        delete_term_meta( $term_ID, $key );
-        if ( $value ) add_term_meta( $term_ID, 'template', $value, true );
+
+        if ( $value ) {
+            delete_term_meta( $term_ID, $key );
+            add_term_meta( $term_ID, $key, $value, true );
+            return null;
+        }
+        else {
+            return get_term_meta($term_ID, $key, true);
+        }
 
     }
 
@@ -436,6 +447,40 @@ class forum {
         $forum_category = forum()->getForumCategory();
         return lib()->get_categories_with_depth( $forum_category->term_id );
     }
+
+
+    /**
+     * @param $cat_ID
+     * @param $page
+     * @return string
+     *
+     */
+    public function locateTemplate( $cat_ID, $page )
+    {
+        if ( empty($page) ) ferror(-50051, "page shouldn't be empty on locateTemplate()");
+
+        $page = "{$page}.php";
+        $template_name = $this->meta($cat_ID, 'template');
+        if ( empty( $template_name ) ) $template_name = 'default';
+
+        if ($template_name) {
+            $template_in_theme = get_stylesheet_directory() ."/template-forum/$template_name/$page";
+            if ( file_exists($template_in_theme) ) return $template_in_theme;
+            else {
+                $template_in_plugin = DIR_XFORUM . "template/$template_name/$page";
+                if ( file_exists($template_in_plugin) ) return $template_in_plugin;
+                else {
+                    $template_in_theme = get_stylesheet_directory() ."/template-forum/default/$page";
+                    if ( file_exists($template_in_theme) ) return $template_in_theme;
+                    else {
+                        return DIR_XFORUM . "template/default/$page";
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
 
 
 }

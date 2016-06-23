@@ -97,6 +97,9 @@ class library
     echo '</select>';
      * @endcode
      *
+     *
+     * @note get_category() seems caching the result in memory. Just try to use it as many time as you want.
+     *
      * @attention 기본적으로 get_categories() 는 캐시를 하는데, cache-domain 을 사용하면, 캐시를 하지 않는다.
      *
      * $categories = lib()->get_categories_with_depth( $cat->term_id );

@@ -23,6 +23,15 @@ $ curl "http://work.org/wordpress-4.5.3/?class=testForum&method=crud"
 
 
 
+# How to run script / How to generate fake data.
+
+
+Run script like below;
+
+$ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
+
+
+
 
 # Code Tech
 
