@@ -63,8 +63,13 @@ function get_url_admin_page() {       return forum()->urlAdminPage(); }
 /**
  * It echoes / displays / alerts / goes back depending on the input.
  *
- * @param $code
- * @param $message
+ * @param $code - Code to alert or ajax-return
+ * @param $message - Message to alert or ajax-return
+ *
+ * @attention if $_REQUEST['on_error'] == 'alert_and_go_back', then it alerts and goes previous page.
+ *
+ *      Or, it echoes json error code and exits.
+ *
  *
  * @note if in('on_error') == 'alert_and_go_back', it alerts error and go back.
  */

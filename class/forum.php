@@ -122,37 +122,71 @@ class forum {
      *
      * @Attention All the functions inside this function must echo & exit with wp_send_json_error()/wp_send_json_success()
      *
+     * @todo change 'do' to 'forum'.
+     *
+     * @change 2016-06-30 the value of $_REQUEST['forum'] can be anything now. If it is not listed under $forum_do_list, then it just don't do anything. the script does not exit.
      */
     public function submit()
     {
+        // @todo remove $_REQUEST['do']
         $what = in('do');
-        if ( empty($what) ) {
-            $error = "<h2>method name is empty</h2>";
-            wp_send_json_error([ 'code' => -4443, 'message' => $error ]);
+        if ( empty($what) ) $what = in('forum');
+
+        $forum_do_list = [
+            'forum_create',
+            'forum_edit',
+            'forum_delete',
+            'edit_submit',
+            'delete_submit', // @todo implement ajax call.
+            'comment_edit_submit', // @todo implement ajax call.
+            'comment_delete_submit', // @todo implement ajax call.
+            'file_upload', // @todo implement ajax call.
+            'file_delete', // @todo implement ajax call.
+            'blogger_getUsersBlogs',
+            'login', // @todo implement ajax call.
+        ];
+        if ( in_array( $what, $forum_do_list ) ) {
+            $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
+            exit; // no effect...
         }
+        /**
         else {
-            $do_list = [
-                'forum_create',
-                'forum_edit',
-                'forum_delete',
-                'post_create',
-                'post_delete',
-                'comment_create',
-                'comment_delete',
-                'file_upload',
-                'file_delete',
-                'blogger_getUsersBlogs',
-                'login',
-            ];
-            if ( in_array( $what, $do_list ) ) {
-                $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
-            }
-            else {
-                $error = "You cannot call the method - '$what' because the method is not listed on 'do-list'.";
-                ferror( -4444, $error );
-            }
+        $error = "You cannot call the method - '$what' because the method is not listed on 'forum(do) list'.";
+        ferror( -4444, $error );
         }
-        exit; // no effect...
+         */
+
+    }
+
+
+    /**
+     *
+     * Creates / Updates a post
+     *
+     * @todo add test code. This assigned to viel.
+     */
+    public function edit_submit() {
+        $id = in('id');
+        $title = in('title');
+        $content = in('content');
+        if ( ! $id ) ferror(-50044, 'id ( category_slug ) is not provided');
+        if ( ! $title ) ferror(-50045, 'title is not provided');
+        if ( ! $content ) ferror(-50046,'content is not provided');
+
+        $category = get_category_by_slug( $id );
+
+        $post_ID = post()
+            ->create()
+            ->set('post_category', [$category->cat_ID])
+            ->set('post_title', $title)
+            ->set('post_content', $content)
+            ->set('post_status', 'publish')
+            ->set('post_author', wp_get_current_user()->ID)
+            ->save();
+        if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
+
+        $this->url_redirect();
+        wp_send_json_success();
     }
 
 
@@ -198,7 +232,6 @@ class forum {
 
         $this->meta( $term_ID, 'template', in('template') );
         $this->url_redirect();
-
         wp_send_json_success();
     }
 

@@ -11,6 +11,12 @@ class post extends forum {
     }
 
 
+    /**
+     *
+     * @return $this
+     *
+     * @todo add test code. assigned to viel.
+     */
     public function create() {
         self::$entity = [];
         return $this;
@@ -20,6 +26,8 @@ class post extends forum {
      * @param $key
      * @param $value
      * @return $this
+     *
+     *
      */
     public function set( $key, $value ) {
         self::$entity[ $key ] = $value;
@@ -28,8 +36,9 @@ class post extends forum {
 
     /**
      *
-     * @return int|string|WP_Error - positive integer on success. string or WP_Error on error.
+     * @return int|string - positive integer on success. string on error.
      *
+     * @todo unit test. assigned by viel.
      * @todo save extra form data. copy code from k-forum.
      * @todo hook on media file. media files may uploaded thru ajax and need to be hooked.
      */
@@ -73,6 +82,11 @@ class post extends forum {
     public function delete( $post_ID ) {
         $post = wp_delete_post($post_ID);
         return $post;
+    }
+
+    public function getViewPostID()
+    {
+        return get_the_ID();
     }
 
 }

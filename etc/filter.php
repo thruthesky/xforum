@@ -12,12 +12,34 @@
  */
 add_filter( 'template_include', function ( $template ) {
 
+    $forum = in('forum');
+    $category_slug = in('id');
 
-    $categories = forum()->categories();
-    if ( in('forum') == 'list' ) {
-        $category_slug = in('id');
+
+    if ( $forum == 'list' ) {
         return forum()->locateTemplate( $category_slug, 'list');
     }
+    else if ( $forum == 'edit' ) {
+        return forum()->locateTemplate( $category_slug, 'edit');
+    }
+    else if ( is_single() ) {
+        xlog("add_filter() : is_single()");
+        $id = get_the_ID();
+        if ( $id ) {
+            $categories = get_the_category( $id );
+            if ( $categories ) {
+                $category = current( $categories ); // @todo Warning: what if the post has more than 1 categories?
+                $category_id = $category->term_id; // get the slug of the post
+                xlog("category_id: $category_id");
+                $ex = explode('/', get_category_parents($category_id, false, '/', true)); // get the root slug of the post
+                xlog("category slug of the category id: $ex[0]");
+                if ( $ex[0] == FORUM_CATEGORY_SLUG ) { // is it a post under XForum?
+                    return forum()->locateTemplate( $category_id, 'view'); //
+                }
+            }
+        }
+    }
+    /*
 
     // forum list.
     // http://abc.com/forum/qna
@@ -69,6 +91,7 @@ add_filter( 'template_include', function ( $template ) {
             }
         }
     }
+    */
     return $template;
 }, 0.01 );
 

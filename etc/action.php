@@ -1,8 +1,12 @@
 <?php
 
 
+/**
+ *
+ * @todo change 'do' to 'forum'.
+ */
 add_action('init', function() {
-    if ( in('do') ) forum()->submit();
+    if ( in('do') || in('forum') ) forum()->submit();
     wp_enqueue_script( 'wp-util' );
     wp_enqueue_style( 'font-awesome', URL_XFORUM . 'css/font-awesome/css/font-awesome.min.css' );
     wp_enqueue_style( 'bootstrap', URL_XFORUM . '/css/bootstrap/css/bootstrap.min.css' );

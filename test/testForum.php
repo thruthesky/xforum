@@ -168,7 +168,6 @@ class testForum extends forum {
 
         // create 'flower' plugin folders.
 
-
         @mkdir( DIR_XFORUM . "template/$template_name");
         @mkdir( get_stylesheet_directory() . "/template-forum/default", 0777, true);
         @mkdir( get_stylesheet_directory() . "/template-forum/$template_name", 0777, true);
@@ -179,18 +178,18 @@ class testForum extends forum {
 
         $this->deleteTemplates();
 
-        $theme_default_list = get_stylesheet_directory() . "/template-forum/default/list.php";
-        $plugin_default_list = DIR_XFORUM . "template/default/list.php";
-        $theme_flower_list = get_stylesheet_directory() . "/template-forum/$template_name/list.php";
-        $plugin_flower_list = DIR_XFORUM . "template/$template_name/list.php";
+        $theme_default_temp = get_stylesheet_directory() . "/template-forum/default/temp.php";
+        $plugin_default_temp = DIR_XFORUM . "template/default/temp.php";
+        $theme_flower_temp = get_stylesheet_directory() . "/template-forum/$template_name/temp.php";
+        $plugin_flower_temp = DIR_XFORUM . "template/$template_name/temp.php";
 
 
 
         // test on non existing forum.
-        // must be plugin/default/list since no template exists.
+        // must be plugin/default/temp.php since no template exists.
         $this->deleteTemplates();
-        $path = forum()->locateTemplate( 0, 'list' );
-        isTrue( $path == $plugin_default_list, "2: path: $path vs expectation: $plugin_default_list");
+        $path = forum()->locateTemplate( 0, 'temp' );
+        isTrue( $path == $plugin_default_temp, "2: path: $path vs expectation: $plugin_default_temp");
 
 
 
@@ -220,37 +219,35 @@ class testForum extends forum {
 
         // get the location of the template. it should not exist since you didn't create it.
 
-        // must be default since the plugin/flower/list does not exists.
-        // plugin/template/flower/list.php does not exist. it falls back to default.
-        $path = forum()->locateTemplate( $cat_ID, 'list' );
-        isTrue( $path == $plugin_default_list, "3: path: $path vs expectation: $plugin_default_list");
+        // must be default since the plugin/flower/temp does not exists.
+        // plugin/template/flower/temp.php does not exist. it falls back to default.
+        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        isTrue( $path == $plugin_default_temp, "3: path: $path vs expectation: $plugin_default_temp");
 
 
         // touch the template under plugin template.
-        // so plugin/flower/list should exist.
-        touch( $plugin_flower_list );
-        $path = forum()->locateTemplate( $cat_ID, 'list' );
-        isTrue( $path == $plugin_flower_list, "4: path: $path, expectation: $plugin_flower_list");
+        // so plugin/flower/temp should exist.
+        touch( $plugin_flower_temp );
+        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        isTrue( $path == $plugin_flower_temp, "4: path: $path, expectation: $plugin_flower_temp");
 
 
         // touch default template on theme.
-        touch ( $theme_flower_list );
-        $path = forum()->locateTemplate( $cat_ID, 'list' );
-        isTrue( $path == $theme_flower_list, "5: path: $path, expectation: $theme_flower_list");
+        touch ( $theme_flower_temp );
+        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        isTrue( $path == $theme_flower_temp, "5: path: $path, expectation: $theme_flower_temp");
 
 
-        // remove all templates. & create theme/template/flower/list.php
+        // remove all templates. & create theme/template/flower/temp.php
         $this->deleteTemplates();
-        touch ( $theme_flower_list );
-        $path = forum()->locateTemplate( $cat_ID, 'list' );
-        isTrue( $path == $theme_flower_list, "6: path: $path, expectation: $theme_flower_list");
+        touch ( $theme_flower_temp );
+        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        isTrue( $path == $theme_flower_temp, "6: path: $path, expectation: $theme_flower_temp");
 
 
         // delete the forum
         $re = forum()->delete($cat_ID);
         isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
-
-
 
     }
 }
