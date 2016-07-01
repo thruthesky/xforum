@@ -13,14 +13,15 @@
 add_filter( 'template_include', function ( $template ) {
 
     $forum = in('forum');
-    $category_slug = in('id');
-
 
     if ( $forum == 'list' ) {
+        $category_slug = in('id');
+        forum()->setCategory( $category_slug );
         return forum()->locateTemplate( $category_slug, 'list');
     }
     else if ( $forum == 'edit' ) {
-        return forum()->locateTemplate( $category_slug, 'edit');
+        forum()->setCategoryByPostID( in('post_ID') );
+        return forum()->locateTemplate( forum()->getCategory()->slug, 'edit');
     }
     else if ( is_single() ) {
         xlog("add_filter() : is_single()");
@@ -32,9 +33,11 @@ add_filter( 'template_include', function ( $template ) {
                 $category_id = $category->term_id; // get the slug of the post
                 xlog("category_id: $category_id");
                 $ex = explode('/', get_category_parents($category_id, false, '/', true)); // get the root slug of the post
+                //di($ex);
                 xlog("category slug of the category id: $ex[0]");
                 if ( $ex[0] == FORUM_CATEGORY_SLUG ) { // is it a post under XForum?
-                    return forum()->locateTemplate( $category_id, 'view'); //
+                    forum()->setCategory( $category->slug );
+                    return forum()->locateTemplate( $category->slug, 'view'); //
                 }
             }
         }

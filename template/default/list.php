@@ -1,16 +1,19 @@
 <?php
-$slug = in('id');
-$category = get_category_by_slug( $slug );
+$category = forum()->getCategory();
 get_header();
 ?>
 
 
-<h1><?php echo in('id') ?> LIST PAGE</h1>
+    <h1><?php echo in('id') ?> LIST PAGE</h1>
 
-<a class="btn btn-primary" href="?forum=edit&id=<?php echo in('id')?>">Write</a>
+    <a class="btn btn-primary" href="?forum=edit&id=<?php echo $category->slug?>">Write</a>
+
 
 
 <?php
+
+
+
 
 $posts = get_posts(
     [

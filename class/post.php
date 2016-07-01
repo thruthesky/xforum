@@ -1,14 +1,27 @@
 <?php
-class post extends forum {
+/**
+ * Class post
+ * @file class/post.php
+ *
+ * @warning 2016-07-01. it does not extends forum class anymore.
+ */
+class post {
 
-    static $entity = [];
+    static $cu_data = []; // create / update data.
+    static $post = []; // WP_Post object for loading a post.
 
     public function __construct()
     {
 
-        parent::__construct();
+        self::$cu_data = [];
 
     }
+
+
+
+
+
+
 
 
     /**
@@ -18,23 +31,46 @@ class post extends forum {
      * @todo add test code. assigned to viel.
      */
     public function create() {
-        self::$entity = [];
-        return $this;
+        $post_ID = wp_insert_post( self::$cu_data );
+        return $this->returnResult( $post_ID );
     }
+
+    public function update()
+    {
+        $post_ID = wp_update_post( self::$cu_data );
+        return $this->returnResult( $post_ID );
+    }
+
+
+    private function returnResult($post_ID)
+    {
+        if ( is_wp_error( $post_ID ) ) {
+            return $post_ID->get_error_message();
+        }
+        else if ( $post_ID  == 0 ) {
+            return "wp_insert_post() returned 0. Post data may be empty.";
+        }
+        return $post_ID;
+    }
+
+
+
+
 
     /**
      * @param $key
      * @param $value
-     * @return $this
+     * @return post
      *
      *
      */
     public function set( $key, $value ) {
-        self::$entity[ $key ] = $value;
+        self::$cu_data[ $key ] = $value;
         return $this;
     }
 
     /**
+     * @deprecated use create()
      *
      * @return int|string - positive integer on success. string on error.
      *
@@ -43,26 +79,10 @@ class post extends forum {
      * @todo hook on media file. media files may uploaded thru ajax and need to be hooked.
      */
     public function save() {
-
-
-
-        $post_ID = wp_insert_post( self::$entity );
-
-        if ( is_wp_error( $post_ID ) ) {
-            return $post_ID->get_error_message();
-        }
-        else if ( $post_ID  == 0 ) {
-            return "wp_insert_post() returned 0. Post data may be empty.";
-        }
-
-        return $post_ID;
+        return self::create();
     }
 
 
-
-    public function load() {
-        return $this;
-    }
 
 
     /**
@@ -89,11 +109,53 @@ class post extends forum {
         return get_the_ID();
     }
 
+
+    /**
+     *
+     * Loads a post and return this.
+     *
+     *
+     *
+     * @param $post_ID
+     * @return post|null - if there is error, it returns null.
+     */
+    public function load( $post_ID )
+    {
+        self::$post = get_post( $post_ID );
+        if ( self::$post ) return $this;
+        else return null;
+    }
+
+    public function title()
+    {
+        if ( self::$post ) {
+            return self::$post->post_title;
+        }
+        else return null;
+    }
+    public function content()
+    {
+        if ( self::$post ) {
+            return self::$post->post_content;
+        }
+        else return null;
+    }
+
+
+
 }
 
 
-
-
-function post() {
+/**
+ *
+ * @param null $post_ID
+ * @return post
+ * @todo add test code.
+ */
+function post( $post_ID = null ) {
+    if ( $post_ID ) {
+        $post = new post();
+        return $post->load( $post_ID );
+    }
     return new post();
 }

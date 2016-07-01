@@ -80,17 +80,49 @@ EOH;
 }
 
 
+function forum_edit_line_admins( $cat_ID = 0 ) {
+    if ( $cat_ID ) $admins = get_term_meta( $cat_ID, 'admins', true);
+    else $admins = null;
+    echo <<<EOH
+            <fieldset class="form-group">
+                <label for="ForumAdmins">Forum Admins</label>
+                <input id='ForumAdmins' class='form-control' type="text" name="admins" placeholder="Please input forum admins" value="$admins">
+                <small class="text-muted"><?php _e('Input forum admins.', 'xforum')?></small>
+            </fieldset>
+EOH;
+}
+
+function forum_edit_line_members( $cat_ID = 0 ) {
+    if ( $cat_ID ) $members = get_term_meta( $cat_ID, 'members', true);
+    else $members = null;
+    echo <<<EOH
+            <fieldset class="form-group">
+                <label for="ForumMembers">Forum Members</label>
+                <input id='ForumMembers' class='form-control' type="text" name="members" placeholder="Please input forum members" value="$members">
+                <small class="text-muted"><?php _e('Input forum members.', 'xforum')?></small>
+            </fieldset>
+EOH;
+}
+
 function forum_edit_line_template( $cat_ID = 0 ) {
     if ( $cat_ID ) $template = get_term_meta( $cat_ID, 'template', true);
     else $template = null;
     echo <<<EOH
-
             <fieldset class="form-group">
                 <label for="ForumTemplate">Forum Template</label>
                 <input id='ForumTemplate' class='form-control' type="text" name="template" placeholder="Please input forum template postfix" value="$template">
                 <small class="text-muted"><?php _e('Input forum template post.', 'xforum')?></small>
             </fieldset>
-
 EOH;
-
+}
+function forum_edit_line_category( $cat_ID = 0 ) {
+    if ( $cat_ID ) $category = get_term_meta( $cat_ID, 'category', true);
+    else $category = null;
+    echo <<<EOH
+            <fieldset class="form-group">
+                <label for="ForumCategory">Forum Category ( .ini format )</label>
+                <textarea class='form-control' id='ForumCategory' name="category" placeholder="Please input forum category">$category</textarea>
+                <small class="text-muted"><?php _e('Input forum category', 'xforum')?></small>
+            </fieldset>
+EOH;
 }

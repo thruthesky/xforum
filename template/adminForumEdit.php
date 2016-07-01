@@ -21,7 +21,10 @@ $category = get_category( $cat_ID );
             <?php forum_edit_line_cat_name( $category->name ) ?>
             <?php forum_edit_line_category_description( $category->description ) ?>
             <?php forum_edit_line_category_parent( $category->category_parent ) ?>
+            <?php forum_edit_line_admins( $cat_ID ) ?>
+            <?php forum_edit_line_members( $cat_ID ) ?>
             <?php forum_edit_line_template( $cat_ID ) ?>
+            <?php forum_edit_line_category( $cat_ID ) ?>
             <input type="submit" class="btn btn-primary" value="Edit Forum">
             <a href="<?php echo forum()->urlAdminPage()?>" type="button" class="btn btn-secondary forum-create-cancel-button">Cancel</a>
         </form>

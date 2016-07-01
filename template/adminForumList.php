@@ -1,5 +1,5 @@
 <?php
-$cat = forum()->getForumCategory();
+$cat = forum()->getXForumCategory();
 $categories = lib()->get_categories_with_depth( $cat->term_id );
 ?>
 <div class="wrap xforum">

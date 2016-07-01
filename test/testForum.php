@@ -99,7 +99,7 @@ class testForum extends forum {
     private function testForumCount()
     {
         // count forums
-        $cat = forum()->getForumCategory();
+        $cat = forum()->getXForumCategory();
         $categories = lib()->get_categories_with_depth( $cat->term_id );
         $no_of_categories = count($categories);
 
@@ -115,7 +115,7 @@ class testForum extends forum {
         isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_create. {$re['data']['code']} : {$re['data']['message']}");
 
         // count the forums again
-        $cat = forum()->getForumCategory();
+        $cat = forum()->getXForumCategory();
         $categories2 = lib()->get_categories_with_depth( $cat->term_id, 0, 'no-cache' );
         $new_no_of_categories = count($categories2);
 
@@ -146,10 +146,10 @@ class testForum extends forum {
 
     private function deleteTemplates() {
         $template_name = 'flower';
-        $theme_default_list = get_stylesheet_directory() . "/template-forum/default/list.php";
-        $plugin_default_list = DIR_XFORUM . "template/default/list.php";
-        $theme_flower_list = get_stylesheet_directory() . "/template-forum/$template_name/list.php";
-        $plugin_flower_list = DIR_XFORUM . "template/$template_name/list.php";
+        $theme_default_list = get_stylesheet_directory() . "/template-forum/default/temp.php";
+        $plugin_default_list = DIR_XFORUM . "template/default/temp.php";
+        $theme_flower_list = get_stylesheet_directory() . "/template-forum/$template_name/temp.php";
+        $plugin_flower_list = DIR_XFORUM . "template/$template_name/temp.php";
 
         @unlink($theme_default_list);
         @unlink($theme_flower_list);
@@ -210,9 +210,14 @@ class testForum extends forum {
         forum()->meta($cat_ID, 'template', $template_name);
 
 
+
+
+
+
         // check if the template name set properly.
         $category = get_category_by_slug( $test_slug );
         isTrue( forum()->meta( $category->cat_ID, 'template') == $template_name, "Template name was not set properly.");
+        isTrue( $category->cat_ID == $cat_ID, "cat_ID are not equal.");
 
 
 
@@ -221,27 +226,27 @@ class testForum extends forum {
 
         // must be default since the plugin/flower/temp does not exists.
         // plugin/template/flower/temp.php does not exist. it falls back to default.
-        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        $path = forum()->locateTemplate( $test_slug, 'temp' );
         isTrue( $path == $plugin_default_temp, "3: path: $path vs expectation: $plugin_default_temp");
 
 
         // touch the template under plugin template.
         // so plugin/flower/temp should exist.
         touch( $plugin_flower_temp );
-        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        $path = forum()->locateTemplate( $test_slug, 'temp' );
         isTrue( $path == $plugin_flower_temp, "4: path: $path, expectation: $plugin_flower_temp");
 
 
         // touch default template on theme.
         touch ( $theme_flower_temp );
-        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        $path = forum()->locateTemplate( $test_slug, 'temp' );
         isTrue( $path == $theme_flower_temp, "5: path: $path, expectation: $theme_flower_temp");
 
 
         // remove all templates. & create theme/template/flower/temp.php
         $this->deleteTemplates();
         touch ( $theme_flower_temp );
-        $path = forum()->locateTemplate( $cat_ID, 'temp' );
+        $path = forum()->locateTemplate( $test_slug, 'temp' );
         isTrue( $path == $theme_flower_temp, "6: path: $path, expectation: $theme_flower_temp");
 
 

@@ -24,9 +24,11 @@ class testPost extends post {
         isTrue( $post2 instanceof post, "post instance 2" );
         isTrue( post() instanceof post, "post instance 3" );
 
+        /*
         isTrue( $post1 instanceof forum, "post instance 1" );
         isTrue( $post2 instanceof forum, "post instance 2" );
         isTrue( post() instanceof forum, "post instance 3" );
+        */
 
     }
 
@@ -52,13 +54,12 @@ class testPost extends post {
 
         // create a post under the forum.
         $post_ID = post()
-            ->create()
             ->set('post_category', [$cat_ID])
             ->set('post_title', "This is the title - This should not be in trash")
             ->set('post_content', "This is post content")
             ->set('post_status', 'publish')
             ->set('post_author', $author->ID)
-            ->save();
+            ->create();
         isTrue( is_integer($post_ID), "failed on post()->create()->save() : $post_ID");
 
         $post = post()->delete($post_ID);

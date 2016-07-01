@@ -19,10 +19,72 @@ access index.php with "test=testAll" or "test=testForum", etc...
 $ curl "http://work.org/wordpress-4.5.3/?class=all"
 $ curl "http://work.org/wordpress-4.5.3/?class=testFunction"
 $ curl "http://work.org/wordpress-4.5.3/?class=testForum&method=crud"
+$ curl "http://work.org/wordpress-4.5.3/?class=testPost"
+
+
+
+# Configuration in php.ini format
+
+All the configuration (settings) format are in php INI format.
+
+
+    http://php.net/manual/en/function.parse-ini-string.php
 
 
 
 # TODO
+
+
+* comment CRUD
+* file CRUD
+* ITS template development.
+* @done : post CRUD
+
+* add forum admins ( who owns the forum. separated by comma )
+* add forum members ( who can 'cud' for the forum. )
+
+
+    => forum category is the project.
+    => forum members are the members of its.
+    => forum admins are the project managers.
+
+
+* Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
+
+    SELECT SQL_CALC_FOUND_ROWS wp_posts.ID
+    FROM wp_posts 
+    WHERE 1=1 
+    AND wp_posts.post_type = 'post'
+    AND (wp_posts.post_status = 'publish'
+    OR wp_posts.post_status = 'private') 
+    ORDER BY wp_posts.post_date DESC
+    LIMIT 0, 10
+    
+    SELECT FOUND_ROWS()
+    
+    
+    SELECT wp_posts.*
+    FROM wp_posts
+    WHERE ID IN (103,102,101,100,99,98,97,96,95,94)
+    
+    
+    
+    SELECT t.*, tt.*, tr.object_id
+    FROM wp_terms AS t
+    INNER JOIN wp_term_taxonomy AS tt
+    ON tt.term_id = t.term_id
+    INNER JOIN wp_term_relationships AS tr
+    ON tr.term_taxonomy_id = tt.term_taxonomy_id 
+    WHERE tt.taxonomy IN ('category', 'post_tag', 'post_format')
+    AND tr.object_id IN (94, 95, 96, 97, 98, 99, 100, 101, 102, 103)
+    ORDER BY t.name ASC
+    
+    SELECT post_id, meta_key, meta_value
+    FROM wp_postmeta
+    WHERE post_id IN (94,95,96,97,98,99,100,101,102,103)
+    ORDER BY meta_id ASC
+    
+
 
 * Code inconsistency
     * it is confusing with $_REQUEST['do'] and $_REQUEST['forum'].
@@ -30,6 +92,7 @@ $ curl "http://work.org/wordpress-4.5.3/?class=testForum&method=crud"
     
     
     
+* Check: When the postmeta() data is loaded? If it is loaded automatically on wordpress boot like get_option(), it becomes a serious problem.
 
 
 
@@ -41,6 +104,13 @@ Run script like below;
 $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 
+# How to use/manage
+* when a forum loads category, it loads its meta data and put it all together in $category
+* category must be set in php.ini format.
+    * category can have
+        * name
+        * admins ( each category can have admin. It's different from forum admin )
+        * members ( each category can have members. It's different from forum members )
 
 
 # Code Tech
@@ -104,3 +174,7 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
             - $_REQUEST['forum'] is in 'list, new, edit, view, etc...'
 
 ## Life Cycle of XForum List Page
+
+
+
+

@@ -25,13 +25,12 @@ else {
 // create a post under the forum.
 for ( $i = 1; $i <= 10; $i ++ ) {
     $post_ID = post()
-        ->create()
         ->set('post_category', [$cat_ID])
         ->set('post_title', "$i - $test_slug")
         ->set('post_content', "This is post content")
         ->set('post_status', 'publish')
         ->set('post_author', $user->ID)
-        ->save();
+        ->create();
     if ( is_integer($post_ID) ) echo " $i/$post_ID";
 }
 

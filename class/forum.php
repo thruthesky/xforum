@@ -11,6 +11,11 @@ class forum {
 
     static $entity;
 
+
+
+    private $category = null;
+
+
     public function __construct()
     {
 
@@ -18,13 +23,13 @@ class forum {
 
 
     /**
-     * Returns forum category.
+     * Returns very Top (root) XForum category.
      *
      *
      *
      * @todo unit test
      */
-    public function getForumCategory()
+    public function getXForumCategory()
     {
         $cat = get_category_by_slug(FORUM_CATEGORY_SLUG);
         /**
@@ -166,24 +171,36 @@ class forum {
      * @todo add test code. This assigned to viel.
      */
     public function edit_submit() {
-        $id = in('id');
+        $id = in('id'); // forum id ( slug ). It is only available on creating a new post.
+        $post_ID = in('post_ID'); // post id. it is only available on updating a post.
         $title = in('title');
         $content = in('content');
-        if ( ! $id ) ferror(-50044, 'id ( category_slug ) is not provided');
+
+        if ( empty( $id ) && empty( $post_ID ) ) ferror(-50044, 'id ( category_slug ) or post_ID are not provided');
         if ( ! $title ) ferror(-50045, 'title is not provided');
         if ( ! $content ) ferror(-50046,'content is not provided');
 
-        $category = get_category_by_slug( $id );
-
-        $post_ID = post()
-            ->create()
-            ->set('post_category', [$category->cat_ID])
+        if ( $id ) {
+            //$category = get_category_by_slug( $id );
+            $this->setCategory( $id );
+        }
+        else {
+            $this->setCategoryByPostID( $post_ID );
+        }
+        $post = post()
+            ->set('post_category', [forum()->getCategory()->term_id])
             ->set('post_title', $title)
             ->set('post_content', $content)
             ->set('post_status', 'publish')
-            ->set('post_author', wp_get_current_user()->ID)
-            ->save();
-        if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
+            ->set('post_author', wp_get_current_user()->ID);
+        if ( $id ) $re = $post->create();
+        else {
+            $re = $post
+                ->set('ID', $post_ID)
+                ->update();
+        }
+
+        if ( ! is_integer($re) ) ferror( -50048, "Failed on post_create() : $re");
 
         $this->url_redirect();
         wp_send_json_success();
@@ -230,7 +247,7 @@ class forum {
             wp_send_json_error( ['code'=>-4100, 'message'=>$term_ID->get_error_message()] );
         }
 
-        $this->meta( $term_ID, 'template', in('template') );
+        $this->updateMeta( $term_ID );
         $this->url_redirect();
         wp_send_json_success();
     }
@@ -253,7 +270,7 @@ class forum {
         if ( is_wp_error( $term_ID ) ) {
             wp_send_json_error( ['code'=>-4101, 'message'=>$term_ID->get_error_message()] );
         }
-        $this->meta($term_ID, 'template', in('template'));
+        $this->updateMeta( $term_ID );
         $this->url_redirect();
         wp_send_json_success();
     }
@@ -413,7 +430,7 @@ class forum {
     public function meta($term_ID, $key, $value = null)
     {
 
-        if ( $value ) {
+        if ( $value !== null ) {
             delete_term_meta( $term_ID, $key );
             add_term_meta( $term_ID, $key, $value, true );
             return null;
@@ -465,10 +482,33 @@ class forum {
         return $this->urlForumList($slug);
     }
 
-    public function urlForumList($slug)
+    /**
+     * Returns the URL of the forum list page.
+     *
+     *
+     *
+     * @param null $slug - if it's  null, it uses $this->category information.
+     * @return string|void
+     */
+    public function urlForumList($slug = null)
     {
+        if ( empty($slug) )  $slug = $this->getCategory()->slug;
         return home_url("?forum=list&id=$slug");
     }
+
+    /**
+     *
+     * Returns URL of post edit.
+     *
+     * @param $ID
+     * @return string|void
+     *
+     */
+    public function urlPostEdit( $ID )
+    {
+        return home_url("?forum=edit&post_ID=$ID");
+    }
+
 
     public function urlAdminForumEdit($term_id)
     {
@@ -477,23 +517,29 @@ class forum {
 
     public function categories()
     {
-        $forum_category = forum()->getForumCategory();
+        $forum_category = forum()->getXForumCategory();
         return lib()->get_categories_with_depth( $forum_category->term_id );
     }
 
 
     /**
-     * @param $cat_ID
+     * @param $slug
      * @param $page
      * @return string
      *
+     * @warning before
      */
-    public function locateTemplate( $cat_ID, $page )
+    public function locateTemplate( $slug, $page )
     {
         if ( empty($page) ) ferror(-50051, "page shouldn't be empty on locateTemplate()");
 
         $page = "{$page}.php";
-        $template_name = $this->meta($cat_ID, 'template');
+        $template_name = 'default';
+        if ( $slug ) {
+            $category = get_category_by_slug( $slug );
+            $term_id = $category->term_id;
+            $template_name = $this->meta( $term_id, 'template');
+        }
         if ( empty( $template_name ) ) $template_name = 'default';
 
         if ($template_name) {
@@ -514,6 +560,131 @@ class forum {
         return null;
     }
 
+    /**
+     *
+     * Sets category of the forum.
+     *
+     * The forum(category) information of the list/edit/view page.
+     *
+     * @attention Since each time when you call get_category_by_slug(), it access database. WordPress does not cache it in memory.
+     *      This is called on add_filter('template_include', ...);
+     *
+     * @param $category_slug - category slug.
+     */
+    public function setCategory($category_slug)
+    {
+        $this->category = get_category_by_slug( $category_slug );
+        $this->loadConfig();
+    }
+
+    public function setCategoryByPostID($id)
+    {
+        $categories = get_the_category( $id );
+        $this->category = current( $categories ); // @todo Warning: what if the post has more than 1 categories?
+        $this->loadConfig();
+    }
+
+
+
+    /**
+     * Returns the forum (category) info of the forum page.
+     * @note Use this method to get forum category information on list/edit/view page.
+     *      - This method is only available on a forum( when forum id - $_REQUEST['i'd] is given )
+     *
+     * @return null
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+
+    private function updateMeta( $term_ID  )
+    {
+        $this->meta( $term_ID, 'admins', in('admins') );
+        $this->meta( $term_ID, 'members', in('members') );
+        $this->meta( $term_ID, 'template', in('template') );
+        $this->meta( $term_ID, 'category', in('category') );
+    }
+
+    /**
+     *
+     * Returns the configuration of the forum.
+     *
+     * @attention This uses $this->getCategory() which means, you can only use this method when $this->getCategory() is available.
+     *
+     * @param $key
+     * @return bool|mixed|null
+     * @code
+     *      di ( forum()->getMeta('category') );
+     *      forum()->getMeta('category', 'ini');
+     * @endcode
+     */
+    public function getMeta( $key )
+    {
+        return $this->getCategory()->config[ $key ];
+    }
+
+    /**
+     *
+     * @deprecated
+     *
+     * Returns the category information of the forum configuration.
+     * @see README.md for detail
+     * @return array
+     *
+     */
+    public function getMetaCategory()
+    {
+        return forum()->getMeta('category', 'ini');
+    }
+
+
+    /**
+     * Loads all meta configuration of the forum into $this->category->config
+     * @note it is called on setCategory()
+     */
+    private function loadConfig()
+    {
+        $this->category->config = [];
+        $this->loadMeta('admins', 'array');
+        $this->loadMeta('members', 'array');
+        $this->loadMeta('template');
+        $this->loadMetaCategory();
+    }
+
+    /**
+     * It saves the meta value of the forum config and returns it.
+     * @param $key
+     * @param string $format
+     * @return array|mixed|null
+     */
+    private function loadMeta( $key, $format='string' ) {
+        $c = $this->getCategory();
+        if ( $c ) $value = $this->meta( $c->term_id, $key );
+        else $value = null;
+        if ( $value ) {
+            if ( $format == 'array' ) {
+                $value = explode(',', $value);
+            }
+        }
+        $this->category->config[$key] = $value;
+        return $value;
+    }
+    private function loadMetaCategory()
+    {
+        $value = [];
+        $category = $this->loadMeta( 'category' );
+        $ini = parse_ini_string( $category, true );
+        if ( $ini ) {
+            foreach ( $ini as $k => $v ) {
+                $v['admins'] = explode( ',', $v['admins']);
+                $v['members'] = explode( ',', $v['members']);
+                $value[$k] = $v;
+            }
+        }
+        $this->category->config['category'] = $value;
+    }
 
 
 }
