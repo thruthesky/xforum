@@ -26,6 +26,11 @@ add_filter( 'template_include', function ( $template ) {
     else if ( is_single() ) {
         xlog("add_filter() : is_single()");
         $id = get_the_ID();
+        if ( forum()->isPost($id) ) {
+            forum()->setCategoryByPostID( $id );
+            return forum()->locateTemplate( forum()->getCategory()->slug, 'view'); //
+        }
+        /*
         if ( $id ) {
             $categories = get_the_category( $id );
             if ( $categories ) {
@@ -41,62 +46,37 @@ add_filter( 'template_include', function ( $template ) {
                 }
             }
         }
+        */
     }
-    /*
-
-    // forum list.
-    // http://abc.com/forum/qna
-    if ( seg(0) == 'forum' && seg(1) != null && seg(2) == null  ) {
-        return $this->loadTemplate( $this->locateTemplate(seg(1), 'list') );
-    }
-
-    // forum pagination
-    // http://domain.com/forum/qna/5 ==> 5 page.
-    else if ( seg(0) == 'forum' && seg(1) != null && seg(2) == 'page' ) {
-        return $this->loadTemplate( $this->locateTemplate(seg(1), 'list') );
-    }
-
-    // post edit
-    // http://abc.com/forum/(xxxx)/edit
-    // if (xxxx) is numeric, then it's 'post edit'
-    // else it's 'new post'.
-    else if ( seg(0) == 'forum' && seg(1) != null && seg(2) == 'edit'  ) {
-        $s = seg(1);
-        if ( is_numeric($s) ) $this->checkOwnership( $s ); // post edit
-        else $this->checkLogin(); // post write
-
-        return $this->loadTemplate( $this->locateTemplate(seg(1), 'edit') );
-        //return $this->loadTemplate( 'forum-edit-basic.php' );
-    }
+    return $template;
+}, 0.01 );
 
 
-    // view
-    // https://abc.com/forum/forum-name/[0-9]+
-    else if ( seg(0) == 'forum' && seg(1) != null && is_numeric(seg(2))  ) {
-        return $this->loadTemplate( $this->locateTemplate(seg(1), 'view') );
-    }
-    // Matches if the post is under forum category.
-    else if ( is_single() ) {
-        klog("add_filter() : is_single()");
-        $id = get_the_ID();
-        if ( $id ) {
-            $categories = get_the_category( $id );
-            if ( $categories ) {
-                $category = current( $categories );
-                $category_id = $category->term_id;
-                klog("category_id: $category_id");
-                $ex = explode('/', get_category_parents($category_id, false, '/', true));
-                klog("category slug of the category id: $ex[0]");
-                if ( $ex[0] == FORUM_CATEGORY_SLUG ) {
-                    //return $this->loadTemplate('forum-view-basic.php');
-                    return $this->loadTemplate( $this->locateTemplate( $category->slug, 'view' ) );
-                }
+
+
+/**
+ * Hooks to use xforum template.
+ */
+/*
+add_filter( 'comments_template', function( $comment_template ) {
+    $post = get_post();
+    $categories = get_the_category( $post->ID );
+    if ( forum()->getCategory() ) {
+        $slug = current( $categories )->slug;
+        if ( in_array( $slug, forum()->slugs() ) ) {
+
+            $template = $this->locateTemplate($slug, 'comments');
+            $comment_template = locate_template( $template );
+            //$comment_template = locate_template('forum-comments-basic.php');
+
+            if ( empty($comment_template) ) {
+                $comment_template = FORUM_PATH . "template/forum-comments-basic.php";
             }
         }
     }
-    */
-    return $template;
-}, 0.01 );
+    return $comment_template;
+});
+*/
 
 
 

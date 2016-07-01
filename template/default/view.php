@@ -12,9 +12,19 @@ content
 
 <hr>
 
-<p>
+<div class="post-content">
     <?php the_content()?>
-</p>
+</div>
+
+<?php
+// If comments are open or we have at least one comment, load up the comment template.
+if ( comments_open() || get_comments_number() ) {
+    comments_template();
+}
+
+?>
+
+
 
 <hr>
     <a class="btn btn-primary" href="<?php echo forum()->urlPostEdit( get_the_ID() )?>">EDIT</a>

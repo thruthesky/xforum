@@ -188,7 +188,7 @@ class forum {
             $this->setCategoryByPostID( $post_ID );
         }
         $post = post()
-            ->set('post_category', [forum()->getCategory()->term_id])
+            ->set('post_category', [ forum()->getCategory()->term_id ])
             ->set('post_title', $title)
             ->set('post_content', $content)
             ->set('post_status', 'publish')
@@ -684,6 +684,31 @@ class forum {
             }
         }
         $this->category->config['category'] = $value;
+    }
+
+    /**
+     *
+     * Returns true if the post of post_ID belongs to XForum.
+     * If the post is a post of PostType but it is not belongs to xforum, then it returns false.
+     *
+     * @param $post_ID
+     * @return bool
+     */
+    public function isPost( $post_ID )
+    {
+        $categories = get_the_category( $post_ID );
+        if ( $categories ) {
+            $category = current( $categories ); // @todo Warning: what if the post has more than 1 categories?
+            $category_id = $category->term_id; // get the slug of the post
+            xlog("category_id: $category_id");
+            $ex = explode('/', get_category_parents($category_id, false, '/', true)); // get the root slug of the post
+            //di($ex);
+            xlog("category slug of the category id: $ex[0]");
+            if ( $ex[0] == FORUM_CATEGORY_SLUG ) { // is it a post under XForum?
+                return true;
+            }
+        }
+        return false;
     }
 
 
