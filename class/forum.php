@@ -697,12 +697,12 @@ class forum {
     public function isPost( $post_ID )
     {
         $categories = get_the_category( $post_ID );
+
         if ( $categories ) {
             $category = current( $categories ); // @todo Warning: what if the post has more than 1 categories?
             $category_id = $category->term_id; // get the slug of the post
             xlog("category_id: $category_id");
             $ex = explode('/', get_category_parents($category_id, false, '/', true)); // get the root slug of the post
-            //di($ex);
             xlog("category slug of the category id: $ex[0]");
             if ( $ex[0] == FORUM_CATEGORY_SLUG ) { // is it a post under XForum?
                 return true;

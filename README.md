@@ -148,6 +148,14 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 
 
+# Template hierarchy
+
+## WordPress default template.
+
+if the template file does not exists, WordPress may use default template.
+
+Like comments.php, if the xforum has no comment.php template in anywhere, then the WordPress uses theme ( or system ) template file.
+
 
 
 

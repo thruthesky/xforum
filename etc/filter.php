@@ -57,9 +57,13 @@ add_filter( 'template_include', function ( $template ) {
 /**
  * Hooks to use xforum template.
  */
-/*
+
 add_filter( 'comments_template', function( $comment_template ) {
-    $post = get_post();
+    //$post = get_post();
+    if ( forum()->isPost( get_the_ID() ) ) {
+        return forum()->locateTemplate( forum()->getCategory()->slug, 'comment'); //
+    }
+    /*
     $categories = get_the_category( $post->ID );
     if ( forum()->getCategory() ) {
         $slug = current( $categories )->slug;
@@ -74,11 +78,7 @@ add_filter( 'comments_template', function( $comment_template ) {
             }
         }
     }
+    */
     return $comment_template;
 });
-*/
-
-
-
-
 
