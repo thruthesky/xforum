@@ -66,6 +66,8 @@ class testPost extends post {
         $post = get_post( $post_ID );
         isTrue( $post->post_status == 'publish', "post is not published : $post_ID");
 
+
+
         // edit the post.
         $update_ID = post()
             ->set('ID', $post_ID)
@@ -105,8 +107,6 @@ class testPost extends post {
         // delete the forum
         $re = forum()->delete($cat_ID);
         isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
-
-
 
     }
 
