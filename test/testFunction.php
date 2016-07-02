@@ -22,7 +22,6 @@ class testFunction {
         $_GET[ $uid ] = true;
         reset_http_query();
 
-
         isTrue( in( $uid ) !== null, "NULL Test : Shouldn't be null");
         isTrue( in( $uid ) === true, "Should be true.");
 

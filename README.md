@@ -203,3 +203,11 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 ## forum()->getCategory()->xxxx
 
 Use this as much as you can.
+
+
+
+# Tuning
+
+* Do not consider image CDN. it's useless.
+* Care about PING route trip time to fast connect to web server.
+    * If user can connect nearest web server among distributed ones, that's better.

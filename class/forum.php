@@ -106,11 +106,16 @@ class forum {
         return home_url("?do=$method");
     }
 
-    public function urlWrite( $slug = null )
+    public function urlWrite( $slug = null ) {
+        echo $this->getUrlWrite( $slug );
+    }
+    public function getUrlWrite( $slug = null )
     {
         if ( empty($slug) ) $slug = forum()->getCategory()->slug;
         return "?forum=edit&slug=$slug";
     }
+
+
     public function urlEdit( $post_ID ) {
 
     }
@@ -179,18 +184,18 @@ class forum {
      * @todo add test code. This assigned to viel.
      */
     public function edit_submit() {
-        $id = in('slug'); // forum id ( slug ). It is only available on creating a new post.
+        $slug = in('slug'); // forum id ( slug ). It is only available on creating a new post.
         $post_ID = in('post_ID'); // post id. it is only available on updating a post.
         $title = in('title');
         $content = in('content');
 
-        if ( empty( $id ) && empty( $post_ID ) ) ferror(-50044, 'id ( category_slug ) or post_ID are not provided');
+        if ( empty( $slug ) && empty( $post_ID ) ) ferror(-50044, 'slug ( category_slug ) or post_ID are not provided');
         if ( ! $title ) ferror(-50045, 'title is not provided');
         if ( ! $content ) ferror(-50046,'content is not provided');
 
-        if ( $id ) {
+        if ( $slug ) {
             //$category = get_category_by_slug( $id );
-            $this->setCategory( $id );
+            $this->setCategory( $slug );
         }
         else {
             $this->setCategoryByPostID( $post_ID );
@@ -201,7 +206,7 @@ class forum {
             ->set('post_content', $content)
             ->set('post_status', 'publish')
             ->set('post_author', wp_get_current_user()->ID);
-        if ( $id ) $re = $post->create();
+        if ( $slug ) $re = $post->create();
         else {
             $re = $post
                 ->set('ID', $post_ID)
@@ -239,14 +244,21 @@ class forum {
      */
     public function forum_create() {
 
-        if ( ! in('category_nicename') ) ferror(-50020, 'category_nicename(Forum ID) is not provided');
+        if ( ! in('slug') ) ferror(-50020, 'category_nicename(Forum ID) is not provided');
         if ( ! in('category_description') ) wp_send_json_error(['code'=>-50021,'message'=>'category_description is not provided']);
         if ( ! in('cat_name') ) wp_send_json_error(['code'=>-50022,'message'=>'cat_name(Forum Name) is not provided']);
+
+        /**
+         * Put category parent ID
+         */
+        if ( ! $category_parent = in('category_parent') ) {
+            $category_parent = get_category_by_slug( FORUM_CATEGORY_SLUG )->term_id;
+        }
         $catarr = array(
             'cat_name' =>in('cat_name'),
             'category_description' => in('category_description'),
-            'category_nicename' => in('category_nicename'),
-            'category_parent' => get_category_by_slug( FORUM_CATEGORY_SLUG )->term_id
+            'category_nicename' => in('slug'),
+            'category_parent' => $category_parent
         );
 
         $term_ID = $this->createOrUpdate( $catarr );
@@ -261,16 +273,16 @@ class forum {
     }
 
     public function forum_edit() {
-        if ( ! in('cat_ID') ) ferror(-50014, 'cat_ID is not provided');
+        if ( ! in('term_id') ) ferror(-50014, 'term_id is not provided');
         if ( ! in('category_parent') ) ferror(-50015, 'category_parent is not provided');
-        if ( ! in('category_nicename') ) ferror(-50016,'category_nicename is not provided');
+        if ( ! in('slug') ) ferror(-50016,'slug is not provided');
         if ( ! in('category_description') ) ferror(-50017, 'category_description is not provided');
         if ( ! in('cat_name') ) ferror(-50018, 'cat_name(Forum Name) is not provided');
         $catarr = array(
-            'cat_ID' => in('cat_ID'),
+            'cat_ID' => in('term_id'),
             'cat_name' =>in('cat_name'),
             'category_description' => in('category_description'),
-            'category_nicename' => in('category_nicename'),
+            'category_nicename' => in('slug'),
             'category_parent' => in('category_parent')
         );
 
@@ -500,10 +512,20 @@ class forum {
      */
     public function urlForumList($slug = null)
     {
-        if ( empty($slug) )  $slug = $this->getCategory()->slug;
+        if ( empty($slug) ) $slug = $this->getSlug();
         return home_url("?forum=list&slug=$slug");
     }
 
+    /**
+     * Returns the slug of the current forum.
+     * @return null
+     */
+    public function getSlug() {
+        if ( $slug = in('slug') ) {
+            if ( $this->getCategory() ) $slug = $this->getCategory()->slug;
+        }
+        return $slug;
+    }
     /**
      *
      * Returns URL of post edit.

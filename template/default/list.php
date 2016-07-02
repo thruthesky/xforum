@@ -13,7 +13,7 @@ get_header();
 
 $posts = get_posts(
     [
-        'category' => $category->cat_ID,
+        'category' => $category->term_id,
     ]
 );
 
@@ -31,6 +31,8 @@ foreach ( $posts as $post ) {
 
 ?>
 
-
+<div>
+    End of list
+</div>
 
 <?php get_footer(); ?>
