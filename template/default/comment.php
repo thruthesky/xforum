@@ -45,27 +45,14 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         </div>
 
 
-        <?php
-        $attachments = forum()->markupCommentAttachments( FORUM_COMMENT_POST_NUMBER + $comment->comment_ID );
-        ?>
-
-
-        <div class="photos"><?php echo $attachments['images']?></div>
-        <div class="files"><?php echo $attachments['attachments']?></div>
-
-
         <div class="comment-text">
             <?php comment_text(); ?>
         </div>
 
         <div class="comment-buttons">
             <div class="reply">Reply</div>
-            <div class="edit">
-                <a href="<?php echo forum()->commentEditURL( $comment->comment_ID )?>">Edit</a>
-            </div>
-            <div class="delete">
-                <a href="<?php echo forum()->commentDeleteURL( $comment->comment_ID )?>">Delete</a>
-            </div>
+            <div class="edit">Edit</div>
+            <div class="delete">Delete</div>
             <div class="report" title="This function is not working, yet.">Report</div>
             <div class="like" title="This function is not working, yet.">Like</div>
         </div>
@@ -76,10 +63,10 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
     ?>
 
     <script type="text/template" id="comment-form-template">
-        <section class="reply comment-new">
-            <form action="<?php echo home_url("forum/submit")?>" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="do" value="comment_create">
-                <input type="hidden" name="comment_post_ID" value="<?php the_ID()?>">
+        <section class="comment-edit">
+            <form action="<?php echo home_url()?>" method="get" enctype="multipart/form-data">
+                <input type="hidden" name="forum" value="comment_edit_submit">
+                <input type="hidden" name="post_ID" value="<?php the_ID()?>">
                 <input type="hidden" name="comment_parent" value="<%=parent%>">
                 <input type="hidden" name="file_ids" value="">
                 <div class="line comment-content">
@@ -101,9 +88,8 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                     </div>
                 </div>
                 <div class="loader">
-                    <img src="<?php echo FORUM_URL ?>/img/loader14.gif">
-                    <?php _e('File upload is in progress. Please wait.', 'k-forum')?>
-                </div>
+                    <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                    <span class="text">File upload is in progress. Please wait.</span>                </div>
             </form>
         </section>
     </script>

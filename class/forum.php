@@ -193,11 +193,12 @@ class forum {
         if ( ! $title ) ferror(-50045, 'title is not provided');
         if ( ! $content ) ferror(-50046,'content is not provided');
 
-        if ( $slug ) {
+        if ( $slug ) { // new post
             //$category = get_category_by_slug( $id );
             $this->setCategory( $slug );
         }
-        else {
+        else { // update post
+            forum()->endIfNotMyPost( $post_ID );
             $this->setCategoryByPostID( $post_ID );
         }
         $post = post()
@@ -221,6 +222,118 @@ class forum {
 
 
 
+    public function endIfNotLogin() {
+        if ( ! is_user_logged_in() ) wp_die("Please login");
+    }
+
+    /**
+     * @param $post_ID
+     */
+    public function endIfNotMyPost($post_ID)
+    {
+        $this->checkOwnership( $post_ID, 'post' );       // check post owner.
+    }
+    public function endIfNotMyComment($comment_ID)
+    {
+        $this->checkOwnership( $comment_ID, 'comment' );       // check comment owner.
+    }
+
+    /**
+     *
+     * Exits if the user has no right to edit/delete on the $post_id
+     *
+     * @Attention if the logged-in user is admin, then he can do 'edit/delete'
+     *
+     * @param $id
+     * @param string $type
+     *
+     * @return bool
+     */
+    private function checkOwnership( $id, $type='post' )
+    {
+        if ( ! is_user_logged_in() ) wp_die("Please login");
+
+        if ( current_user_can( 'manage_options' ) ) return true;
+
+        $user = wp_get_current_user();
+        $user_id = 0;
+        if ( $user->exists() ) {
+            if ( $type == 'post' ) {
+                $post = get_post( $id );
+                if ( empty($post) ) { // if post does not exists, it is a new post writing.
+                    wp_die("Post does not exists");
+                }
+                $user_id = $post->post_author;
+            }
+            else if ( $type == 'comment' ) {
+                $comment = get_comment( $id );
+                if ( empty( $comment ) ) wp_die("Comment does not exists");
+                $user_id = $comment->user_id;
+            }
+            else wp_die( 'Wrong Post Type Check');
+
+            if ( $user->ID == $user_id ) {
+                // ok
+            }
+            else {
+                wp_die("You are not the owner of the $type");
+            }
+        }
+        else {
+            wp_die("User does not exists.");
+        }
+        return true;
+    }
+
+
+
+
+    /**
+     * Creates / Updates a comment.
+     *
+     *
+     *
+     */
+    private function comment_edit_submit( ) {
+
+        //
+        if ( isset( $_REQUEST['comment_ID'] ) ) { // update
+            $comment_ID = $_REQUEST['comment_ID'];
+            $this->endIfNotMyComment();
+            $comment = get_comment( $comment_ID );
+            $post_ID = $comment->comment_post_ID;
+            $re = wp_update_comment([
+                'comment_ID' => $comment_ID,
+                'comment_content' => $_REQUEST['comment_content']
+            ]);
+
+
+            if ( ! $re ) {
+                // error or content has not changed.
+            }
+        }
+        else { // new
+            $post_ID = in('post_ID');
+            $comment_ID = wp_insert_comment([
+                'comment_post_ID' => $post_ID,
+                'comment_parent' => in('comment_parent'),
+                'user_id' => wp_get_current_user()->ID,
+                'comment_content' => in('comment_content'),
+                'comment_approved' => 1,
+            ]);
+            if ( ! $comment_ID ) {
+                wp_die("Comment was not created");
+            }
+        }
+
+        //$this->updateFileWithPost( FORUM_COMMENT_POST_NUMBER  + $comment_ID );
+
+        $url = get_permalink( $post_ID ) . '#comment-' . $comment_ID ;
+
+        wp_redirect( $url ); // redirect to view the newly created post.
+
+        wp_send_json_success();
+    }
     /**
      *
      *
@@ -516,12 +629,17 @@ class forum {
         return home_url("?forum=list&slug=$slug");
     }
 
+
+
+
+
+
     /**
      * Returns the slug of the current forum.
      * @return null
      */
     public function getSlug() {
-        if ( $slug = in('slug') ) {
+        if ( ! $slug = in('slug') ) {
             if ( $this->getCategory() ) $slug = $this->getCategory()->slug;
         }
         return $slug;

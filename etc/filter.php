@@ -20,8 +20,14 @@ add_filter( 'template_include', function ( $template ) {
         return forum()->locateTemplate( $category_slug, 'list');
     }
     else if ( $forum == 'edit' ) {
-        if ( in('slug') ) forum()->setCategory(in('slug'));
-        else forum()->setCategoryByPostID( in('post_ID') );
+        if ( in('slug') ) { // new post
+            forum()->setCategory(in('slug'));
+        }
+        else { // edit post
+            // check if ownership.
+            forum()->endIfNotMyPost( in('post_ID') );
+            forum()->setCategoryByPostID( in('post_ID') );
+        }
         return forum()->locateTemplate( forum()->getCategory()->slug, 'edit');
     }
     else if ( is_single() ) {

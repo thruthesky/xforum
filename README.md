@@ -206,6 +206,30 @@ Use this as much as you can.
 
 
 
+## File upload
+
+* Put file server in a different server.
+
+    * upload / delete
+
+    * filename are converted in random string ( md5 + time() + ip ).
+
+    * filename saved in file server and will be used in A tag or IMG tag in post/comment content.
+
+        any file which has part of "/data/upload/wp/" in its URL, it is considered as wordpress files.
+
+        ie) <img src="http://file.server.com/data/upload/wp/abcdeghi.jpg">
+        ie) <a href="http://w1.my-web-server.com/~thruthesky/category/data/upload/wp/abc.exe">
+
+
+    * HOW-TO clean garbage files.
+
+        * delete files on file server that are not used in the post/comment content.
+        * to do this, first get all the list of files in file server and get all the list of file that are used in post content, comment content.
+            * compare the list and find files of file server that are not exists in post/comment content and delete it.
+
+
+
 # Tuning
 
 * Do not consider image CDN. it's useless.

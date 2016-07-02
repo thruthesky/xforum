@@ -16,6 +16,13 @@ content
     <?php the_content()?>
 </div>
 
+
+<hr>
+<a class="btn btn-primary" href="<?php echo forum()->urlPostEdit( get_the_ID() )?>">EDIT</a>
+<a class="btn btn-primary" href="<?php echo forum()->urlForumList()?>">LIST</a>
+<hr>
+
+
 <?php
 // If comments are open or we have at least one comment, load up the comment template.
 if ( comments_open() || get_comments_number() ) {
@@ -24,12 +31,6 @@ if ( comments_open() || get_comments_number() ) {
 
 ?>
 
-
-
-<hr>
-    <a class="btn btn-primary" href="<?php echo forum()->urlPostEdit( get_the_ID() )?>">EDIT</a>
-    <a class="btn btn-primary" href="<?php echo forum()->urlForumList()?>">LIST</a>
-<hr>
 
 <?php get_footer(); ?>
 
