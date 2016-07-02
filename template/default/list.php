@@ -4,15 +4,11 @@ get_header();
 ?>
 
 
-    <h1><?php echo in('id') ?> LIST PAGE</h1>
+    <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
-    <a class="btn btn-primary" href="?forum=edit&id=<?php echo $category->slug?>">Write</a>
-
-
+    <a class="btn btn-primary" href="<?php forum()->urlWrite()?>">Write</a>
 
 <?php
-
-
 
 
 $posts = get_posts(

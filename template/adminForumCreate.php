@@ -10,7 +10,7 @@
             <input type="hidden" name="forum" value="forum_create">
             <input type="hidden" name="on_error" value="alert_and_go_back">
             <input type="hidden" name="return_url" value="<?php echo urlencode( url_admin_page() )?>">
-            <?php forum_edit_line_category_nicename() ?>
+            <?php forum_edit_line_slug() ?>
             <?php forum_edit_line_cat_name() ?>
             <?php forum_edit_line_category_description() ?>
             <?php forum_edit_line_category_parent() ?>

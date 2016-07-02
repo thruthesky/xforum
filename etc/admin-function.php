@@ -6,14 +6,14 @@
  *
  * @param null $slug
  */
-function forum_edit_line_category_nicename($slug = null) {
+function forum_edit_line_slug($slug = null) {
     echo <<<EOH
 
             <fieldset class="form-group">
                 <label for="ForumID">
                     Forum ID
                 </label>
-                <input id='ForumID' class='form-control' type="text" name="category_nicename" placeholder="Please input forum ID" value="$slug">
+                <input id='ForumID' class='form-control' type="text" name="slug" placeholder="Please input forum ID" value="$slug">
                 <small class="text-muted">Input forum ID in lowercase letters, numbers and hypens. It is a slug.</small>
             </fieldset>
 

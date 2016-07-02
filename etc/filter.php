@@ -15,7 +15,7 @@ add_filter( 'template_include', function ( $template ) {
     $forum = in('forum');
 
     if ( $forum == 'list' ) {
-        $category_slug = in('id');
+        $category_slug = in('slug');
         forum()->setCategory( $category_slug );
         return forum()->locateTemplate( $category_slug, 'list');
     }

@@ -6,7 +6,7 @@ setup_postdata(get_post( $id ));
 get_header();
 ?>
 
-<h1><?php echo in('id') ?> VIEW PAGE : TITLE : <?php the_title()?></h1>
+<h1><?php echo in('slug') ?> VIEW PAGE : TITLE : <?php the_title()?></h1>
 
 content
 

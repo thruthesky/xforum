@@ -98,14 +98,22 @@ class forum {
      * @param $method
      * @return string|void
      * @code
-     *      <form action="<?php echo forum()->doURL('forum_create')?>" method="post">
+     *      <form action="<?php echo forum()->urlForumDo('forum_create')?>" method="post">
      * @encode
      */
-    public function doURL($method)
+    public function urlForumDo($method)
     {
         return home_url("?do=$method");
     }
 
+    public function urlWrite( $slug = null )
+    {
+        if ( empty($slug) ) $slug = forum()->getCategory()->slug;
+        return "?forum=edit&slug=$slug";
+    }
+    public function urlEdit( $post_ID ) {
+
+    }
 
 
 
@@ -171,7 +179,7 @@ class forum {
      * @todo add test code. This assigned to viel.
      */
     public function edit_submit() {
-        $id = in('id'); // forum id ( slug ). It is only available on creating a new post.
+        $id = in('slug'); // forum id ( slug ). It is only available on creating a new post.
         $post_ID = in('post_ID'); // post id. it is only available on updating a post.
         $title = in('title');
         $content = in('content');
@@ -346,7 +354,7 @@ class forum {
      *
      * @code Examples
      *      http://work.org/wordpress-4.5.3/?do=forum_delete&cat_ID=86&return_url=http%3A%2F%2Fwork.org%2Fwordpress-4.5.3%2Fwp-admin%2Fadmin.php%3Fpage%3Dxforum%252Ftemplate%252Fadmin.php
-     *      <a href="<?php echo forum()->doURL('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a>
+     *      <a href="<?php echo forum()->urlForumDo('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a>
      * @endcode
      */
     public function forum_delete() {
@@ -366,11 +374,11 @@ class forum {
                 wp_send_json_success();
             }
             else {
-                wp_send_json_error(['code'=>-50011, 'message'=>'cat_ID is ok. But category does not exists.']);
+                wp_send_json_error(['code'=>-50011, 'message'=>'term_id is ok. But category does not exists.']);
             }
         }
         else {
-            wp_send_json_error(['code'=>-50010, 'message'=>'cat_ID is empty']);
+            wp_send_json_error(['code'=>-50010, 'message'=>'term_id is empty']);
         }
     }
 
@@ -493,7 +501,7 @@ class forum {
     public function urlForumList($slug = null)
     {
         if ( empty($slug) )  $slug = $this->getCategory()->slug;
-        return home_url("?forum=list&id=$slug");
+        return home_url("?forum=list&slug=$slug");
     }
 
     /**
@@ -512,7 +520,7 @@ class forum {
 
     public function urlAdminForumEdit($term_id)
     {
-        return $this->urlAdminPage() . "&template=adminForumEdit&cat_ID=$term_id";
+        return $this->urlAdminPage() . "&template=adminForumEdit&term_id=$term_id";
     }
 
     public function categories()
@@ -721,6 +729,7 @@ $__forum = null;
  *
  * @note This function caches on memory. so no matter how many times you call this function, it does not produce burden on Process.
  * @return forum
+ *
  */
 function forum() {
     global $__forum;

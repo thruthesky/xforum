@@ -16,12 +16,12 @@ else {
 
 ?>
 
-    <h1><?php echo in('id') ?> EDIT PAGE</h1>
+    <h1><?php echo in('slug') ?> EDIT PAGE</h1>
 
 <form action="?">
     <input type="hidden" name="forum" value="edit_submit">
-    <?php if ( in('id') ) { ?>
-        <input type="hidden" name="id" value="<?php echo in('id')?>">
+    <?php if ( in('slug') ) { ?>
+        <input type="hidden" name="slug" value="<?php echo in('slug')?>">
     <?php } else { ?>
         <input type="hidden" name="post_ID" value="<?php echo in('post_ID')?>">
     <?php } ?>

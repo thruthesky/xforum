@@ -12,14 +12,20 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 access index.php with "test=testAll" or "test=testForum", etc...
 
-* the value of 'test' key is the name of the class file.
+* the value of 'test' key is the name of the test class file.
+    - names of test file is like test[XXXXX].php
+    - Just put [XXXXX] part of the class name.
 
 
 
-$ curl "http://work.org/wordpress-4.5.3/?class=all"
-$ curl "http://work.org/wordpress-4.5.3/?class=testFunction"
-$ curl "http://work.org/wordpress-4.5.3/?class=testForum&method=crud"
-$ curl "http://work.org/wordpress-4.5.3/?class=testPost"
+* If you are going to test on OSX or Linux, you need to have proper file permission since mkdir(), touch() will fail on test code of template hierarchy.
+    * chmod 777 wp-content/plugins/xforum/template/
+    * chmod 777 wp-content/themes/twentysixteen/
+
+$ curl "http://work.org/wordpress-4.5.3/?test=all"
+$ curl "http://work.org/wordpress-4.5.3/?test=Function"
+$ curl "http://work.org/wordpress-4.5.3/?test=Forum&method=crud"
+$ curl "http://work.org/wordpress-4.5.3/?test=Post"
 
 
 
@@ -180,9 +186,20 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
     - on 'template_include' filter
         - relate( locate ) template files of forum depending on $_REQUEST['forum'] and $_REQUEST['id'], etc.
             - $_REQUEST['forum'] is in 'list, new, edit, view, etc...'
+- etc/init.php
 
 ## Life Cycle of XForum List Page
 
 
+-> "?forum=list"
+    -> add_filter( 'template_include', ... )
+        -> locateTemplate()
+            -> list.php ( template hierarchy )
 
 
+
+# Coding Guide
+
+## forum()->getCategory()->xxxx
+
+Use this as much as you can.

@@ -9,11 +9,11 @@ foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
     }
 }
 
-$class = in('class');
+$class = 'test' . in('test');
 msg("main.php : going to test : " . $class);
 
 
-if ( $class == 'all' ) {
+if ( $class == 'testall' ) {
     foreach( $tests as $class ) testClass( $class );
 }
 else testClass( $class );

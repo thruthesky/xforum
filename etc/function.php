@@ -9,9 +9,12 @@
  * @return null
  *
  */
-function in( $name, $default = null ) {
-    if ( isset( $_POST[$name] ) ) return $_POST[$name];
-    else if ( isset( $_GET[$name] ) ) return $_GET[$name];
+global $_in;
+$_in = array_merge( $_GET, $_POST );
+function in( $name = null, $default = null ) {
+    global $_in;
+    if ( empty($name) ) return $_in;
+    else if ( isset($_in[$name]) ) return $_in[$name];
     else return $default;
 }
 
