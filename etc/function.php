@@ -10,7 +10,19 @@
  *
  */
 global $_in;
-$_in = array_merge( $_GET, $_POST );
+reset_http_query();
+/**
+ * Merge $_GET, $_POST into $_in
+ *
+ * Use this function if you change $_GET, $_POST.
+ *
+ * @note it does not use $_REQUEST
+ *
+ */
+function reset_http_query() {
+    global $_in;
+    $_in = array_merge( $_GET, $_POST );
+}
 function in( $name = null, $default = null ) {
     global $_in;
     if ( empty($name) ) return $_in;
