@@ -28,10 +28,16 @@ else {
     <input type="hidden" name="on_error" value="alert_and_go_back">
     <input type="hidden" name="return_url" value="<?php echo forum()->urlForumList()?>">
 
-    <div>
-        <input type="text" name="title" value="<?php echo esc_html( $post->title() )?>">
-    </div>
-    <div><textarea name="content"><?php echo esc_html( $post->content() )?></textarea></div>
+    <fieldset class="form-group">
+        <label for="post-title">Title</label>
+        <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() )?>">
+        <small class="text-muted">Please, input post title.</small>
+    </fieldset>
+    <fieldset class="form-group">
+        <label for="post-content">Content</label>
+        <textarea name="content" class="form-control" id="post-content" rows="3" placeholder="Please, input content."><?php echo esc_html( $post->content() )?></textarea>
+    </fieldset>
+
     <input type="submit">
 </form>
 

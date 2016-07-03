@@ -482,6 +482,10 @@ class forum {
 
 
 
+    public function count_comments( $post_ID ) {
+        $count = wp_count_comments( $post_ID );
+        if ( $count->approved )  echo "({$count->approved})";
+    }
 
 
 

@@ -34,6 +34,7 @@ add_filter( 'template_include', function ( $template ) {
         xlog("add_filter() : is_single()");
         $id = get_the_ID();
         if ( forum()->isPost($id) ) {
+            $GLOBALS['post_view_count'] = post()->increaseNoOfView( $id );
             forum()->setCategoryByPostID( $id );
             return forum()->locateTemplate( forum()->getCategory()->slug, 'view'); //
         }
