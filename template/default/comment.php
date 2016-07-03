@@ -16,6 +16,8 @@
 if ( post_password_required() ) {
     return;
 }
+
+wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
 //wp_enqueue_style( 'forum-comments-basic', FORUM_URL . 'css/forum-comments-basic.css' );
 ?>
 <!--suppress ALL -->
@@ -30,9 +32,9 @@ function comments_basic($comment, $args, $depth) {
 $parent_comment = null;
 if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_parent);
 ?>
-<li <?php comment_class( empty( $args['has_children'] ) ? '' : 'parent' ) ?> id="comment-<?php comment_ID() ?>" comment-id="<?php comment_ID() ?>">
-    <div class="comment-body">
-        <div class="comment-meta">
+<li <?php comment_class( 'comment ' . empty( $args['has_children'] ) ? '' : 'parent' ) ?> id="comment-<?php comment_ID() ?>" comment_ID="<?php comment_ID() ?>">
+    <div class="content">
+        <div class="meta">
             <?php if ( $parent_comment ) : ?>
                 <?php echo get_comment_author(); ?> commented on <?php echo get_comment_author($parent_comment)?> at
             <?php else : ?>
@@ -44,17 +46,16 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
             </div>
         </div>
 
-
-        <div class="comment-text">
+        <div class="text">
             <?php comment_text(); ?>
         </div>
 
-        <div class="comment-buttons">
-            <div class="reply">Reply</div>
-            <div class="edit">Edit</div>
-            <div class="delete">Delete</div>
-            <div class="report" title="This function is not working, yet.">Report</div>
-            <div class="like" title="This function is not working, yet.">Like</div>
+        <div class="buttons">
+            <span class="reply">Reply</span>
+            <span class="edit">Edit</span>
+            <span class="delete">Delete</span>
+            <span class="report" title="This function is not working, yet.">Report</span>
+            <span class="like" title="This function is not working, yet.">Like</span>
         </div>
     </div>
     <hr>
@@ -63,45 +64,55 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
     ?>
 
     <script type="text/template" id="comment-form-template">
-        <section class="comment-edit">
+        <section class="comment-form">
+            <%
+            if ( typeof comment_ID == 'undefined' ) comment_ID = 0;
+            if ( typeof text == 'undefined' ) text = '';
+            else text = s(text).trim().value();
+            %>
             <form action="<?php echo home_url()?>" method="get" enctype="multipart/form-data">
                 <input type="hidden" name="forum" value="comment_edit_submit">
                 <input type="hidden" name="post_ID" value="<?php the_ID()?>">
+                <input type="hidden" name="comment_ID" value="<%=comment_ID%>">
                 <input type="hidden" name="comment_parent" value="<%=parent%>">
                 <input type="hidden" name="file_ids" value="">
                 <div class="line comment-content">
                     <label for="comment-content" style="display:none;">
                         <?php _e('Comment Content', 'k-fourm')?>
                     </label>
-                    <textarea id="comment-content" name="comment_content" placeholder="<?php _e('Please input comment', 'k-forum')?>"></textarea>
+                    <textarea id="comment-content" name="comment_content" placeholder="<?php _e('Please input comment', 'xforum')?>"><%=text%></textarea>
                 </div>
                 <div class="photos"></div>
                 <div class="files"></div>
                 <div class="line buttons">
                     <div class="file-upload">
                         <i class="fa fa-camera"></i>
-                        <span class="text"><?php _e('Choose File', 'k-forum')?></span>
+                        <span class="text"><?php _e('Choose File', 'xforum')?></span>
                         <input type="file" name="file" onchange="forum.on_change_file_upload(this);" style="opacity: .001;">
                     </div>
                     <div class="submit">
-                        <label for="post-submit-button"><input id="post-submit-button" type="submit" value="<?php _e('Comment Submit', 'k-forum')?>"></label>
+                        <input class="comment-submit-button" type="submit" value="Submit">
+                        <% if ( comment_ID ) { %>
+                        <button class="comment-cancel-button" type="button">Cancel</button>
+                        <% } %>
                     </div>
                 </div>
-                <div class="loader">
+                <div class="loader" style="display:none;">
                     <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
                     <span class="text">File upload is in progress. Please wait.</span>                </div>
             </form>
         </section>
     </script>
 
+
+
     <div id="comments" class="comments-area">
 
-        <div class="reply-placeholder"></div>
         <script>
             window.addEventListener( 'load', function() {
                 jQuery( function( $ ) {
                     var t = _.template($('#comment-form-template').html());
-                    $('.reply-placeholder').html(t({ parent : 0 }));
+                    $('.comments-area').prepend(t({ parent : 0 }));
                 });
             });
         </script>

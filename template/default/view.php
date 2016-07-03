@@ -20,6 +20,8 @@ content
 <hr>
 <a class="btn btn-primary" href="<?php echo forum()->urlPostEdit( get_the_ID() )?>">EDIT</a>
 <a class="btn btn-primary" href="<?php echo forum()->urlForumList()?>">LIST</a>
+<?php forum()->list_menu_user()?>
+
 <hr>
 
 

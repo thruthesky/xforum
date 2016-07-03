@@ -22,6 +22,67 @@ class forum {
     }
 
 
+
+
+
+    /**
+     *
+     * This method is called by 'http://abc.com/forum/submit' with $_REQUEST['do']
+     *
+     * Use this function to do action like below that does not display data to web browser.
+     *
+     *  - ajax call
+     *  - submission without display data and redirect to another page.
+     *
+     *
+     * @Note This method can only call a method in 'forum' class.
+     *
+     * @note it exits. This functions exists the script.
+     *
+     *  But echoes json string to indicates the result.
+     *
+     * @Attention All the functions inside this function must echo & exit with wp_send_json_error()/wp_send_json_success()
+     *
+     * @todo change 'do' to 'forum'.
+     * @todo put enough of test code here.
+     *
+     * @change 2016-06-30 the value of $_REQUEST['forum'] can be anything now. If it is not listed under $forum_do_list, then it just don't do anything. the script does not exit.
+     */
+    public function submit()
+    {
+        // @todo remove $_REQUEST['do']
+        $what = in('do');
+        if ( empty($what) ) $what = in('forum');
+
+        $forum_do_list = [
+            'forum_create',
+            'forum_edit',
+            'forum_delete',
+            'edit_submit',
+            'delete_submit', // @todo implement ajax call.
+            'comment_edit_submit', // @todo implement ajax call.
+            'comment_delete_submit', // @todo implement ajax call.
+            'file_upload', // @todo implement ajax call.
+            'file_delete', // @todo implement ajax call.
+            'blogger_getUsersBlogs',
+            'login',
+            'logout',
+        ];
+        if ( in_array( $what, $forum_do_list ) ) {
+            $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
+            exit; // no effect...
+        }
+        /**
+        else {
+        $error = "You cannot call the method - '$what' because the method is not listed on 'forum(do) list'.";
+        ferror( -4444, $error );
+        }
+         */
+
+    }
+
+
+
     /**
      * Returns very Top (root) XForum category.
      *
@@ -121,62 +182,6 @@ class forum {
     }
 
 
-
-    /**
-     *
-     * This method is called by 'http://abc.com/forum/submit' with $_REQUEST['do']
-     *
-     * Use this function to do action like below that does not display data to web browser.
-     *
-     *  - ajax call
-     *  - submission without display data and redirect to another page.
-     *
-     *
-     * @Note This method can only call a method in 'forum' class.
-     *
-     * @note it exits. This functions exists the script.
-     *
-     *  But echoes json string to indicates the result.
-     *
-     * @Attention All the functions inside this function must echo & exit with wp_send_json_error()/wp_send_json_success()
-     *
-     * @todo change 'do' to 'forum'.
-     *
-     * @change 2016-06-30 the value of $_REQUEST['forum'] can be anything now. If it is not listed under $forum_do_list, then it just don't do anything. the script does not exit.
-     */
-    public function submit()
-    {
-        // @todo remove $_REQUEST['do']
-        $what = in('do');
-        if ( empty($what) ) $what = in('forum');
-
-        $forum_do_list = [
-            'forum_create',
-            'forum_edit',
-            'forum_delete',
-            'edit_submit',
-            'delete_submit', // @todo implement ajax call.
-            'comment_edit_submit', // @todo implement ajax call.
-            'comment_delete_submit', // @todo implement ajax call.
-            'file_upload', // @todo implement ajax call.
-            'file_delete', // @todo implement ajax call.
-            'blogger_getUsersBlogs',
-            'login', // @todo implement ajax call.
-        ];
-        if ( in_array( $what, $forum_do_list ) ) {
-            $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
-            exit; // no effect...
-        }
-        /**
-        else {
-        $error = "You cannot call the method - '$what' because the method is not listed on 'forum(do) list'.";
-        ferror( -4444, $error );
-        }
-         */
-
-    }
-
-
     /**
      *
      * Creates / Updates a post
@@ -216,8 +221,24 @@ class forum {
 
         if ( ! is_integer($re) ) ferror( -50048, "Failed on post_create() : $re");
 
-        $this->url_redirect();
-        wp_send_json_success();
+        $this->response();
+    }
+
+    /**
+     *
+     * If there is $_REQUEST['return_url'], then it redirects and dies.
+     * If not, it echoes json and dies.
+     *
+     * @attention on echoing json string, it echoes success. if there is error, use ferror()
+     * @param null $data
+     */
+    private function response( $data = null) {
+        if ( $this->url_redirect() ) {
+            die();
+        }
+        else {
+            wp_send_json_success( $data );
+        }
     }
 
 
@@ -297,16 +318,14 @@ class forum {
     private function comment_edit_submit( ) {
 
         //
-        if ( isset( $_REQUEST['comment_ID'] ) ) { // update
-            $comment_ID = $_REQUEST['comment_ID'];
-            $this->endIfNotMyComment();
+        if ( $comment_ID = in( 'comment_ID' ) ) { // update
+            $this->endIfNotMyComment( $comment_ID );
             $comment = get_comment( $comment_ID );
             $post_ID = $comment->comment_post_ID;
             $re = wp_update_comment([
                 'comment_ID' => $comment_ID,
-                'comment_content' => $_REQUEST['comment_content']
+                'comment_content' => in('comment_content')
             ]);
-
 
             if ( ! $re ) {
                 // error or content has not changed.
@@ -381,8 +400,7 @@ class forum {
         }
 
         $this->updateMeta( $term_ID );
-        $this->url_redirect();
-        wp_send_json_success();
+        $this->response();
     }
 
     public function forum_edit() {
@@ -404,8 +422,7 @@ class forum {
             wp_send_json_error( ['code'=>-4101, 'message'=>$term_ID->get_error_message()] );
         }
         $this->updateMeta( $term_ID );
-        $this->url_redirect();
-        wp_send_json_success();
+        $this->response();
     }
 
 
@@ -575,15 +592,25 @@ class forum {
     }
 
     /**
+     *
+     *
+     *
      * It redirect current page to the page of $_REQUEST['url_redirect'].
      *
      * @note it does not do anything if $_REQUEST['url_redirect'] is empty.
      *
+     * @return bool - true if it redirected.
+     *
      */
     private function url_redirect()
     {
-        if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
-        wp_redirect( in('return_url') );
+        $url = in('return_url');
+        if ( empty( $url ) ) return false;
+        else {
+            if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
+            wp_redirect( in('return_url') );
+            return true;
+        }
     }
 
 
@@ -858,6 +885,80 @@ class forum {
         }
         return false;
     }
+
+
+    /**
+     *
+     */
+    public function login() {
+
+        $user_login = trim(in('id'));
+        $user_pass = in('password');
+        $remember_me = 1;
+
+        $credits = array(
+            'user_login'    => $user_login,
+            'user_password' => $user_pass,
+            'rememberme'    => $remember_me
+        );
+
+        $re = wp_signon( $credits, false );
+
+        if ( is_wp_error($re) ) {
+            $user = user( $user_login );
+            if ( $user->exists() ) ferror( -40132, "Wrong password" );
+            else ferror( -40131, "Wrong username" );
+        }
+        else {
+            wp_send_json_success( $this->get_list_menu_user( $user_login ) );
+        }
+
+
+    }
+    public function logout() {
+        wp_logout();
+        $this->response( $this->get_list_menu_user() );
+    }
+
+
+    public function list_menu_user() {
+        $id = null;
+        if ( user()->login() ) $id = my()->user_login;
+        echo $this->get_list_menu_user($id);
+    }
+    public function get_list_menu_user($id = null) {
+
+        if ( $id ) {
+            return <<<EOH
+<div class="btn-group xforum-profile">
+  <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    $id Profile
+  </button>
+  <div class="dropdown-menu">
+    <h6 class="dropdown-header">$id Profile menu</h6>
+    <a class="dropdown-item" href="#">Update profile</a>
+    <a class="dropdown-item" href="#">List my posts</a>
+    <a class="dropdown-item" href="#">View comments of my posts</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item xforum-logout-button" href="#">Logout</a>
+  </div>
+</div>
+EOH;
+        }
+        else {
+            return <<<EOH
+    <button type="button" class="btn btn-primary xforum-login-button">Login</button>
+EOH;
+        }
+
+    }
+    public function list_menu_write() {
+        $url = $this->getUrlWrite();
+        echo <<<EOH
+        <a class="btn btn-primary" href="$url">Write</a>
+EOH;
+    }
+
 
 
 }

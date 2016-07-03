@@ -3,13 +3,14 @@ $category = forum()->getCategory();
 get_header();
 ?>
 
-
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
-    <a class="btn btn-primary" href="<?php forum()->urlWrite()?>">Write</a>
+
+
+<?php forum()->list_menu_write()?>
+<?php forum()->list_menu_user()?>
 
 <?php
-
 
 $posts = get_posts(
     [

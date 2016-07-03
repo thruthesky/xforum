@@ -12,12 +12,12 @@ if ( $category ) {
 }
 else {
 
-    $cat_ID = forum()->create()
+    $cat_ID = forum()
         ->set('cat_name', 'Test Forum')
         ->set('category_nicename', $test_slug)
         ->set('category_parent', $forum_category->term_id)
         ->set('category_description', 'This is the description of test forum.')
-        ->save();
+        ->create();
 }
 
 

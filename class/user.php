@@ -70,6 +70,8 @@ class user extends WP_User {
 
     /**
      *
+     * Check if the user has logged in.
+     *
      * @return bool - same as is_user_logged_in();
      * @code
      *      user()->login();
@@ -79,8 +81,11 @@ class user extends WP_User {
         return is_user_logged_in();
     }
 
+
+
     /**
      * set the user logged in without password check.
+     * @note This is stateless which means, on next access, the user is no longer logged in.
      * @param $user_login
      * @return false|WP_User
      */
@@ -96,6 +101,7 @@ class user extends WP_User {
 
 
     /**
+     * Returns a field value.
      * @param $field
      * @return bool|mixed
      */
@@ -114,7 +120,9 @@ class user extends WP_User {
     }
 
     /**
+     *
      * Creates a user
+     *
      * @param $meta
      *
      * @return int|WP_Error The newly created user's ID or a WP_Error object if the user could not
@@ -165,6 +173,12 @@ class user extends WP_User {
         }
     }
 
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @return bool|int
+     */
     public function __set( $key, $value )
     {
         return self::set( $key, $value );
@@ -285,21 +299,42 @@ class user extends WP_User {
     }
 
 
-    public function loginSubmit() {
+    /**
+     *
+     *
+     * @todo unit test
+     */
+    public function loginSubmit( ) {
+        $this->doLogin();
+    }
+
+    /**
+     * It does user login
+     *
+     * @param null $user_login
+     * @param null $user_pass
+     * @param null $remember_me
+     */
+    public function doLogin( $user_login=null, $user_pass=null, $remember_me=null) {
+        if ( empty($user_login) ) {
+            $user_login = in('user_login');
+            $user_pass = in('user_pass');
+            $remember_me = in('remember_me');
+        }
         $credits = array(
-            'user_login'    => in('user_login'),
-            'user_password' => in('user_pass'),
-            'rememberme'    => in('rememberme')
+            'user_login'    => $user_login,
+            'user_password' => $user_pass,
+            'rememberme'    => $remember_me
         );
         $re = wp_signon( $credits, false );
         if ( is_wp_error($re) ) {
             $user = user( in('user_login') );
-            if ( $user->exists() ) $re = json_error( -40132, "Wrong password" );
-            else $re = json_error( -40131, "Wrong username" );
-            wp_send_json( $re );
+            if ( $user->exists() ) ferror( -40132, "Wrong password" );
+            else ferror( -40131, "Wrong username" );
         }
-        else wp_send_json( json_success() );
+        else wp_send_json_success();
     }
+
 
 
 
@@ -330,12 +365,12 @@ function user( $uid = null ) {
  * @return user
  * @code
  *
-$user = user( in('user_email') );
-if ( $user->exists() ) {
-if ( $user->ID != my()->ID ) {
-wp_send_json(json_error(-20, 'email already exists.'));
-}
-}
+    $user = user( in('user_email') );
+    if ( $user->exists() ) {
+        if ( $user->ID != my()->ID ) {
+            wp_send_json(json_error(-20, 'email already exists.'));
+        }
+    }
  * @endcode
  */
 function my( $uid = null ) {

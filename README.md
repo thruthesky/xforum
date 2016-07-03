@@ -17,6 +17,10 @@ access index.php with "test=testAll" or "test=testForum", etc...
     - Just put [XXXXX] part of the class name.
 
 
+* 내공제를 한다.
+* 고수/중수/하수로 나눈다.
+* 고수는 자신의 글에 댓글을 삭제 할 수 있다.
+
 
 * If you are going to test on OSX or Linux, you need to have proper file permission since mkdir(), touch() will fail on test code of template hierarchy.
     * chmod 777 wp-content/plugins/xforum/template/
@@ -40,8 +44,8 @@ All the configuration (settings) format are in php INI format.
 
 # TODO
 
-
 * comment CRUD
+*
 * file CRUD
 * ITS template development.
 * @done : post CRUD
@@ -53,6 +57,8 @@ All the configuration (settings) format are in php INI format.
     => forum category is the project.
     => forum members are the members of its.
     => forum admins are the project managers.
+
+* Professional writing for SEO
 
 
 * Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
@@ -151,6 +157,7 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
         * see forum()->url_redirect()
         * you can use it both at the same time since wordpress wp_redirect() does not print out any data in the body.
         
+폼 전송을 할 때, json 문자열로 값을 전달 받거나 url redirect 를 할 수 있다.
 
 
 
@@ -210,7 +217,7 @@ Use this as much as you can.
 
 * Put file server in a different server.
 
-    * upload / delete
+    * upload / delete ( with authentication without cookie )
 
     * filename are converted in random string ( md5 + time() + ip ).
 
@@ -235,3 +242,14 @@ Use this as much as you can.
 * Do not consider image CDN. it's useless.
 * Care about PING route trip time to fast connect to web server.
     * If user can connect nearest web server among distributed ones, that's better.
+
+
+
+# Capsulate Code and make it in-dependency
+
+* you make a button with some css and js code.
+* make it as much in-dependency as it could be so it can be easily copied and pasted.
+* sample code is "<?php forum()->list_menu_user()?>". it can be copied and pasted in anywhere without editing.
+
+
+
