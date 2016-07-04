@@ -248,7 +248,7 @@ class testForum extends forum {
         $path = forum()->locateTemplate( $test_slug, 'temp' );
         isTrue( $path == $theme_flower_temp, "6: path: $path, expectation: $theme_flower_temp");
 
-        
+
         // delete the forum
         $re = forum()->delete($cat_ID);
         isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
