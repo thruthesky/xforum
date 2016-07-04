@@ -167,19 +167,30 @@ class forum {
         return home_url("?do=$method");
     }
 
+    /**
+     * @param null $slug
+     */
     public function urlWrite( $slug = null ) {
         echo $this->getUrlWrite( $slug );
     }
+
+
+    /**
+     * Returns URL of post write.
+     *
+     * @param null $slug
+     * @return null|string - if it's not forum page, then it returns.
+     */
     public function getUrlWrite( $slug = null )
     {
-        if ( empty($slug) ) $slug = forum()->getCategory()->slug;
-        return "?forum=edit&slug=$slug";
+        if ( in('forum') ) {
+            if ( empty($slug) ) $slug = forum()->getCategory()->slug;
+            return "?forum=edit&slug=$slug";
+        }
+        else return null;
     }
 
 
-    public function urlEdit( $post_ID ) {
-
-    }
 
 
     /**
@@ -639,14 +650,16 @@ class forum {
 
 
     /**
-     * @deprecated - use urlForumList
+     * @deprecated - use urlList
      */
     public function listURL($slug)
     {
-        return $this->urlForumList($slug);
+        $this->urlForumList($slug);
     }
 
     /**
+     *
+     * @deprecated use urlList()
      * Returns the URL of the forum list page.
      *
      *
@@ -656,11 +669,14 @@ class forum {
      */
     public function urlForumList($slug = null)
     {
-        if ( empty($slug) ) $slug = $this->getSlug();
-        return home_url("?forum=list&slug=$slug");
+        $this->urlList( $slug );
     }
 
-
+    public function urlList( $slug = null )
+    {
+        if ( empty($slug) ) $slug = $this->getSlug();
+        echo home_url("?forum=list&slug=$slug");
+    }
 
 
 
@@ -676,16 +692,26 @@ class forum {
         return $slug;
     }
     /**
-     *
-     * Returns URL of post edit.
-     *
+     * @deprecated use urlEdit
      * @param $ID
      * @return string|void
      *
      */
     public function urlPostEdit( $ID )
     {
-        return home_url("?forum=edit&post_ID=$ID");
+        echo $this->urlEdit( $ID );
+    }
+
+    /**
+     *
+     * Echoes URL of post edit.
+     *
+     * @param $post_ID
+     * @return string|void
+     */
+    public function urlEdit( $post_ID )
+    {
+        echo home_url("?forum=edit&post_ID=$post_ID");
     }
 
 
@@ -954,14 +980,16 @@ EOH;
     <button type="button" class="btn btn-primary xforum-login-button">Login</button>
 EOH;
         }
-
     }
+
     public function list_menu_write() {
-        $url = $this->getUrlWrite();
         echo <<<EOH
-        <a class="btn btn-primary" href="$url">Write</a>
+        <button class="btn btn-primary xforum-edit-button">Write</button>
 EOH;
     }
+
+
+
 
 
 

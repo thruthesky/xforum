@@ -121,3 +121,30 @@ EOH;
 
 
 
+function file_upload() {
+    echo <<<EOH
+<div class="file-upload">
+<form action="http://onfis.com/file-upload/index.php" target="hidden_iframe_file_upload" method="post" enctype="multipart/form-data">
+<input type="file" name="userfile" placeholder="Choose file" onchange="submit();">
+</form>
+</div>
+<script>
+
+
+window.addEventListener("message", receiveMessage, false);
+function receiveMessage( re ) {
+    alert( re.data.url );
+
+
+        var url = re.data.url;
+        var filename = re.data.filename;
+        var m = '<img class="file-upload" alt="'+filename+'" src="'+url+'"/>';
+
+        tinymce.activeEditor.insertContent(m);
+
+}
+</script>
+<iframe name="hidden_iframe_file_upload" src="javascript:;"></iframe>
+EOH;
+}
+

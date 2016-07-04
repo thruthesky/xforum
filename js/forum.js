@@ -1,28 +1,84 @@
 ( function ( $ ) {
 
+    var bEditClicked = false;
+
     var e = {
         'loginModal': function () {
             return $('#loginModal');
+        },
+        'loginButton' : function () {
+            return $('.xforum-login-button');
         }
     };
     var $body = $('body');
     $body.on('click', '.xforum-login-button', xForumLogin);
     $body.on('click', '.xforum-login-submit-button', xForumLoginSubmit);
     $body.on('click', '.xforum-logout-button', xForumLogoutSubmit);
+    $body.on('click', '.xforum-edit-button', xForumEditButton);
 
 
+    function xForumEditButton() {
+        var $button = $(this);
+        if ( e.loginButton().length ) {
+            bEditClicked = true;
+            openLoginBox();
+        }
+        else moveToWritePage();
+    }
+
+    /**
+     *
+     * Moves to the write page.
+     *
+     * @note It is called when write button is clicked.
+     *      - if the user logged in, it is called directly.
+     *      - if the user is not logged in,
+     *          - it first opens login box
+     *              - if login success it moves to write page.
+     *              - if login fail, don't move.
+     *
+     *
+     */
+    function moveToWritePage() {
+        location.href = xforum_write_url;
+    }
+
+
+    /**
+     *
+     */
     function xForumLogin() {
+        openLoginBox();
+    }
+
+    /**
+     *
+     * Opens user login box
+     *
+     * @note
+     */
+    function openLoginBox() {
         var $old = e.loginModal();
         if ( $old ) $old.remove();
         var m = html_bootstrap_login_popup();
         $body.append( m );
         var $loginModal = e.loginModal();
         $loginModal.modal();
+        /**
+         * @todo you need to do 'off' on each 'on'.
+         */
         $loginModal.on('hide.bs.modal', function(e) {
             console.log('close');
             $loginModal.remove();
         });
     }
+
+    /**
+     *
+     *
+     *
+     *
+     */
     function xForumLoginSubmit() {
         var $form = $(this).parents('.modal').find('form');
         var data = $form.serialize();
@@ -42,6 +98,10 @@
         });
     }
 
+    /**
+     *
+     *
+     */
     function xForumLogoutSubmit() {
         var url = home_url + '?forum=logout';
         console.log(url);
@@ -57,9 +117,25 @@
             }
         });
     }
+
+    /**
+     *
+     *
+     * @param html
+     */
     function callback_xforum_user_login(html) {
         $('.xforum-login-button').replaceWith( html );
+        if ( bEditClicked ) {
+            moveToWritePage();
+            bEditClicked = false;
+        }
     }
+
+    /**
+     *
+     *
+     * @param html
+     */
     function callback_xforum_user_logout(html) {
         $('.xforum-profile').replaceWith( html );
     }

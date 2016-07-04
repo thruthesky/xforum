@@ -20,9 +20,12 @@ add_action('init', function() {
 
 add_action('wp_head', function() {
     $home_url = home_url();
+    $write_url = forum()->getUrlWrite();
+
     echo <<<EOH
 <script>
 var home_url="$home_url";
+var xforum_write_url="$write_url";
 </script>
 EOH;
 });

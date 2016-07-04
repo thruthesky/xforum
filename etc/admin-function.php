@@ -126,3 +126,63 @@ function forum_edit_line_category( $term_id = 0 ) {
             </fieldset>
 EOH;
 }
+
+function forum_edit_line_view( $term_id = 0 ) {
+    echo <<<EOH
+    <fieldset class="form-group">
+    <div>
+        <div>Who can VIEW?</div>
+        <label class="radio-inline">
+            <input type="radio" name="view" value="anyone"> Anyone
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="view" value="site-member"> Site members
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="view" value="forum-member"> Forum members
+        </label>
+    </div>
+    <small class="text-muted">Choose who can write the posts and comments.</small>
+    </fieldset>
+EOH;
+}
+
+function forum_edit_line_write( $term_id = 0 ) {
+    echo <<<EOH
+    <fieldset class="form-group">
+    <div>
+        <div>Who can WRITE?</div>
+        <label class="radio-inline">
+            <input type="radio" name="write" value="anyone"> Anyone
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="write" value="site-member"> Site members
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="write" value="forum-member"> Forum members
+        </label>
+    </div>
+    <small class="text-muted">Choose who can write the posts and comments.</small>
+    </fieldset>
+EOH;
+}
+
+function forum_edit_line_list( $term_id = 0 ) {
+    echo <<<EOH
+    <fieldset class="form-group">
+    <div>
+        <div>Who can LIST?</div>
+        <label class="radio-inline">
+            <input type="radio" name="list" value="anyone"> Anyone
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="list" value="site-member"> Site members
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="list" value="forum-member"> Forum members
+        </label>
+    </div>
+    <small class="text-muted">Choose who can list the posts and comments. ( posts in list may change )</small>
+    </fieldset>
+EOH;
+}

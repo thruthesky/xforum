@@ -18,6 +18,9 @@
             <?php forum_edit_line_members() ?>
             <?php forum_edit_line_template() ?>
             <?php forum_edit_line_category() ?>
+            <?php forum_edit_line_view() ?>
+            <?php forum_edit_line_write() ?>
+            <?php forum_edit_line_list() ?>
             <input type="submit" class="btn btn-primary" value="Create Forum">
             <a href="<?php echo forum()->urlAdminPage()?>" type="button" class="btn btn-secondary forum-create-cancel-button">Cancel</a>
         </form>
