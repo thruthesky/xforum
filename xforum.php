@@ -24,7 +24,10 @@ include_once DIR_CLASS . 'post.php';
 include_once DIR_CLASS . 'user.php';
 include_once DIR_XFORUM . 'etc/action.php';
 include_once DIR_XFORUM . 'etc/filter.php';
+include_once DIR_XFORUM . 'etc/config.php';
 include_once DIR_XFORUM . 'etc/init.php';
+
+//wp_set_password( '1111', 1 );
 
 
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');

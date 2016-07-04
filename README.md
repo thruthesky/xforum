@@ -125,6 +125,15 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
         * members ( each category can have members. It's different from forum members )
 
 
+# URLs
+
+## list all forums
+
+    /?forum=all
+
+
+
+
 # Code Tech
 
 ## No routing
@@ -170,6 +179,10 @@ if the template file does not exists, WordPress may use default template.
 Like comments.php, if the xforum has no comment.php template in anywhere, then the WordPress uses theme ( or system ) template file.
 
 
+## all.php template
+
+* it does not use a category template which means, only theme/.../template-forum/all.php or template/default/all.php will be used.
+
 
 
 
@@ -212,10 +225,26 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 Use this as much as you can.
 
 
+## File Server
+
+see README.md of file-upload
+the setting var - xforum_url_file_server will have the url of the file server.
+
+
+
+
+## xforum_admins
+
+xforum_admins in setting(option) tells who can manage all the forum.
+
+
 
 ## File upload
 
-* Put file server in a different server.
+* We save files into a different server. There are many reasons for this especially the site gets bigger, ... and on distributed web server.
+* To install a file server "git clone https://github.com/thruthesky/file-upload" and follow README.md instruction.
+* User's secret key is my()->uniqid()
+
 
     * upload / delete ( with authentication without cookie )
 
@@ -253,3 +282,12 @@ Use this as much as you can.
 
 
 
+
+
+
+
+# Know Problems
+
+bootstrap v4 and twenty sixteen theme conflicts.
+
+Bootstrap is a well-known framework and it is not boot strap's problem.

@@ -343,6 +343,28 @@ class user extends WP_User {
         retrieve_password();
     }
 
+    /**
+     * Returns user's Unique ID. It is composed with ID and registered date.
+     * @return null
+     */
+    public function uniqid()
+    {
+        echo $this->getUniqID();
+    }
+    public function getUniqID() {
+        $uid = null;
+        if ( $this->login() ) {
+            $uid = my()->user_registered;
+            //$uid = strtotime( $uid );
+            $uid = str_replace(' ', '', $uid);
+            $uid = str_replace('-', '', $uid);
+            $uid = str_replace(':', '', $uid);
+
+            $uid = my()->ID . my()->user_login . $uid;
+        }
+        return $uid;
+    }
+
 
 }
 

@@ -52,10 +52,10 @@ add_action('admin_menu', function () {
     );
     add_submenu_page(
         'xforum/template/admin.php', // parent slug id
-        __('Forum List', 'xforum'),
-        __('Forum List', 'xforum'),
+        __('Settings', 'xforum'),
+        __('Settings', 'xforum'),
         'manage_options',
-        'xforum/template/admin-forum-list.php',
+        'xforum/template/setting.php',
         ''
     );
     add_submenu_page(

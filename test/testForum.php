@@ -211,9 +211,6 @@ class testForum extends forum {
 
 
 
-
-
-
         // check if the template name set properly.
         $category = get_category_by_slug( $test_slug );
         isTrue( forum()->meta( $category->cat_ID, 'template') == $template_name, "Template name was not set properly.");
@@ -247,7 +244,6 @@ class testForum extends forum {
         touch ( $theme_flower_temp );
         $path = forum()->locateTemplate( $test_slug, 'temp' );
         isTrue( $path == $theme_flower_temp, "6: path: $path, expectation: $theme_flower_temp");
-
 
         // delete the forum
         $re = forum()->delete($cat_ID);

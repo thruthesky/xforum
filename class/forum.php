@@ -58,6 +58,7 @@ class forum {
             'forum_create',
             'forum_edit',
             'forum_delete',
+            'setting_submit',
             'edit_submit',
             'delete_submit', // @todo implement ajax call.
             'comment_edit_submit', // @todo implement ajax call.
@@ -184,7 +185,9 @@ class forum {
     public function getUrlWrite( $slug = null )
     {
         if ( in('forum') ) {
-            if ( empty($slug) ) $slug = forum()->getCategory()->slug;
+            if ( empty($slug) ) {
+                $slug = forum()->getCategory()->slug;
+            }
             return "?forum=edit&slug=$slug";
         }
         else return null;
@@ -235,6 +238,16 @@ class forum {
         $this->response();
     }
 
+
+    public function setting_submit() {
+        $acceptable_setting_vars = ['xforum_url_file_server', 'xforum_admins', 'xforum_file_server_domain'];
+
+        foreach ( $acceptable_setting_vars as $e ) {
+            update_option($e, in($e));
+        }
+
+        $this->response();
+    }
     /**
      *
      * If there is $_REQUEST['return_url'], then it redirects and dies.
@@ -638,10 +651,23 @@ class forum {
         return $this->urlAdminPage();
     }
 
+    /**
+     * @deprecated use getUrlAdmin()
+     * @return string|void
+     */
     public function urlAdminPage() {
+        return $this->getUrlAdmin();
+    }
+    public function getUrlAdmin() {
         return home_url('wp-admin/admin.php?page=xforum%2Ftemplate%2Fadmin.php');
     }
+    public function urlAdmin() {
+        echo $this->getUrlAdmin();
+    }
 
+    public function urlAdminSetting() {
+        echo home_url('/wp-admin/admin.php?page=xforum%2Ftemplate%2Fsetting.php');
+    }
 
     public function urlForumCreate()
     {
@@ -779,6 +805,9 @@ class forum {
     public function setCategory($category_slug)
     {
         $this->category = get_category_by_slug( $category_slug );
+        if ( empty($this->category) ) {
+            wp_die("Error: Category(slug) - $category_slug - does not exists.");
+        }
         $this->loadConfig();
     }
 
@@ -987,10 +1016,6 @@ EOH;
         <button class="btn btn-primary xforum-edit-button">Write</button>
 EOH;
     }
-
-
-
-
 
 
 }

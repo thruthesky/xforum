@@ -167,6 +167,7 @@ function html_bootstrap_login_popup() {
         '           </div>' +
         '           <div class="modal-footer">' +
         '               <button type="button" class="btn btn-primary xforum-login-submit-button">User Login</button>' +
+        '               <button type="button" class="btn btn-secondary">Register</button>' +
         '               <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>' +
         '           </div>' +
         '       </div>' +

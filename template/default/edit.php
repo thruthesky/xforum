@@ -50,7 +50,7 @@ else {
         <label for="post-content">Content</label>
         <?php
         if ( $post ) {
-            $content = esc_html($post->content());
+            $content = $post->content();
         }
         else {
             $content = '';
