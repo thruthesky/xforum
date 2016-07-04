@@ -11,8 +11,23 @@ class testForumByViel extends forum
     public function runTest()
     {
         $this->crud();
-        $this->count();
-        $this->template();
+        $this->testCount();
+        $this->testTemplate();
+        $this->testInstance();
+    }
+
+    private function testInstance()
+    {
+        $forum1 = forum();
+        $forum2 = forum();
+
+        isTrue( $forum1 instanceof forum, "forum instance" );
+        isTrue( $forum2 instanceof forum, "forum instance" );
+        isTrue( forum() instanceof forum, "forum instance" );
+
+        isTrue( $forum1 instanceof post == false, "forum instance" );
+        isTrue( $forum2 instanceof post == false, "forum instance" );
+        isTrue( forum() instanceof post == false, "forum instance" );
     }
 
     public function crud(){
@@ -62,7 +77,7 @@ class testForumByViel extends forum
         isTrue( $category->parent == 0 , "forum not deleted : $cat_ID_update");
 
     }
-    public function count(){
+    public function testCount(){
 
         // initial count of forums
         $cat = forum()->getXForumCategory();
@@ -94,7 +109,7 @@ class testForumByViel extends forum
         $param_edit['do'] = 'forum_edit';
         $param_edit['term_id'] = $category->term_id; // changed cat_ID to term_id 7/4/2016
         $param_edit['cat_name'] = 'Test Forum on count() - Edited';
-        $param_edit['slug'] = $param['slug']; // change from category_nicename to slug 7/4/2016
+        $param_edit['slug'] = $param['slug'];  //change from category_nicename to slug 7/4/2016
         $param_edit['category_parent'] = $param['category_parent'];
         $param_edit['category_description'] = "This is a category created by unit test - Edited";
         $re = forum()->http_query( $param_edit );
@@ -130,7 +145,7 @@ class testForumByViel extends forum
 
     }
 
-    public function template(){
+    public function testTemplate(){
 
         // test forum with default template name
         $template_name = 'withcenter';

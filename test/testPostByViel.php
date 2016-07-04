@@ -11,6 +11,21 @@ class testPostByViel extends post
     public function runTest()
     {
         $this->post_crud();
+        $this->testInstance();
+    }
+
+    private function testInstance()
+    {
+        $post1 = post();
+        $post2 = post();
+
+        isTrue( $post1 instanceof post, "post instance" );
+        isTrue( $post2 instanceof post, "post instance" );
+        isTrue( post() instanceof post, "post instance" );
+
+        isTrue( $post1 instanceof forum == false, "post instance" );
+        isTrue( $post2 instanceof forum == false, "post instance" );
+        isTrue( post() instanceof forum == false, "post instance" );
     }
 
     private function post_crud()
