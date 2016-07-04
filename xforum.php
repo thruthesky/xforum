@@ -17,18 +17,19 @@ define( 'DIR_XFORUM', plugin_dir_path( __FILE__ ) );
 define( 'URL_XFORUM',  plugin_dir_url( __FILE__ ) );
 define( 'DIR_CLASS',  DIR_XFORUM . 'class/' );
 define( 'FORUM_CATEGORY_SLUG',  'xforum' );
-include DIR_XFORUM . 'etc/function.php';
+include_once DIR_XFORUM . 'etc/function.php';
 include_once DIR_CLASS . 'library.php';
 include_once DIR_CLASS . 'forum.php';
 include_once DIR_CLASS . 'post.php';
 include_once DIR_CLASS . 'user.php';
-include DIR_XFORUM . 'etc/action.php';
-include DIR_XFORUM . 'etc/filter.php';
-
+include_once DIR_XFORUM . 'etc/action.php';
+include_once DIR_XFORUM . 'etc/filter.php';
+include_once DIR_XFORUM . 'etc/init.php';
 
 
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');
-if ( in('class') ) {
+xlog( in() );
+if ( in('test') ) {
     add_action('wp_loaded', function() {
         include DIR_XFORUM . 'test/main.php';
     });

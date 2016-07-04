@@ -9,9 +9,24 @@
  * @return null
  *
  */
-function in( $name, $default = null ) {
-    if ( isset( $_POST[$name] ) ) return $_POST[$name];
-    else if ( isset( $_GET[$name] ) ) return $_GET[$name];
+global $_in;
+reset_http_query();
+/**
+ * Merge $_GET, $_POST into $_in
+ *
+ * Use this function if you change $_GET, $_POST.
+ *
+ * @note it does not use $_REQUEST
+ *
+ */
+function reset_http_query() {
+    global $_in;
+    $_in = array_merge( $_GET, $_POST );
+}
+function in( $name = null, $default = null ) {
+    global $_in;
+    if ( empty($name) ) return $_in;
+    else if ( isset($_in[$name]) ) return $_in[$name];
     else return $default;
 }
 
@@ -103,3 +118,33 @@ function jsBack($msg) {
 EOH;
     exit;
 }
+
+
+
+function file_upload() {
+    echo <<<EOH
+<div class="file-upload">
+<form action="http://onfis.com/file-upload/index.php" target="hidden_iframe_file_upload" method="post" enctype="multipart/form-data">
+<input type="file" name="userfile" placeholder="Choose file" onchange="submit();">
+</form>
+</div>
+<script>
+
+
+window.addEventListener("message", receiveMessage, false);
+function receiveMessage( re ) {
+    alert( re.data.url );
+
+
+        var url = re.data.url;
+        var filename = re.data.filename;
+        var m = '<img class="file-upload" alt="'+filename+'" src="'+url+'"/>';
+
+        tinymce.activeEditor.insertContent(m);
+
+}
+</script>
+<iframe name="hidden_iframe_file_upload" src="javascript:;"></iframe>
+EOH;
+}
+

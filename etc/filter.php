@@ -15,18 +15,26 @@ add_filter( 'template_include', function ( $template ) {
     $forum = in('forum');
 
     if ( $forum == 'list' ) {
-        $category_slug = in('id');
+        $category_slug = in('slug');
         forum()->setCategory( $category_slug );
         return forum()->locateTemplate( $category_slug, 'list');
     }
     else if ( $forum == 'edit' ) {
-        forum()->setCategoryByPostID( in('post_ID') );
+        if ( in('slug') ) { // new post
+            forum()->setCategory(in('slug'));
+        }
+        else { // edit post
+            // check if ownership.
+            forum()->endIfNotMyPost( in('post_ID') );
+            forum()->setCategoryByPostID( in('post_ID') );
+        }
         return forum()->locateTemplate( forum()->getCategory()->slug, 'edit');
     }
     else if ( is_single() ) {
         xlog("add_filter() : is_single()");
         $id = get_the_ID();
         if ( forum()->isPost($id) ) {
+            $GLOBALS['post_view_count'] = post()->increaseNoOfView( $id );
             forum()->setCategoryByPostID( $id );
             return forum()->locateTemplate( forum()->getCategory()->slug, 'view'); //
         }

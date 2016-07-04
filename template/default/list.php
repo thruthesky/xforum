@@ -2,39 +2,53 @@
 $category = forum()->getCategory();
 get_header();
 ?>
-
-
-    <h1><?php echo in('id') ?> LIST PAGE</h1>
-
-    <a class="btn btn-primary" href="?forum=edit&id=<?php echo $category->slug?>">Write</a>
-
-
-
-<?php
+<style>
+    .post-list {
+        margin: 1em 0;
+    }
+</style>
+    <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
 
 
-
-$posts = get_posts(
-    [
-        'category' => $category->cat_ID,
-    ]
-);
+<?php forum()->list_menu_write()?>
+<?php forum()->list_menu_user()?>
 
 
-foreach ( $posts as $post ) {
-    setup_postdata( $post );
-    ?>
+    <div class="post-list">
+        <?php
+        $posts = get_posts(
+            [
+                'category' => $category->term_id,
+            ]
+        );
 
-    <div>
-        <a href="<?php the_permalink()?>"><?php the_title()?></a>
+        if ( $posts ) { ?>
+            <table class="table">
+
+                <?php
+                foreach ( $posts as $post ) {
+                    setup_postdata( $post );
+                    ?>
+                    <tr>
+                        <td>
+                            <a href="<?php the_permalink()?>">
+                                <?php the_title()?>
+                                <?php forum()->count_comments( get_the_ID() ) ?>
+                            </a>
+                        </td>
+                        <td>
+                            <?php the_author()?>
+                        </td>
+                        <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
+
+                        <td>
+                            <?php the_date()?>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </table>
+        <?php } ?>
     </div>
-
-    <?php
-}
-
-?>
-
-
 
 <?php get_footer(); ?>

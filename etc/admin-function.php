@@ -6,14 +6,14 @@
  *
  * @param null $slug
  */
-function forum_edit_line_category_nicename($slug = null) {
+function forum_edit_line_slug($slug = null) {
     echo <<<EOH
 
             <fieldset class="form-group">
                 <label for="ForumID">
                     Forum ID
                 </label>
-                <input id='ForumID' class='form-control' type="text" name="category_nicename" placeholder="Please input forum ID" value="$slug">
+                <input id='ForumID' class='form-control' type="text" name="slug" placeholder="Please input forum ID" value="$slug">
                 <small class="text-muted">Input forum ID in lowercase letters, numbers and hypens. It is a slug.</small>
             </fieldset>
 
@@ -80,8 +80,8 @@ EOH;
 }
 
 
-function forum_edit_line_admins( $cat_ID = 0 ) {
-    if ( $cat_ID ) $admins = get_term_meta( $cat_ID, 'admins', true);
+function forum_edit_line_admins( $term_id = 0 ) {
+    if ( $term_id ) $admins = get_term_meta( $term_id, 'admins', true);
     else $admins = null;
     echo <<<EOH
             <fieldset class="form-group">
@@ -92,8 +92,8 @@ function forum_edit_line_admins( $cat_ID = 0 ) {
 EOH;
 }
 
-function forum_edit_line_members( $cat_ID = 0 ) {
-    if ( $cat_ID ) $members = get_term_meta( $cat_ID, 'members', true);
+function forum_edit_line_members( $term_id = 0 ) {
+    if ( $term_id ) $members = get_term_meta( $term_id, 'members', true);
     else $members = null;
     echo <<<EOH
             <fieldset class="form-group">
@@ -104,8 +104,8 @@ function forum_edit_line_members( $cat_ID = 0 ) {
 EOH;
 }
 
-function forum_edit_line_template( $cat_ID = 0 ) {
-    if ( $cat_ID ) $template = get_term_meta( $cat_ID, 'template', true);
+function forum_edit_line_template( $term_id = 0 ) {
+    if ( $term_id ) $template = get_term_meta( $term_id, 'template', true);
     else $template = null;
     echo <<<EOH
             <fieldset class="form-group">
@@ -115,8 +115,8 @@ function forum_edit_line_template( $cat_ID = 0 ) {
             </fieldset>
 EOH;
 }
-function forum_edit_line_category( $cat_ID = 0 ) {
-    if ( $cat_ID ) $category = get_term_meta( $cat_ID, 'category', true);
+function forum_edit_line_category( $term_id = 0 ) {
+    if ( $term_id ) $category = get_term_meta( $term_id, 'category', true);
     else $category = null;
     echo <<<EOH
             <fieldset class="form-group">
@@ -124,5 +124,65 @@ function forum_edit_line_category( $cat_ID = 0 ) {
                 <textarea class='form-control' id='ForumCategory' name="category" placeholder="Please input forum category">$category</textarea>
                 <small class="text-muted"><?php _e('Input forum category', 'xforum')?></small>
             </fieldset>
+EOH;
+}
+
+function forum_edit_line_view( $term_id = 0 ) {
+    echo <<<EOH
+    <fieldset class="form-group">
+    <div>
+        <div>Who can VIEW?</div>
+        <label class="radio-inline">
+            <input type="radio" name="view" value="anyone"> Anyone
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="view" value="site-member"> Site members
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="view" value="forum-member"> Forum members
+        </label>
+    </div>
+    <small class="text-muted">Choose who can write the posts and comments.</small>
+    </fieldset>
+EOH;
+}
+
+function forum_edit_line_write( $term_id = 0 ) {
+    echo <<<EOH
+    <fieldset class="form-group">
+    <div>
+        <div>Who can WRITE?</div>
+        <label class="radio-inline">
+            <input type="radio" name="write" value="anyone"> Anyone
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="write" value="site-member"> Site members
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="write" value="forum-member"> Forum members
+        </label>
+    </div>
+    <small class="text-muted">Choose who can write the posts and comments.</small>
+    </fieldset>
+EOH;
+}
+
+function forum_edit_line_list( $term_id = 0 ) {
+    echo <<<EOH
+    <fieldset class="form-group">
+    <div>
+        <div>Who can LIST?</div>
+        <label class="radio-inline">
+            <input type="radio" name="list" value="anyone"> Anyone
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="list" value="site-member"> Site members
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="list" value="forum-member"> Forum members
+        </label>
+    </div>
+    <small class="text-muted">Choose who can list the posts and comments. ( posts in list may change )</small>
+    </fieldset>
 EOH;
 }

@@ -7,12 +7,10 @@ class testPost extends post {
         parent::__construct();
     }
 
-
     public function runTest() {
         $this->testInstance();
         $this->crud();
     }
-
 
 
     private function testInstance()
@@ -96,13 +94,6 @@ class testPost extends post {
         $post = post()->delete($post_ID);
         isTrue( $post,"failed on post()->delete( $post_ID )");
 
-        // check if post is still exists; it should not exists
-        $args = array(
-            'ID' => $post_ID,
-            'post_status' => 'publish'
-        );
-        $post_check  = get_post($args);
-        isTrue( ! $post_check, "$post_ID shouldn't exist.");
 
         // delete the forum
         $re = forum()->delete($cat_ID);

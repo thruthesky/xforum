@@ -6,7 +6,7 @@ setup_postdata(get_post( $id ));
 get_header();
 ?>
 
-<h1><?php echo in('id') ?> VIEW PAGE : TITLE : <?php the_title()?></h1>
+<h1><?php echo in('slug') ?> VIEW PAGE : TITLE : <?php the_title()?></h1>
 
 content
 
@@ -16,6 +16,16 @@ content
     <?php the_content()?>
 </div>
 
+
+<hr>
+<a class="btn btn-primary" href="<?php forum()->urlEdit( get_the_ID() )?>">EDIT</a>
+<a class="btn btn-primary" href="<?php forum()->urlList()?>">LIST</a>
+<?php forum()->list_menu_user()?>
+<hr>
+No of views: <?php echo $GLOBALS['post_view_count']?>
+<hr>
+
+
 <?php
 // If comments are open or we have at least one comment, load up the comment template.
 if ( comments_open() || get_comments_number() ) {
@@ -24,12 +34,6 @@ if ( comments_open() || get_comments_number() ) {
 
 ?>
 
-
-
-<hr>
-    <a class="btn btn-primary" href="<?php echo forum()->urlPostEdit( get_the_ID() )?>">EDIT</a>
-    <a class="btn btn-primary" href="<?php echo forum()->urlForumList()?>">LIST</a>
-<hr>
 
 <?php get_footer(); ?>
 

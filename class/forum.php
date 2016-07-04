@@ -22,6 +22,67 @@ class forum {
     }
 
 
+
+
+
+    /**
+     *
+     * This method is called by 'http://abc.com/forum/submit' with $_REQUEST['do']
+     *
+     * Use this function to do action like below that does not display data to web browser.
+     *
+     *  - ajax call
+     *  - submission without display data and redirect to another page.
+     *
+     *
+     * @Note This method can only call a method in 'forum' class.
+     *
+     * @note it exits. This functions exists the script.
+     *
+     *  But echoes json string to indicates the result.
+     *
+     * @Attention All the functions inside this function must echo & exit with wp_send_json_error()/wp_send_json_success()
+     *
+     * @todo change 'do' to 'forum'.
+     * @todo put enough of test code here.
+     *
+     * @change 2016-06-30 the value of $_REQUEST['forum'] can be anything now. If it is not listed under $forum_do_list, then it just don't do anything. the script does not exit.
+     */
+    public function submit()
+    {
+        // @todo remove $_REQUEST['do']
+        $what = in('do');
+        if ( empty($what) ) $what = in('forum');
+
+        $forum_do_list = [
+            'forum_create',
+            'forum_edit',
+            'forum_delete',
+            'edit_submit',
+            'delete_submit', // @todo implement ajax call.
+            'comment_edit_submit', // @todo implement ajax call.
+            'comment_delete_submit', // @todo implement ajax call.
+            'file_upload', // @todo implement ajax call.
+            'file_delete', // @todo implement ajax call.
+            'blogger_getUsersBlogs',
+            'login',
+            'logout',
+        ];
+        if ( in_array( $what, $forum_do_list ) ) {
+            $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
+            exit; // no effect...
+        }
+        /**
+        else {
+        $error = "You cannot call the method - '$what' because the method is not listed on 'forum(do) list'.";
+        ferror( -4444, $error );
+        }
+         */
+
+    }
+
+
+
     /**
      * Returns very Top (root) XForum category.
      *
@@ -98,70 +159,38 @@ class forum {
      * @param $method
      * @return string|void
      * @code
-     *      <form action="<?php echo forum()->doURL('forum_create')?>" method="post">
+     *      <form action="<?php echo forum()->urlForumDo('forum_create')?>" method="post">
      * @encode
      */
-    public function doURL($method)
+    public function urlForumDo($method)
     {
         return home_url("?do=$method");
     }
 
-
+    /**
+     * @param null $slug
+     */
+    public function urlWrite( $slug = null ) {
+        echo $this->getUrlWrite( $slug );
+    }
 
 
     /**
+     * Returns URL of post write.
      *
-     * This method is called by 'http://abc.com/forum/submit' with $_REQUEST['do']
-     *
-     * Use this function to do action like below that does not display data to web browser.
-     *
-     *  - ajax call
-     *  - submission without display data and redirect to another page.
-     *
-     *
-     * @Note This method can only call a method in 'forum' class.
-     *
-     * @note it exits. This functions exists the script.
-     *
-     *  But echoes json string to indicates the result.
-     *
-     * @Attention All the functions inside this function must echo & exit with wp_send_json_error()/wp_send_json_success()
-     *
-     * @todo change 'do' to 'forum'.
-     *
-     * @change 2016-06-30 the value of $_REQUEST['forum'] can be anything now. If it is not listed under $forum_do_list, then it just don't do anything. the script does not exit.
+     * @param null $slug
+     * @return null|string - if it's not forum page, then it returns.
      */
-    public function submit()
+    public function getUrlWrite( $slug = null )
     {
-        // @todo remove $_REQUEST['do']
-        $what = in('do');
-        if ( empty($what) ) $what = in('forum');
-
-        $forum_do_list = [
-            'forum_create',
-            'forum_edit',
-            'forum_delete',
-            'edit_submit',
-            'delete_submit', // @todo implement ajax call.
-            'comment_edit_submit', // @todo implement ajax call.
-            'comment_delete_submit', // @todo implement ajax call.
-            'file_upload', // @todo implement ajax call.
-            'file_delete', // @todo implement ajax call.
-            'blogger_getUsersBlogs',
-            'login', // @todo implement ajax call.
-        ];
-        if ( in_array( $what, $forum_do_list ) ) {
-            $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
-            exit; // no effect...
+        if ( in('forum') ) {
+            if ( empty($slug) ) $slug = forum()->getCategory()->slug;
+            return "?forum=edit&slug=$slug";
         }
-        /**
-        else {
-        $error = "You cannot call the method - '$what' because the method is not listed on 'forum(do) list'.";
-        ferror( -4444, $error );
-        }
-         */
-
+        else return null;
     }
+
+
 
 
     /**
@@ -171,20 +200,21 @@ class forum {
      * @todo add test code. This assigned to viel.
      */
     public function edit_submit() {
-        $id = in('id'); // forum id ( slug ). It is only available on creating a new post.
+        $slug = in('slug'); // forum id ( slug ). It is only available on creating a new post.
         $post_ID = in('post_ID'); // post id. it is only available on updating a post.
         $title = in('title');
         $content = in('content');
 
-        if ( empty( $id ) && empty( $post_ID ) ) ferror(-50044, 'id ( category_slug ) or post_ID are not provided');
+        if ( empty( $slug ) && empty( $post_ID ) ) ferror(-50044, 'slug ( category_slug ) or post_ID are not provided');
         if ( ! $title ) ferror(-50045, 'title is not provided');
         if ( ! $content ) ferror(-50046,'content is not provided');
 
-        if ( $id ) {
+        if ( $slug ) { // new post
             //$category = get_category_by_slug( $id );
-            $this->setCategory( $id );
+            $this->setCategory( $slug );
         }
-        else {
+        else { // update post
+            forum()->endIfNotMyPost( $post_ID );
             $this->setCategoryByPostID( $post_ID );
         }
         $post = post()
@@ -193,7 +223,7 @@ class forum {
             ->set('post_content', $content)
             ->set('post_status', 'publish')
             ->set('post_author', wp_get_current_user()->ID);
-        if ( $id ) $re = $post->create();
+        if ( $slug ) $re = $post->create();
         else {
             $re = $post
                 ->set('ID', $post_ID)
@@ -202,12 +232,138 @@ class forum {
 
         if ( ! is_integer($re) ) ferror( -50048, "Failed on post_create() : $re");
 
-        $this->url_redirect();
-        wp_send_json_success();
+        $this->response();
+    }
+
+    /**
+     *
+     * If there is $_REQUEST['return_url'], then it redirects and dies.
+     * If not, it echoes json and dies.
+     *
+     * @attention on echoing json string, it echoes success. if there is error, use ferror()
+     * @param null $data
+     */
+    private function response( $data = null) {
+        if ( $this->url_redirect() ) {
+            die();
+        }
+        else {
+            wp_send_json_success( $data );
+        }
     }
 
 
 
+    public function endIfNotLogin() {
+        if ( ! is_user_logged_in() ) wp_die("Please login");
+    }
+
+    /**
+     * @param $post_ID
+     */
+    public function endIfNotMyPost($post_ID)
+    {
+        $this->checkOwnership( $post_ID, 'post' );       // check post owner.
+    }
+    public function endIfNotMyComment($comment_ID)
+    {
+        $this->checkOwnership( $comment_ID, 'comment' );       // check comment owner.
+    }
+
+    /**
+     *
+     * Exits if the user has no right to edit/delete on the $post_id
+     *
+     * @Attention if the logged-in user is admin, then he can do 'edit/delete'
+     *
+     * @param $id
+     * @param string $type
+     *
+     * @return bool
+     */
+    private function checkOwnership( $id, $type='post' )
+    {
+        if ( ! is_user_logged_in() ) wp_die("Please login");
+
+        if ( current_user_can( 'manage_options' ) ) return true;
+
+        $user = wp_get_current_user();
+        $user_id = 0;
+        if ( $user->exists() ) {
+            if ( $type == 'post' ) {
+                $post = get_post( $id );
+                if ( empty($post) ) { // if post does not exists, it is a new post writing.
+                    wp_die("Post does not exists");
+                }
+                $user_id = $post->post_author;
+            }
+            else if ( $type == 'comment' ) {
+                $comment = get_comment( $id );
+                if ( empty( $comment ) ) wp_die("Comment does not exists");
+                $user_id = $comment->user_id;
+            }
+            else wp_die( 'Wrong Post Type Check');
+
+            if ( $user->ID == $user_id ) {
+                // ok
+            }
+            else {
+                wp_die("You are not the owner of the $type");
+            }
+        }
+        else {
+            wp_die("User does not exists.");
+        }
+        return true;
+    }
+
+
+
+
+    /**
+     * Creates / Updates a comment.
+     *
+     *
+     *
+     */
+    private function comment_edit_submit( ) {
+
+        //
+        if ( $comment_ID = in( 'comment_ID' ) ) { // update
+            $this->endIfNotMyComment( $comment_ID );
+            $comment = get_comment( $comment_ID );
+            $post_ID = $comment->comment_post_ID;
+            $re = wp_update_comment([
+                'comment_ID' => $comment_ID,
+                'comment_content' => in('comment_content')
+            ]);
+
+            if ( ! $re ) {
+                // error or content has not changed.
+            }
+        }
+        else { // new
+            $post_ID = in('post_ID');
+            $comment_ID = wp_insert_comment([
+                'comment_post_ID' => $post_ID,
+                'comment_parent' => in('comment_parent'),
+                'user_id' => wp_get_current_user()->ID,
+                'comment_content' => in('comment_content'),
+                'comment_approved' => 1,
+            ]);
+            if ( ! $comment_ID ) {
+                wp_die("Comment was not created");
+            }
+        }
+
+        //$this->updateFileWithPost( FORUM_COMMENT_POST_NUMBER  + $comment_ID );
+
+        $url = get_permalink( $post_ID ) . '#comment-' . $comment_ID ;
+
+        wp_redirect( $url ); // redirect to view the newly created post.
+
+        wp_send_json_success();
+    }
     /**
      *
      *
@@ -231,14 +387,21 @@ class forum {
      */
     public function forum_create() {
 
-        if ( ! in('category_nicename') ) ferror(-50020, 'category_nicename(Forum ID) is not provided');
+        if ( ! in('slug') ) ferror(-50020, 'category_nicename(Forum ID) is not provided');
         if ( ! in('category_description') ) wp_send_json_error(['code'=>-50021,'message'=>'category_description is not provided']);
         if ( ! in('cat_name') ) wp_send_json_error(['code'=>-50022,'message'=>'cat_name(Forum Name) is not provided']);
+
+        /**
+         * Put category parent ID
+         */
+        if ( ! $category_parent = in('category_parent') ) {
+            $category_parent = get_category_by_slug( FORUM_CATEGORY_SLUG )->term_id;
+        }
         $catarr = array(
             'cat_name' =>in('cat_name'),
             'category_description' => in('category_description'),
-            'category_nicename' => in('category_nicename'),
-            'category_parent' => get_category_by_slug( FORUM_CATEGORY_SLUG )->term_id
+            'category_nicename' => in('slug'),
+            'category_parent' => $category_parent
         );
 
         $term_ID = $this->createOrUpdate( $catarr );
@@ -248,21 +411,20 @@ class forum {
         }
 
         $this->updateMeta( $term_ID );
-        $this->url_redirect();
-        wp_send_json_success();
+        $this->response();
     }
 
     public function forum_edit() {
-        if ( ! in('cat_ID') ) ferror(-50014, 'cat_ID is not provided');
+        if ( ! in('term_id') ) ferror(-50014, 'term_id is not provided');
         if ( ! in('category_parent') ) ferror(-50015, 'category_parent is not provided');
-        if ( ! in('category_nicename') ) ferror(-50016,'category_nicename is not provided');
+        if ( ! in('slug') ) ferror(-50016,'slug is not provided');
         if ( ! in('category_description') ) ferror(-50017, 'category_description is not provided');
         if ( ! in('cat_name') ) ferror(-50018, 'cat_name(Forum Name) is not provided');
         $catarr = array(
-            'cat_ID' => in('cat_ID'),
+            'cat_ID' => in('term_id'),
             'cat_name' =>in('cat_name'),
             'category_description' => in('category_description'),
-            'category_nicename' => in('category_nicename'),
+            'category_nicename' => in('slug'),
             'category_parent' => in('category_parent')
         );
 
@@ -271,8 +433,7 @@ class forum {
             wp_send_json_error( ['code'=>-4101, 'message'=>$term_ID->get_error_message()] );
         }
         $this->updateMeta( $term_ID );
-        $this->url_redirect();
-        wp_send_json_success();
+        $this->response();
     }
 
 
@@ -332,6 +493,10 @@ class forum {
 
 
 
+    public function count_comments( $post_ID ) {
+        $count = wp_count_comments( $post_ID );
+        if ( $count->approved )  echo "({$count->approved})";
+    }
 
 
 
@@ -346,7 +511,7 @@ class forum {
      *
      * @code Examples
      *      http://work.org/wordpress-4.5.3/?do=forum_delete&cat_ID=86&return_url=http%3A%2F%2Fwork.org%2Fwordpress-4.5.3%2Fwp-admin%2Fadmin.php%3Fpage%3Dxforum%252Ftemplate%252Fadmin.php
-     *      <a href="<?php echo forum()->doURL('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a>
+     *      <a href="<?php echo forum()->urlForumDo('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a>
      * @endcode
      */
     public function forum_delete() {
@@ -366,11 +531,11 @@ class forum {
                 wp_send_json_success();
             }
             else {
-                wp_send_json_error(['code'=>-50011, 'message'=>'cat_ID is ok. But category does not exists.']);
+                wp_send_json_error(['code'=>-50011, 'message'=>'term_id is ok. But category does not exists.']);
             }
         }
         else {
-            wp_send_json_error(['code'=>-50010, 'message'=>'cat_ID is empty']);
+            wp_send_json_error(['code'=>-50010, 'message'=>'term_id is empty']);
         }
     }
 
@@ -442,15 +607,25 @@ class forum {
     }
 
     /**
+     *
+     *
+     *
      * It redirect current page to the page of $_REQUEST['url_redirect'].
      *
      * @note it does not do anything if $_REQUEST['url_redirect'] is empty.
      *
+     * @return bool - true if it redirected.
+     *
      */
     private function url_redirect()
     {
-        if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
-        wp_redirect( in('return_url') );
+        $url = in('return_url');
+        if ( empty( $url ) ) return false;
+        else {
+            if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
+            wp_redirect( in('return_url') );
+            return true;
+        }
     }
 
 
@@ -475,14 +650,16 @@ class forum {
 
 
     /**
-     * @deprecated - use urlForumList
+     * @deprecated - use urlList
      */
     public function listURL($slug)
     {
-        return $this->urlForumList($slug);
+        $this->urlForumList($slug);
     }
 
     /**
+     *
+     * @deprecated use urlList()
      * Returns the URL of the forum list page.
      *
      *
@@ -492,27 +669,55 @@ class forum {
      */
     public function urlForumList($slug = null)
     {
-        if ( empty($slug) )  $slug = $this->getCategory()->slug;
-        return home_url("?forum=list&id=$slug");
+        $this->urlList( $slug );
     }
 
+    public function urlList( $slug = null )
+    {
+        if ( empty($slug) ) $slug = $this->getSlug();
+        echo home_url("?forum=list&slug=$slug");
+    }
+
+
+
+
     /**
-     *
-     * Returns URL of post edit.
-     *
+     * Returns the slug of the current forum.
+     * @return null
+     */
+    public function getSlug() {
+        if ( ! $slug = in('slug') ) {
+            if ( $this->getCategory() ) $slug = $this->getCategory()->slug;
+        }
+        return $slug;
+    }
+    /**
+     * @deprecated use urlEdit
      * @param $ID
      * @return string|void
      *
      */
     public function urlPostEdit( $ID )
     {
-        return home_url("?forum=edit&post_ID=$ID");
+        echo $this->urlEdit( $ID );
+    }
+
+    /**
+     *
+     * Echoes URL of post edit.
+     *
+     * @param $post_ID
+     * @return string|void
+     */
+    public function urlEdit( $post_ID )
+    {
+        echo home_url("?forum=edit&post_ID=$post_ID");
     }
 
 
     public function urlAdminForumEdit($term_id)
     {
-        return $this->urlAdminPage() . "&template=adminForumEdit&cat_ID=$term_id";
+        return $this->urlAdminPage() . "&template=adminForumEdit&term_id=$term_id";
     }
 
     public function categories()
@@ -712,6 +917,82 @@ class forum {
     }
 
 
+    /**
+     *
+     */
+    public function login() {
+
+        $user_login = trim(in('id'));
+        $user_pass = in('password');
+        $remember_me = 1;
+
+        $credits = array(
+            'user_login'    => $user_login,
+            'user_password' => $user_pass,
+            'rememberme'    => $remember_me
+        );
+
+        $re = wp_signon( $credits, false );
+
+        if ( is_wp_error($re) ) {
+            $user = user( $user_login );
+            if ( $user->exists() ) ferror( -40132, "Wrong password" );
+            else ferror( -40131, "Wrong username" );
+        }
+        else {
+            wp_send_json_success( $this->get_list_menu_user( $user_login ) );
+        }
+
+
+    }
+    public function logout() {
+        wp_logout();
+        $this->response( $this->get_list_menu_user() );
+    }
+
+
+    public function list_menu_user() {
+        $id = null;
+        if ( user()->login() ) $id = my()->user_login;
+        echo $this->get_list_menu_user($id);
+    }
+    public function get_list_menu_user($id = null) {
+
+        if ( $id ) {
+            return <<<EOH
+<div class="btn-group xforum-profile">
+  <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    $id Profile
+  </button>
+  <div class="dropdown-menu">
+    <h6 class="dropdown-header">$id Profile menu</h6>
+    <a class="dropdown-item" href="#">Update profile</a>
+    <a class="dropdown-item" href="#">List my posts</a>
+    <a class="dropdown-item" href="#">View comments of my posts</a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item xforum-logout-button" href="#">Logout</a>
+  </div>
+</div>
+EOH;
+        }
+        else {
+            return <<<EOH
+    <button type="button" class="btn btn-primary xforum-login-button">Login</button>
+EOH;
+        }
+    }
+
+    public function list_menu_write() {
+        echo <<<EOH
+        <button class="btn btn-primary xforum-edit-button">Write</button>
+EOH;
+    }
+
+
+
+
+
+
 }
 
 
@@ -721,6 +1002,7 @@ $__forum = null;
  *
  * @note This function caches on memory. so no matter how many times you call this function, it does not produce burden on Process.
  * @return forum
+ *
  */
 function forum() {
     global $__forum;

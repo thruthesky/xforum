@@ -142,6 +142,43 @@ class post {
     }
 
 
+    /**
+     * Increase post view count and returns new number.
+     *
+     * @param $post_ID
+     * @return int|mixed
+     * @code Use this on post list plugin code ( not in theme code )
+     *      $GLOBALS['post_view_count'] = post()->increaseNoOfView( $id );
+     * @endcode
+     */
+    public function increaseNoOfView( $post_ID )
+    {
+        $count_key = 'no_of_views';
+        $count = get_post_meta($post_ID, $count_key, true);
+        if( empty($count) ) {
+            $count = 1;
+            delete_post_meta($post_ID, $count_key);
+            add_post_meta($post_ID, $count_key, $count);
+        }
+        else{
+            $count ++;
+            update_post_meta($post_ID, $count_key, $count);
+        }
+        return $count;
+    }
+
+    /**
+     * Returns post view count.
+     * @note Use this code in theme code
+     * @param $post_ID
+     * @return int|mixed
+     */
+    public function getNoOfView($post_ID)
+    {
+        $count_key = 'no_of_views';
+        $count = get_post_meta($post_ID, $count_key, true);
+        return $count ? $count : 0;
+    }
 
 }
 

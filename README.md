@@ -12,14 +12,24 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 access index.php with "test=testAll" or "test=testForum", etc...
 
-* the value of 'test' key is the name of the class file.
+* the value of 'test' key is the name of the test class file.
+    - names of test file is like test[XXXXX].php
+    - Just put [XXXXX] part of the class name.
 
 
+* 내공제를 한다.
+* 고수/중수/하수로 나눈다.
+* 고수는 자신의 글에 댓글을 삭제 할 수 있다.
 
-$ curl "http://work.org/wordpress-4.5.3/?class=all"
-$ curl "http://work.org/wordpress-4.5.3/?class=testFunction"
-$ curl "http://work.org/wordpress-4.5.3/?class=testForum&method=crud"
-$ curl "http://work.org/wordpress-4.5.3/?class=testPost"
+
+* If you are going to test on OSX or Linux, you need to have proper file permission since mkdir(), touch() will fail on test code of template hierarchy.
+    * chmod 777 wp-content/plugins/xforum/template/
+    * chmod 777 wp-content/themes/twentysixteen/
+
+$ curl "http://work.org/wordpress-4.5.3/?test=all"
+$ curl "http://work.org/wordpress-4.5.3/?test=Function"
+$ curl "http://work.org/wordpress-4.5.3/?test=Forum&method=crud"
+$ curl "http://work.org/wordpress-4.5.3/?test=Post"
 
 
 
@@ -34,8 +44,8 @@ All the configuration (settings) format are in php INI format.
 
 # TODO
 
-
 * comment CRUD
+*
 * file CRUD
 * ITS template development.
 * @done : post CRUD
@@ -47,6 +57,8 @@ All the configuration (settings) format are in php INI format.
     => forum category is the project.
     => forum members are the members of its.
     => forum admins are the project managers.
+
+* Professional writing for SEO
 
 
 * Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
@@ -145,6 +157,7 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
         * see forum()->url_redirect()
         * you can use it both at the same time since wordpress wp_redirect() does not print out any data in the body.
         
+폼 전송을 할 때, json 문자열로 값을 전달 받거나 url redirect 를 할 수 있다.
 
 
 
@@ -180,9 +193,63 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
     - on 'template_include' filter
         - relate( locate ) template files of forum depending on $_REQUEST['forum'] and $_REQUEST['id'], etc.
             - $_REQUEST['forum'] is in 'list, new, edit, view, etc...'
+- etc/init.php
 
 ## Life Cycle of XForum List Page
 
+
+-> "?forum=list"
+    -> add_filter( 'template_include', ... )
+        -> locateTemplate()
+            -> list.php ( template hierarchy )
+
+
+
+# Coding Guide
+
+## forum()->getCategory()->xxxx
+
+Use this as much as you can.
+
+
+
+## File upload
+
+* Put file server in a different server.
+
+    * upload / delete ( with authentication without cookie )
+
+    * filename are converted in random string ( md5 + time() + ip ).
+
+    * filename saved in file server and will be used in A tag or IMG tag in post/comment content.
+
+        any file which has part of "/data/upload/wp/" in its URL, it is considered as wordpress files.
+
+        ie) <img src="http://file.server.com/data/upload/wp/abcdeghi.jpg">
+        ie) <a href="http://w1.my-web-server.com/~thruthesky/category/data/upload/wp/abc.exe">
+
+
+    * HOW-TO clean garbage files.
+
+        * delete files on file server that are not used in the post/comment content.
+        * to do this, first get all the list of files in file server and get all the list of file that are used in post content, comment content.
+            * compare the list and find files of file server that are not exists in post/comment content and delete it.
+
+
+
+# Tuning
+
+* Do not consider image CDN. it's useless.
+* Care about PING route trip time to fast connect to web server.
+    * If user can connect nearest web server among distributed ones, that's better.
+
+
+
+# Capsulate Code and make it in-dependency
+
+* you make a button with some css and js code.
+* make it as much in-dependency as it could be so it can be easily copied and pasted.
+* sample code is "<?php forum()->list_menu_user()?>". it can be copied and pasted in anywhere without editing.
 
 
 

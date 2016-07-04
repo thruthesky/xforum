@@ -16,23 +16,66 @@ else {
 
 ?>
 
-    <h1><?php echo in('id') ?> EDIT PAGE</h1>
+    <h1><?php echo in('slug') ?> EDIT PAGE</h1>
+
+<style>
+    .post-edit-box {
+        position: relative;
+    }
+    .post-edit-box .buttons {
+        text-align:right;
+    }
+    .file-upload {
+        position: absolute;
+        bottom: 0;
+    }
+</style>
+<div class="post-edit-box">
 
 <form action="?">
     <input type="hidden" name="forum" value="edit_submit">
-    <?php if ( in('id') ) { ?>
-        <input type="hidden" name="id" value="<?php echo in('id')?>">
+    <?php if ( in('slug') ) { ?>
+        <input type="hidden" name="slug" value="<?php echo in('slug')?>">
     <?php } else { ?>
         <input type="hidden" name="post_ID" value="<?php echo in('post_ID')?>">
     <?php } ?>
     <input type="hidden" name="on_error" value="alert_and_go_back">
-    <input type="hidden" name="return_url" value="<?php echo forum()->urlForumList()?>">
+    <input type="hidden" name="return_url" value="<?php forum()->urlList()?>">
+    <fieldset class="form-group">
+        <label for="post-title">Title</label>
+        <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() )?>">
+        <small class="text-muted">Please, input post title.</small>
+    </fieldset>
+    <fieldset class="form-group">
+        <label for="post-content">Content</label>
+        <?php
+        if ( $post ) {
+            $content = esc_html($post->content());
+        }
+        else {
+            $content = '';
+        }
+        $editor_id = 'new-content';
+        $settings = array(
+            'textarea_name' => 'content',
+            'media_buttons' => false,
+            'textarea_rows' => 5,
+            'quicktags' => false
+        );
+        wp_editor( $content, $editor_id, $settings );
 
-    <div>
-        <input type="text" name="title" value="<?php echo esc_html( $post->title() )?>">
+        ?>
+    </fieldset>
+
+
+    <div class="buttons">
+        <input type="submit">
     </div>
-    <div><textarea name="content"><?php echo esc_html( $post->content() )?></textarea></div>
-    <input type="submit">
 </form>
+
+
+<?php file_upload()?>
+
+</div>
 
 <?php get_footer(); ?>

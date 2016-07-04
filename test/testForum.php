@@ -50,7 +50,7 @@ class testForum extends forum {
         $param = [];
         $param['do'] = 'forum_create';
         $param['cat_name'] = 'Test Forum';
-        $param['category_nicename'] = $slug;
+        $param['slug'] = $slug; // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
@@ -72,7 +72,7 @@ class testForum extends forum {
         $param = [];
         $param['do'] = 'forum_create';
         $param['cat_name'] = 'Test Forum';
-        $param['category_nicename'] = $slug;
+        $param['slug'] = $slug; // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
@@ -81,7 +81,7 @@ class testForum extends forum {
         // update. change the category name.
         $category = get_category_by_slug($slug);
         $param['do'] = 'forum_edit';
-        $param['cat_ID'] = $category->term_id;
+        $param['term_id'] = $category->term_id; // changed cat_ID to term_id 7/4/2016
         $param['cat_name'] = 'Test Forum Name Has Changed';
         $re = forum()->http_query( $param );
         isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_edit : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
@@ -108,7 +108,7 @@ class testForum extends forum {
         $param = [];
         $param['do'] = 'forum_create';
         $param['cat_name'] = 'Test Forum';
-        $param['category_nicename'] = 'cat-count-test' . uniqid();
+        $param['slug'] = 'cat-count-test' . uniqid(); // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
