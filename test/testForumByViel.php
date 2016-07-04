@@ -44,6 +44,7 @@ class testForumByViel extends forum
             ->set('category_description', 'test-description')
             ->save();
         isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+        isTrue( $cat_ID == true, "failed on forum()->create()->save() : $cat_ID");
 
         // delete the forum
         $re = forum()->delete($cat_ID);
@@ -57,6 +58,7 @@ class testForumByViel extends forum
             ->set('category_description', 'test-description-second create')
             ->save();
         isTrue( is_integer($cat_ID), "failed on forum()->create()->save() second create : $cat_ID");
+        isTrue( $cat_ID == true, "failed on forum()->create()->save() second create: $cat_ID");
 
          // update/edit the forum
         $cat_ID_update = forum()->create()
@@ -67,6 +69,8 @@ class testForumByViel extends forum
             ->set('category_description', 'test-description - edited')
             ->save();
         isTrue( is_integer($cat_ID_update), "failed on forum()->create()->save() edit : $cat_ID_update");
+        isTrue( $cat_ID_update == true, "failed on forum()->create()->save() edit: $cat_ID_update");
+
 
         // delete the forum
         $re = forum()->delete($cat_ID_update);
@@ -178,6 +182,7 @@ class testForumByViel extends forum
             ->set('category_description', 'test-description')
             ->save();
         isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+        isTrue( $cat_ID == true, "failed on forum()->create()->save(): $cat_ID");
 
         // put the template sa $template_name
         forum()->meta($cat_ID, 'template', $template_name);
@@ -246,7 +251,7 @@ class testForumByViel extends forum
         isTrue( $path == $plugin_default_temp, "4b: path: $path, expectation: $plugin_default_temp");
 
 
-        // remove all templates. & create theme/template/custom/temp.php
+        // remove all templates.
         $this->deleteAllTemplates($template_name);
 
         // delete the forum
