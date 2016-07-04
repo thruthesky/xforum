@@ -45,7 +45,6 @@ class testPostByViel extends post
             ->set('category_description', 'test-description')
             ->save();
         isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
-        isTrue( $cat_ID == true, "failed on forum()->create()->save() : $cat_ID");
 
         // initial count for published posts
         $initial_count = wp_count_posts()->publish;
@@ -76,7 +75,6 @@ class testPostByViel extends post
             ->set('post_author', $author->ID)
             ->update();
         isTrue( is_integer($update_ID), "failed on post()->update() : $update_ID");
-        isTrue( $update_ID == true, "failed on post()->update(): $update_ID");
 
         // check is post is updated not inserted again or not duplicated
         isTrue( $post_ID == $update_ID, "Post is not updated, Another post was inserted with the ID: $update_ID");
