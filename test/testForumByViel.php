@@ -21,8 +21,6 @@ class testForumByViel extends forum
         // forum slug
         $test_slug = "test-slug" . uniqid();
 
-        // delete if slug exists
-
         // create the forum of the slug
         $cat_ID = forum()->create()
             ->set('cat_name', 'cat-name-test')
@@ -110,7 +108,7 @@ class testForumByViel extends forum
         // compare the initial count to count when edit a post; should only add one because the other was only edited not inserted
         isTrue( ($no_of_categories + 1) == $no_of_categories_edit, "No of categories is wrong. prev: $no_of_categories, new: $no_of_categories_edit");
 
-        // delete one (Not really deleted, we just remove it from xforum parent category)
+        // delete forum (Not really deleted, we just remove it from xforum parent category)
         $category = get_category_by_slug( $param_edit['slug'] );
         $param_delete = [];
         $param_delete['do'] = 'forum_delete';
@@ -125,9 +123,8 @@ class testForumByViel extends forum
         $cat = forum()->getXForumCategory();
         $categories4 = lib()->get_categories_with_depth( $cat->term_id, 0, 'no-cache' );
         $no_of_categories_delete = count($categories4);
-        //echo " count:" .$no_of_categories ." " .$no_of_categories_delete;
 
-        // compare initial count to the count after delete; should be the same since we deleted what we created
+        // compare initial count to the count after delete;
         isTrue( $no_of_categories == ($no_of_categories_delete - 1), "No of categories is wrong. prev: $no_of_categories, new: $no_of_categories_delete");
 
 
