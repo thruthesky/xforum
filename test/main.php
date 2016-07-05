@@ -70,7 +70,7 @@ function check( $re, $ok='', $bad='', $end = false ) {
         echo "OK: $__count_isTrue : $ok<br>\n";
     }
     else {
-        msg( "ERROR: $bad<br>\n");
+        msg( "<b style='color:red;'>ERROR:</b> $bad<br>\n");
         if ( $end ) die();
     }
 }
