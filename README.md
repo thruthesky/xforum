@@ -314,6 +314,18 @@ Developers must fully understand about file upload to apply t in his need.
 
 
 
+# Installation
+
+* git clone xforum
+
+* activate it from admin page.
+
+* test it.
+
+
+
+
+
 # Tuning
 
 * Do not consider image CDN. it's useless.

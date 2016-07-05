@@ -8,8 +8,14 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
 
     <div class="forum-list">
 
+
         <a class="button btn-primary forum-create-button" href="<?php url_forum_create()?>">
             Create Forum
+        </a>
+
+
+        <a class="button btn-primary" href="<?php echo home_url('?test=all')?>" target="_blank">
+            TEST XForum ( Unit Testing )
         </a>
 
 

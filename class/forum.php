@@ -580,9 +580,12 @@ class forum {
      * @endcode
      */
     public function forum_delete() {
+
+        $term_id = in('term_id');
+        if ( empty( $term_id ) ) ferror( -50043, 'term_id is not provided.');
+
         if ( ! function_exists('wp_insert_category') ) require_once (ABSPATH . "/wp-admin/includes/taxonomy.php");
         //wp_delete_category();
-        if ( empty(in('term_id') ) ) ferror( -50043, 'term_id is not provided.');
         if ( $term_id = in('term_id') ) {
             $category = get_category( $term_id );
             if ( $category ) {

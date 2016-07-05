@@ -22,7 +22,7 @@ if ( $class == 'testall' ) {
 else testClass( $class );
 
 
-xlog("xforum.php ends -----------------------");
+xlog("xforum.php TEST ends -----------------------");
 exit;
 
 
@@ -32,9 +32,13 @@ exit;
 function testClass( $class ) {
     $obj = new $class();
     if ( $method = in('method') ) {
+        xlog("$class ->$method ()");
         $obj->$method();
     }
-    else $obj->runTest();
+    else {
+        xlog("$class ->runTest()");
+        $obj->runTest();
+    }
 }
 
 
