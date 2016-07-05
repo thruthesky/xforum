@@ -2,49 +2,14 @@
 New forum for withcenter company.
 
 
-
 # documents
 
 https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/edit#
 
 
-# How to test / UnitTest
-
-access index.php with "test=testAll" or "test=testForum", etc...
-
-* the value of 'test' key is the name of the test class file.
-    - names of test file is like test[XXXXX].php
-    - Just put [XXXXX] part of the class name.
-
-
-* Windows 8 + Nginx + PHP-FPM ( PHP 5.4 ) + cURL has a problem. it does not see hosts file.
-    * cURL works file with actual Domain but not the domains in hosts file in windows.
-    * OSX + Nginx + PHP-FPM + cURL work fine.
-    
-
-* If you are going to test on OSX or Linux, you need to have proper file permission since mkdir(), touch() will fail on test code of template hierarchy.
-    * chmod 777 wp-content/plugins/xforum/template/
-    * chmod 777 wp-content/themes/twentysixteen/
-
-$ curl "http://work.org/wordpress-4.5.3/?test=all"
-$ curl "http://work.org/wordpress-4.5.3/?test=Function"
-$ curl "http://work.org/wordpress-4.5.3/?test=Forum&method=crud"
-$ curl "http://work.org/wordpress-4.5.3/?test=Post"
-
-
-
-# Configuration in php.ini format
-
-All the configuration (settings) format are in php INI format.
-
-
-    http://php.net/manual/en/function.parse-ini-string.php
-
-
-
 # TODO
-
-* comment CRUD
+* create ITS and put all the works on it.
+* @done comment CRUD
 *
 * file CRUD
 * ITS template development.
@@ -130,6 +95,42 @@ All the configuration (settings) format are in php INI format.
     
     
 * Check: When the postmeta() data is loaded? If it is loaded automatically on wordpress boot like get_option(), it becomes a serious problem.
+
+
+
+# How to test / UnitTest
+
+access index.php with "test=testAll" or "test=testForum", etc...
+
+* the value of 'test' key is the name of the test class file.
+    - names of test file is like test[XXXXX].php
+    - Just put [XXXXX] part of the class name.
+
+
+* Windows 8 + Nginx + PHP-FPM ( PHP 5.4 ) + cURL has a problem. it does not see hosts file.
+    * cURL works file with actual Domain but not the domains in hosts file in windows.
+    * OSX + Nginx + PHP-FPM + cURL work fine.
+    
+
+* If you are going to test on OSX or Linux, you need to have proper file permission since mkdir(), touch() will fail on test code of template hierarchy.
+    * chmod 777 wp-content/plugins/xforum/template/
+    * chmod 777 wp-content/themes/twentysixteen/
+
+$ curl "http://work.org/wordpress-4.5.3/?test=all"
+$ curl "http://work.org/wordpress-4.5.3/?test=Function"
+$ curl "http://work.org/wordpress-4.5.3/?test=Forum&method=crud"
+$ curl "http://work.org/wordpress-4.5.3/?test=Post"
+
+
+
+# Configuration in php.ini format
+
+All the configuration (settings) format are in php INI format.
+
+
+    http://php.net/manual/en/function.parse-ini-string.php
+
+
 
 
 
