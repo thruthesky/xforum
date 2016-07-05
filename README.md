@@ -52,7 +52,7 @@ All the configuration (settings) format are in php INI format.
 
 * add forum admins ( who owns the forum. separated by comma )
 * add forum members ( who can 'cud' for the forum. )
-
+* 게시판과 socket.io chat 을 연결하여 실시간 질문 답을 만든다. 내공을 집어 넣는다.
 * 하우스메이드 로그인 페이스북 또는 카카오로만 로그인 가능.
 * 사용자가 직접 게시판을 만들고, 글과 조회수가 많으면 맨 위로 나오게 한다.
     * 단, 홈페이지 게시 조건을 지켜야 한다.
