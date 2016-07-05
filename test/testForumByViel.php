@@ -91,15 +91,16 @@ class testForumByViel extends forum
         $no_of_categories = count($categories);
 
         // create the forum
+        $slug = 'cat-count-test' . uniqid();
         $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
         $param = [];
         $param['do'] = 'forum_create';
         $param['cat_name'] = 'Test Forum on count()';
-        $param['slug'] = 'cat-count-test' . uniqid();
+        $param['slug'] = $slug;
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
-        success( $re, "$param->slug has been created", "failed on do=forum_create.", true);
+        success( $re, "$slug has been created", "failed on do=forum_create.", true);
 
         // count the forums again
         $cat = forum()->getXForumCategory();
@@ -131,8 +132,9 @@ class testForumByViel extends forum
         check( ($no_of_categories + 1) == $no_of_categories_edit, "No of categories match.",
             "No of categories is wrong. prev: $no_of_categories, new: $no_of_categories_edit", true);
 
-        $slug = 'deleted-' . $param_edit['slug'];
         // delete forum (Not really deleted, we just remove it from xforum parent category)
+        $slug = 'deleted-' . $param_edit['slug'];
+
         $category = get_category_by_slug( $param_edit['slug'] );
         success(
             forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ),

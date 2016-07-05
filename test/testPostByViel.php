@@ -14,7 +14,7 @@ class testPostByViel extends post
         $this->post_crud();
     }
 
-    private function testInstance()
+    public function testInstance()
     {
         $post1 = post();
         $post2 = post();
@@ -28,7 +28,7 @@ class testPostByViel extends post
         check( post() instanceof forum == false, "post instance okay.", "should be post instance" );
     }
 
-    private function post_crud()
+    public function post_crud()
     {
         if ( ! function_exists('get_user_by') ) require_once ABSPATH . 'wp-includes/pluggable.php';
         $author = get_user_by('id', 1); // admin
@@ -92,11 +92,7 @@ class testPostByViel extends post
         check( $post, "$update_ID post has been deleted.", "failed on post()->delete( $update_ID )");
 
         // check if the edited post is still exists; it should not exist
-        $args = array(
-            'ID' => $post_ID,
-            'post_status' => 'publish'
-        );
-        $post_check  = get_post($args);
+        $post_check  = get_post(['ID'=>$post_ID, 'post_status' => 'publish']);
         check( ! $post_check, "Deleted post ($post_ID) did not exist.", "Error: $post_ID shouldn't exist.");
 
         // create a draft post
@@ -121,11 +117,7 @@ class testPostByViel extends post
         check( $post, "$post_ID post has been deleted.", "failed on post()->delete( $post_ID )");
 
         // check if the draft post is still exists; it should not exist
-        $args = array(
-            'ID' => $post_ID,
-            'post_status' => 'draft'
-        );
-        $post_check  = get_post($args);
+        $post_check  = get_post(['ID'=>$post_ID, 'post_status' => 'draft']);
         check( ! $post_check, "Deleted post ($post_ID) did not exist.", "$post_ID shouldn't exist.");
 
         // delete the forum
