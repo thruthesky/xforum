@@ -268,7 +268,14 @@ get_header();
                 $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
             }
 
-            $args[ 'orderby' ] += [ $sort_what=>in('order2_sort') ];
+            if ( in('order1_sort') ) {
+                // if there's a sorting selected on 'order1_sort', append to the current array
+                $args[ 'orderby' ] += [ $sort_what=>in('order2_sort') ];
+            } else {
+                // else, do not append or else: Unsupported operand types error
+                $args[ 'orderby' ] = [ $sort_what=>in('order2_sort') ];
+            }
+
         }
 
 
