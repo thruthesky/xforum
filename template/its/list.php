@@ -225,44 +225,50 @@ get_header();
 
         if ( in('order1') ) {
             if ( in('order1') == 'priority' ) {
+                $sort_what = 'priority';
                 $args[ 'meta_query' ]['priority'] = [ 'key'=>'priority', 'orderby'=>'meta_value_num' ];
             }
 
             elseif ( in('order1') == 'created' ) {
-                $args += [ 'orderby'=>'date' ];
+                $sort_what = 'date';
             }
 
             elseif ( in('order1') == 'deadline' ) {
+                $sort_what = 'deadline';
                 $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
             }
 
             elseif ( in('order1') == 'percentage' ) {
+                $sort_what = 'percentage';
                 $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
             }
 
-            $args[ 'orderby' ] = [ in('order1')=>in('order1_sort') ];
+            $args[ 'orderby' ] = [ $sort_what=>in('order1_sort') ];
         }
 
 
 
         if ( in('order2') ) {
             if ( in('order2') == 'priority' ) {
+                $sort_what = 'priority';
                 $args[ 'meta_query' ]['priority'] = [ 'key'=>'priority', 'orderby'=>'meta_value_num' ];
             }
 
             elseif ( in('order2') == 'created' ) {
-                $args += [ 'orderby'=>'date' ];
+                $sort_what = 'date';
             }
 
             elseif ( in('order2') == 'deadline' ) {
+                $sort_what = 'deadline';
                 $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
             }
 
             elseif ( in('order2') == 'percentage' ) {
+                $sort_what = 'percentage';
                 $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
             }
 
-            $args[ 'orderby' ] += [ in('order2')=>in('order2_sort') ];
+            $args[ 'orderby' ] += [ $sort_what=>in('order2_sort') ];
         }
 
 

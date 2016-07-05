@@ -27,7 +27,12 @@ di( post()->meta( get_the_ID(), 'files' ) );
     if ( $process == 'A' ) echo "ALL";
     elseif ( $process == 'N' ) echo "Not yet started";
     elseif ( $process == 'S' ) echo "Started";
-    elseif ( $process == 'P' ) echo "In progress";
+    elseif ( $process == 'P' ) {
+        echo "In progress";?> <br/>
+        <b>Percentage:</b>
+        <?php echo post()->meta( get_the_id(),'percentage' ); ?> % <br/>
+    <?php
+    }
     elseif ( $process == 'F' ) echo "Finished";
     ?><br/>
     <b>Priority:</b> <?php
@@ -35,7 +40,6 @@ di( post()->meta( get_the_ID(), 'files' ) );
      foreach ( its::$priority as $num => $text ) {
          if ( $priority == $num ) echo $text;
      } ?><br/>
-    <b>Percentage:</b> <?php echo post()->meta( get_the_id(),'percentage' ); ?> % <br/>
 
 </div>
 
