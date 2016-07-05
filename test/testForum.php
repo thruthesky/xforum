@@ -22,23 +22,26 @@ class testForum extends forum {
         $forum1 = forum();
         $forum2 = forum();
 
-        isTrue( $forum1 instanceof forum, "forum instance" );
-        isTrue( $forum2 instanceof forum, "forum instance" );
-        isTrue( forum() instanceof forum, "forum instance" );
-
-        isTrue( forum() instanceof post == false, "forum instance" );
+        check( $forum1 instanceof forum, "forum instance" );
+        check( $forum2 instanceof forum, "forum instance" );
+        check( forum() instanceof forum, "forum instance" );
+        check( forum() instanceof post == false, "forum instance" );
     }
 
 
     public function testPing()
     {
-        forum()->http_query(['do'=>'ping']);
+        success(
+            forum()->http_query(['do'=>'ping']),
+        'ping ok',
+        'ping fail',
+        true);
     }
 
     public function testForumCRUDRemote()
     {
         $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
-        isTrue( $parent, "Forum category does not exists");
+        check( $parent, "Forum category does not exists");
 
 
         // forum slug
@@ -46,12 +49,11 @@ class testForum extends forum {
         $category = get_category_by_slug($slug); // load forum
 
         if ( $category ) { // delete if exists.
-            $re = forum()->http_query( ["do"=>"forum_delete", "cat_ID"=>$category->term_id] );
-            di($re);
-            isTrue($re['success'], "failed on do=forum_delete. $re[code] : $re[message]");
+
+            success( forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ), "$slug deleted", "failed on deleting forum - $slug", true);
             $category = get_category_by_slug($slug);
         }
-        isTrue( ! $category, "$slug shouldn't exist.");
+        check( ! $category, "$slug does not exists", "$slug should not exist.", true);
 
 
         // create the forum of the slug
@@ -62,17 +64,17 @@ class testForum extends forum {
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
-        isTrue( $re['success'], "failed on do=forum_create");
+        success( $re, "$slug created", "failed on do=forum_create with $slug", true);
 
         // delete it
         $category = get_category_by_slug($slug);
-        isTrue( $category, "$slug should exist.");      // this test may not be needed.
-        $re = forum()->http_query( ["do"=>"forum_delete", "cat_ID"=>$category->term_id] );
-        isTrue($re['success'], "failed on do=forum_delete");
+        check( $category, null, "$slug should exist.");      // this test may not be needed.
+        $re = forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] );
+        success( $re, "forum_delete ok", "failed to delete forum - $slug", true);
 
         // check if it is deleted.
         $category = get_category_by_slug($slug);
-        isTrue( ! $category, "$slug shouldn't exist.");
+        check( ! $category, null, "$slug shouldn't exist.");
 
 
 
@@ -84,7 +86,7 @@ class testForum extends forum {
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
-        isTrue( $re['success'], "failed on do=forum_create");
+        check( $re['success'], null, "failed on do=forum_create");
 
         // update. change the category name.
         $category = get_category_by_slug($slug);
@@ -92,16 +94,20 @@ class testForum extends forum {
         $param['term_id'] = $category->term_id; // changed cat_ID to term_id 7/4/2016
         $param['cat_name'] = 'Test Forum Name Has Changed';
         $re = forum()->http_query( $param );
-        isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_edit : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
+        success( $re, null, $re['success'] ? null : "failed on do=forum_edit : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
 
 
         // and check if the category name has changed.
         $category = get_category_by_slug($slug);
-        isTrue( $category->cat_name == $param['cat_name'], "Category name should be $param[cat_name]");
+        check( $category->cat_name == $param['cat_name'], null, "Category name should be $param[cat_name]");
 
         // delete the garbage.
-        $re = forum()->http_query( ["do"=>"forum_delete", "cat_ID"=>$category->term_id] );
-        isTrue($re['success'], "failed on do=forum_delete");
+        success(
+            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ),
+            "Grabage froum - $slug - delted !!",
+            "failed on forum_delete (7) "
+        );
+
     }
 
     private function testForumCount()
@@ -120,14 +126,14 @@ class testForum extends forum {
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
-        isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_create. {$re['data']['code']} : {$re['data']['message']}");
+        success( $re, 'Test forum for count has created', "Failed on Test count forum", true);
 
         // count the forums again
         $cat = forum()->getXForumCategory();
         $categories2 = lib()->get_categories_with_depth( $cat->term_id, 0, 'no-cache' );
         $new_no_of_categories = count($categories2);
 
-        isTrue( ($no_of_categories + 1) == $new_no_of_categories, "No of categories is wrong. prev: $no_of_categories, new: $new_no_of_categories");
+        check( ($no_of_categories + 1) == $new_no_of_categories, "Forum count match", "No of categories is wrong. prev: $no_of_categories, new: $new_no_of_categories");
     }
 
     final public function crud()
@@ -143,12 +149,12 @@ class testForum extends forum {
             ->set('category_parent', $forum_category->term_id)
             ->set('category_description', 'test-description')
             ->save();
-        isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+        check( is_integer($cat_ID), "$test_slug has created.", "failed on forum()->create()->save() : $cat_ID");
 
 
         // delete the forum
         $re = forum()->delete($cat_ID);
-        isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
+        check( !$re, "$cat_ID has been deleted", "failed on forum()->delete($cat_ID) : $re");
 
     }
 
@@ -197,7 +203,7 @@ class testForum extends forum {
         // must be plugin/default/temp.php since no template exists.
         $this->deleteTemplates();
         $path = forum()->locateTemplate( 0, 'temp' );
-        isTrue( $path == $plugin_default_temp, "2: path: $path vs expectation: $plugin_default_temp");
+        check( $path == $plugin_default_temp, null, "2: path: $path vs expectation: $plugin_default_temp");
 
 
 
@@ -210,7 +216,7 @@ class testForum extends forum {
             ->set('category_parent', $forum_category->term_id)
             ->set('category_description', 'test-description')
             ->save();
-        isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+        check( is_integer($cat_ID), "$test_slug created", "failed on forum()->create()->save() : $cat_ID");
 
 
 
@@ -221,8 +227,8 @@ class testForum extends forum {
 
         // check if the template name set properly.
         $category = get_category_by_slug( $test_slug );
-        isTrue( forum()->meta( $category->cat_ID, 'template') == $template_name, "Template name was not set properly.");
-        isTrue( $category->cat_ID == $cat_ID, "cat_ID are not equal.");
+        check( forum()->meta( $category->cat_ID, 'template') == $template_name, 'template name match', "Template name was not set properly.");
+        check( $category->cat_ID == $cat_ID, 'cat_ID match', "cat_ID are not equal.");
 
 
 
@@ -232,30 +238,31 @@ class testForum extends forum {
         // must be default since the plugin/flower/temp does not exists.
         // plugin/template/flower/temp.php does not exist. it falls back to default.
         $path = forum()->locateTemplate( $test_slug, 'temp' );
-        isTrue( $path == $plugin_default_temp, "3: path: $path vs expectation: $plugin_default_temp");
+        check( $path == $plugin_default_temp, "template match", "3: path: $path vs expectation: $plugin_default_temp");
 
 
         // touch the template under plugin template.
         // so plugin/flower/temp should exist.
         touch( $plugin_flower_temp );
         $path = forum()->locateTemplate( $test_slug, 'temp' );
-        isTrue( $path == $plugin_flower_temp, "4: path: $path, expectation: $plugin_flower_temp");
+        check( $path == $plugin_flower_temp, "template match for $plugin_flower_temp", "4: path: $path, expectation: $plugin_flower_temp");
 
 
         // touch default template on theme.
         touch ( $theme_flower_temp );
         $path = forum()->locateTemplate( $test_slug, 'temp' );
-        isTrue( $path == $theme_flower_temp, "5: path: $path, expectation: $theme_flower_temp");
+        check( $path == $theme_flower_temp,  "template match for $theme_flower_temp", "5: path: $path, expectation: $theme_flower_temp");
+
 
         // remove all templates. & create theme/template/flower/temp.php
         $this->deleteTemplates();
         touch ( $theme_flower_temp );
         $path = forum()->locateTemplate( $test_slug, 'temp' );
-        isTrue( $path == $theme_flower_temp, "6: path: $path, expectation: $theme_flower_temp");
+        check( $path == $theme_flower_temp, "template match for $theme_flower_temp", "6: path: $path, expectation: $theme_flower_temp");
 
         // delete the forum
         $re = forum()->delete($cat_ID);
-        isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
+        check( !$re, "$cat_ID deleted",  "failed on forum()->delete($cat_ID) : $re");
 
     }
 

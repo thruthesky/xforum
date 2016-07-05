@@ -50,6 +50,12 @@ All the configuration (settings) format are in php INI format.
 * ITS template development.
 * @done : post CRUD
 
+* Make response() & redirect() simple.
+    it is confusing.
+    remove redirect().
+    make response with options
+
+
 * add forum admins ( who owns the forum. separated by comma )
 * add forum members ( who can 'cud' for the forum. )
 

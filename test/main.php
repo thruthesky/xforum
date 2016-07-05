@@ -36,19 +36,72 @@ function testClass( $class ) {
 }
 
 
+
+$__count_isTrue = 0;
+
 /**
+ * @deprecated use check
  * @param $re
- * @param $msg
+ * @param null $msg
+ * @param bool $end
  */
-function isTrue( $re, $msg = null ) {
-    static $__count_isTrue = 0;
+function isTrue( $re, $msg = null, $end = false ) {
+    global $__count_isTrue;
+    die("DO NOT USE isTrue()");
     $__count_isTrue ++;
     if ( $re ) {
         echo "$__count_isTrue ";
     }
     else {
         msg( "TEST ERROR: $msg");
+        if ( $end ) die();
     }
+}
+
+function check( $re, $ok='', $bad='', $end = false ) {
+    global $__count_isTrue;
+    $__count_isTrue ++;
+
+    if ( $re ) {
+        echo "OK: $__count_isTrue : $ok<br>\n";
+    }
+    else {
+        msg( "ERROR: $bad<br>\n");
+        if ( $end ) die();
+    }
+}
+
+/**
+ *
+ * Use this function with the return value of fourm()->http_query();
+ * @param $re
+ * @param $ok
+ * @param $bad
+ * @param bool $end
+ *
+ * @code how to use success()
+ * success(
+        forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ),
+        "Grabage froum - $slug - delted !!",
+        "failed on forum_delete (7) "
+        );
+ * @endcode
+ */
+function success( $re, $ok, $bad, $end = false ) {
+    if ( ! isset( $re['success'] ) ) {
+        echo "WRONG JOSN FORMAT When it should be : ";
+        echo($re);
+        die();
+    }
+    if ( $re['success'] ) {
+        $re = true;
+    }
+    else {
+        $data = $re['data'];
+        $bad .= " :: JSON ERROR : CODE($data[code]) : $data[message]";
+        $re = false;
+    }
+    check ($re, $ok, $bad, $end);
 }
 
 function msg( $str ) {

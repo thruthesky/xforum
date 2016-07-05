@@ -264,6 +264,8 @@ class forum {
      *
      * 글을 작성 또는 XForum 에 쿼리를 하고 처리 결과를 받거나 처리 후 이동을 한다면 이 함수를 사용한다.
      *
+     * @Warning Use this only when you need to do something after post write/edit/delete, comment write/edit/dele.
+     *          In other case, just use, wp_send_json_success() or wp_send_json_error().
      *
      *
      *
@@ -303,9 +305,16 @@ class forum {
             wp_send_json_success( $data );
         }
         else {
-            wp_die('No response coe. [response] must be one of list, view, ajax');
+            echo ('No response coe. [response] must be one of list, view, ajax');
         }
         die();
+    }
+    private function redirect() {
+        if ( in('return_url') ) {
+            wp_redirect( in('return_url') );
+            die();
+        }
+        wp_send_json_success();
     }
 
 
@@ -467,7 +476,7 @@ class forum {
         }
 
         $this->updateMeta( $term_ID );
-        $this->response();
+        $this->redirect();
     }
 
     public function forum_edit() {
@@ -489,7 +498,7 @@ class forum {
             wp_send_json_error( ['code'=>-4101, 'message'=>$term_ID->get_error_message()] );
         }
         $this->updateMeta( $term_ID );
-        $this->response();
+        $this->redirect();
     }
 
 
@@ -573,6 +582,7 @@ class forum {
     public function forum_delete() {
         if ( ! function_exists('wp_insert_category') ) require_once (ABSPATH . "/wp-admin/includes/taxonomy.php");
         //wp_delete_category();
+        if ( empty(in('term_id') ) ) ferror( -50043, 'term_id is not provided.');
         if ( $term_id = in('term_id') ) {
             $category = get_category( $term_id );
             if ( $category ) {
@@ -583,8 +593,7 @@ class forum {
                     'category_parent' => 0,
                 ]);
                 if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
-                wp_redirect( in('return_url') );
-                wp_send_json_success();
+                $this->redirect();
             }
             else {
                 wp_send_json_error(['code'=>-50011, 'message'=>'term_id is ok. But category does not exists.']);
@@ -623,6 +632,10 @@ class forum {
 
     /**
      *
+     * It returns a string or an array of json object.
+     *
+     * @note if the web server returns JSON code, then it returns in an array or it returns in a string.
+     *
      * @param $param
      * @return array|mixed|object
      *
@@ -631,11 +644,11 @@ class forum {
     {
         $url = home_url( '?' . http_build_query( $param ) );
         xlog( $url );
+        //echo "url: $url<hr>";
         $res = wp_remote_get( $url, ['timeout'=>20,  'httpversion'=>'1.1'] );
-        di($res);
         $body = wp_remote_retrieve_body( $res );
         $re = json_decode( $body, true);
-
+        if ( empty($re) && !empty($body) ) return $body;
         return $re;
     }
 
