@@ -20,6 +20,11 @@ if ( post_password_required() ) {
 wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
 //wp_enqueue_style( 'forum-comments-basic', FORUM_URL . 'css/forum-comments-basic.css' );
 ?>
+<style>
+    .file-upload {
+        max-width: 160px;
+    }
+</style>
 <!--suppress ALL -->
 <script>
     var url_endpoint = "<?php echo home_url("forum/submit")?>";
@@ -75,6 +80,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <input type="hidden" name="post_ID" value="<?php the_ID()?>">
                 <input type="hidden" name="comment_ID" value="<%=comment_ID%>">
                 <input type="hidden" name="comment_parent" value="<%=parent%>">
+                <input type="hidden" name="response" value="view">
                 <input type="hidden" name="file_ids" value="">
                 <div class="line comment-content">
                     <label for="comment-content" style="display:none;">
@@ -85,11 +91,6 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <div class="photos"></div>
                 <div class="files"></div>
                 <div class="line buttons">
-                    <div class="file-upload">
-                        <i class="fa fa-camera"></i>
-                        <span class="text"><?php _e('Choose File', 'xforum')?></span>
-                        <input type="file" name="file" onchange="forum.on_change_file_upload(this);" style="opacity: .001;">
-                    </div>
                     <div class="submit">
                         <input class="comment-submit-button" type="submit" value="Submit">
                         <% if ( comment_ID ) { %>
@@ -97,14 +98,10 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                         <% } %>
                     </div>
                 </div>
-                <div class="loader" style="display:none;">
-                    <i class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
-                    <span class="text">File upload is in progress. Please wait.</span>                </div>
             </form>
+            <?php file_upload('comment')?>
         </section>
     </script>
-
-
 
     <div id="comments" class="comments-area">
 

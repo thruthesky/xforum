@@ -8,7 +8,16 @@ get_header();
 
 <h1><?php echo in('slug') ?> VIEW PAGE : TITLE : <?php the_title()?></h1>
 
+files:
+<?php
+
+di( post()->meta( get_the_ID(), 'files' ) );
+
+?>
+<hr>
+
 content
+
 
 <hr>
 

@@ -226,16 +226,21 @@ class forum {
             ->set('post_content', $content)
             ->set('post_status', 'publish')
             ->set('post_author', wp_get_current_user()->ID);
-        if ( $slug ) $re = $post->create();
+        if ( $slug ) $post_ID = $post->create();
         else {
-            $re = $post
+            $post_ID = $post
                 ->set('ID', $post_ID)
                 ->update();
         }
+        if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
 
-        if ( ! is_integer($re) ) ferror( -50048, "Failed on post_create() : $re");
+        preg_match_all("/\/data\/upload\/[^\/]*\/[^\/]\/[^'\"]*/", $content, $ms);
+        $files = $ms[0];
 
-        $this->response();
+        // save files
+        post()->meta( $post_ID, 'files', $files );
+
+        $this->response( null, $post_ID );
     }
 
 
@@ -248,22 +253,55 @@ class forum {
 
         $this->response();
     }
+
     /**
      *
-     * If there is $_REQUEST['return_url'], then it redirects and dies.
-     * If not, it echoes json and dies.
+     * 글을 작성 또는 XForum 에 쿼리를 하고 처리 결과를 받거나 처리 후 이동을 한다면 이 함수를 사용한다.
      *
-     * @attention on echoing json string, it echoes success. if there is error, use ferror()
-     * @param null $data
+     *
+     *
+     *
+     * @attention 입력 값에 따라서 여러가지 동작이 가능하다.
+     *
+     * @param null $slug - in('response') == 'list' 인 경우, 게시판 목록을 할 때 사용된다.
+     * @param null $post_ID - in('response') == 'view' 인 경우,글쓰기에서 글을 보여준다.
+     * @param null $comment_ID - in('response') == 'view' 인 경우,코멘트 쓰기에서 코멘트를 보여준다.
+     * @param null $data - 만약 위 3개의 값이 null 이고, data 에 값이 있으면 그 값을 wp_send_json_success() 로 출력한다.
+     *
+     * @todo add unit test code
      */
-    private function response( $data = null) {
-        if ( $this->url_redirect() ) {
-            die();
+    private function response( $slug=null, $post_ID=null, $comment_ID=null, $data = null) {
+        $res = in('response');
+        if ( $res == 'list' ) {
+            $this->url_redirect( $this->getUrlList( $slug ) );
         }
-        else {
+        else if ( $res == 'view' ) {
+            if ( $comment_ID ) {
+                $this->url_redirect( $this->getUrlViewComment( $comment_ID ) );
+            }
+            else if ( $post_ID ) {
+                $this->url_redirect( $this->getUrlView( $post_ID ) );
+            }
+            else wp_die("forum()->response() : no post_ID or comment_ID provided.");
+        }
+        else if ( $res == 'ajax' ) {
+            $json = [
+                'slug' => $slug,
+                'post_ID' => $post_ID,
+                'comment_ID' => $comment_ID,
+                'html' => $data
+            ];
+            wp_send_json_success( $json );
+        }
+        else if ( $data ) {
             wp_send_json_success( $data );
         }
+        else {
+            wp_die('No response coe. [response] must be one of list, view, ajax');
+        }
+        die();
     }
+
 
 
 
@@ -373,9 +411,8 @@ class forum {
 
         $url = get_permalink( $post_ID ) . '#comment-' . $comment_ID ;
 
-        wp_redirect( $url ); // redirect to view the newly created post.
+        $this->response( null, $post_ID, $comment_ID );
 
-        wp_send_json_success();
     }
     /**
      *
@@ -607,7 +644,6 @@ class forum {
      */
     public function meta($term_ID, $key, $value = null)
     {
-
         if ( $value !== null ) {
             delete_term_meta( $term_ID, $key );
             add_term_meta( $term_ID, $key, $value, true );
@@ -616,7 +652,6 @@ class forum {
         else {
             return get_term_meta($term_ID, $key, true);
         }
-
     }
 
     /**
@@ -627,16 +662,16 @@ class forum {
      *
      * @note it does not do anything if $_REQUEST['url_redirect'] is empty.
      *
+     * @param $url
      * @return bool - true if it redirected.
      *
      */
-    private function url_redirect()
+    private function url_redirect($url)
     {
-        $url = in('return_url');
         if ( empty( $url ) ) return false;
         else {
             if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
-            wp_redirect( in('return_url') );
+            wp_redirect( $url );
             return true;
         }
     }
@@ -700,8 +735,27 @@ class forum {
 
     public function urlList( $slug = null )
     {
+        echo $this->getUrlList( $slug );
+    }
+    public function getUrlList( $slug = null ) {
         if ( empty($slug) ) $slug = $this->getSlug();
-        echo home_url("?forum=list&slug=$slug");
+        return home_url("?forum=list&slug=$slug");
+    }
+
+    public function urlView( $post_ID ) {
+        echo $this->getUrlView( $post_ID );
+    }
+    public function getUrlView( $post_ID )
+    {
+        return get_permalink( $post_ID );
+    }
+
+    public function urlViewComment( $comment_ID ) {
+        echo $this->getUrlViewComment( $comment_ID );
+    }
+    public function getUrlViewComment($comment_ID)
+    {
+        return get_comment_link( $comment_ID );
     }
 
 
@@ -969,15 +1023,15 @@ class forum {
             else ferror( -40131, "Wrong username" );
         }
         else {
-            wp_send_json_success( $this->get_list_menu_user( $user_login ) );
+            $this->response( null, null, null, $this->get_list_menu_user( $user_login ) );
         }
-
-
     }
+
     public function logout() {
         wp_logout();
-        $this->response( $this->get_list_menu_user() );
+        $this->response( null, null, null, $this->get_list_menu_user() );
     }
+
 
 
     public function list_menu_user() {
@@ -1016,6 +1070,7 @@ EOH;
         <button class="btn btn-primary xforum-edit-button">Write</button>
 EOH;
     }
+
 
 
 }

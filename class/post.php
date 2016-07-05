@@ -26,7 +26,8 @@ class post {
 
     /**
      *
-     * @return $this
+     * Returns post_ID on success.
+     *
      *
      * @todo add test code. assigned to viel.
      */
@@ -35,6 +36,10 @@ class post {
         return $this->returnResult( $post_ID );
     }
 
+    /**
+     * Returns post_ID on success.
+     * @return string
+     */
     public function update()
     {
         $post_ID = wp_update_post( self::$cu_data );
@@ -166,6 +171,36 @@ class post {
         }
         return $count;
     }
+
+
+    /**
+     *
+     * Saves data into 'post_meta'.
+     * @note it automatically serialize and unserialize.
+     *
+     * @param $post_ID
+     * @param $key
+     * @param null $value
+     * @return mixed|null
+     */
+    public function meta($post_ID, $key, $value = null)
+    {
+        if ( $value !== null ) {
+            if ( ! is_string($value) && ! is_numeric( $value ) && ! is_integer( $value ) ) {
+                $value = serialize($value);
+            }
+            update_post_meta($post_ID, $key, $value);
+            return null;
+        }
+        else {
+            $value = get_post_meta($post_ID, $key, true);
+            if ( is_serialized( $value ) ) {
+                $value = unserialize( $value );
+            }
+            return $value;
+        }
+    }
+
 
     /**
      * Returns post view count.

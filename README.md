@@ -53,6 +53,10 @@ All the configuration (settings) format are in php INI format.
 * add forum admins ( who owns the forum. separated by comma )
 * add forum members ( who can 'cud' for the forum. )
 
+* 하우스메이드 로그인 페이스북 또는 카카오로만 로그인 가능.
+* 사용자가 직접 게시판을 만들고, 글과 조회수가 많으면 맨 위로 나오게 한다.
+    * 단, 홈페이지 게시 조건을 지켜야 한다.
+    
 
     => forum category is the project.
     => forum members are the members of its.
@@ -166,7 +170,14 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
         * see forum()->url_redirect()
         * you can use it both at the same time since wordpress wp_redirect() does not print out any data in the body.
         
-폼 전송을 할 때, json 문자열로 값을 전달 받거나 url redirect 를 할 수 있다.
+
+* 폼 전송 후, 페이지 이동 또는 json 데이터 출력
+
+    * 글 쓰기/코멘트 쓰기의 경우
+        * response = list 이면 게시판 목록 페이지로 간다.
+        * response = view 이면 글 읽기 페이지로 간다.
+        * response = ajax 이면, 글/코멘트 쓰기 성공 여부를 json 으로 출력한다.
+        
 
 
 
@@ -241,22 +252,41 @@ xforum_admins in setting(option) tells who can manage all the forum.
 
 ## File upload
 
+Developers must fully understand about file upload to apply t in his need.
+
+### To upload
+
+* create a form ( independent form from editing form )
+    * set the domain, uid and action of the form.
+    * submit through a hidden iframe.
+* when submit
+    * listen 'message' event since the hidden iframe will send back a message with 'postMessage'
+    * save the url of the uploaded file into post_meta or comment_meta.
+
+
+###
+
+### description
+
+
+
 * We save files into a different server. There are many reasons for this especially the site gets bigger, ... and on distributed web server.
 * To install a file server "git clone https://github.com/thruthesky/file-upload" and follow README.md instruction.
 * User's secret key is my()->uniqid()
 
+* 글을 쓸 때, 첨부 파일을 아래와 같이 저장한다.
 
-    * upload / delete ( with authentication without cookie )
+    preg_match_all("/\/data\/upload\/[^\/]*\/[^\/]\/[^'\"]*/", $content, $ms);
+    $files = $ms[0];
+    post()->meta( $post_ID, 'files', $files );
 
-    * filename are converted in random string ( md5 + time() + ip ).
+    이는 아래와 같이 필요 할 때 읽을 수 있다.
 
-    * filename saved in file server and will be used in A tag or IMG tag in post/comment content.
+    post()->meta( get_the_ID(), 'files')
 
-        any file which has part of "/data/upload/wp/" in its URL, it is considered as wordpress files.
-
-        ie) <img src="http://file.server.com/data/upload/wp/abcdeghi.jpg">
-        ie) <a href="http://w1.my-web-server.com/~thruthesky/category/data/upload/wp/abc.exe">
-
+    이렇게 하므로서 어떤 파일이 업로드되었는지 확인을 할 수 있다.
+    
+    
 
     * HOW-TO clean garbage files.
 

@@ -25,15 +25,16 @@ else {
     .post-edit-box .buttons {
         text-align:right;
     }
-    .file-upload {
+    .file-upload-form {
         position: absolute;
         bottom: 0;
     }
 </style>
 <div class="post-edit-box">
 
-<form action="?">
+<form action="?" method="post">
     <input type="hidden" name="forum" value="edit_submit">
+    <input type="hidden" name="response" value="view">
     <?php if ( in('slug') ) { ?>
         <input type="hidden" name="slug" value="<?php echo in('slug')?>">
     <?php } else { ?>
@@ -63,7 +64,6 @@ else {
             'quicktags' => false
         );
         wp_editor( $content, $editor_id, $settings );
-
         ?>
     </fieldset>
 
