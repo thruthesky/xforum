@@ -41,7 +41,7 @@ class testForum extends forum {
     public function testForumCRUDRemote()
     {
         $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
-        check( $parent, "Forum category does not exists");
+        check( $parent, "Parent category exists.", "Forum category does not exists");
 
 
         // forum slug
