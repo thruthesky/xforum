@@ -27,7 +27,8 @@ include_once DIR_XFORUM . 'etc/filter.php';
 include_once DIR_XFORUM . 'etc/config.php';
 include_once DIR_XFORUM . 'etc/init.php';
 
-//wp_set_password( '1111', 1 );
+
+
 
 
 

@@ -10,6 +10,7 @@ class testForum extends forum {
 
     public function runTest() {
         $this->testInstance();
+        $this->testPing();
         $this->crud();
         $this->testForumCRUDRemote();
         $this->testForumCount();
@@ -28,7 +29,13 @@ class testForum extends forum {
         isTrue( forum() instanceof post == false, "forum instance" );
     }
 
-    private function testForumCRUDRemote()
+
+    public function testPing()
+    {
+        forum()->http_query(['do'=>'ping']);
+    }
+
+    public function testForumCRUDRemote()
     {
         $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
         isTrue( $parent, "Forum category does not exists");
@@ -40,7 +47,8 @@ class testForum extends forum {
 
         if ( $category ) { // delete if exists.
             $re = forum()->http_query( ["do"=>"forum_delete", "cat_ID"=>$category->term_id] );
-            isTrue($re['success'], "failed on do=forum_delete");
+            di($re);
+            isTrue($re['success'], "failed on do=forum_delete. $re[code] : $re[message]");
             $category = get_category_by_slug($slug);
         }
         isTrue( ! $category, "$slug shouldn't exist.");
@@ -250,6 +258,7 @@ class testForum extends forum {
         isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
 
     }
+
 }
 
 

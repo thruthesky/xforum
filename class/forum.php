@@ -55,6 +55,7 @@ class forum {
         if ( empty($what) ) $what = in('forum');
 
         $forum_do_list = [
+            'ping',
             'forum_create',
             'forum_edit',
             'forum_delete',
@@ -80,6 +81,11 @@ class forum {
         }
          */
 
+    }
+
+
+    public function ping() {
+        $this->response(null, null, null, ['pong'=>time()]);
     }
 
 
@@ -567,8 +573,8 @@ class forum {
     public function forum_delete() {
         if ( ! function_exists('wp_insert_category') ) require_once (ABSPATH . "/wp-admin/includes/taxonomy.php");
         //wp_delete_category();
-        if ( $cat_ID = in('cat_ID') ) {
-            $category = get_category( $cat_ID );
+        if ( $term_id = in('term_id') ) {
+            $category = get_category( $term_id );
             if ( $category ) {
                 wp_insert_category([
                     'cat_ID' => $category->term_id,
@@ -624,7 +630,12 @@ class forum {
     public function http_query($param)
     {
         $url = home_url( '?' . http_build_query( $param ) );
-        $re = json_decode(wp_remote_retrieve_body(wp_remote_get( $url )), true);
+        xlog( $url );
+        $res = wp_remote_get( $url, ['timeout'=>20,  'httpversion'=>'1.1'] );
+        di($res);
+        $body = wp_remote_retrieve_body( $res );
+        $re = json_decode( $body, true);
+
         return $re;
     }
 
