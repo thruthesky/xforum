@@ -31,27 +31,11 @@ class testForum extends forum {
 
     public function testPing()
     {
-
-        echo 'hi<hr>';
         success(
             forum()->http_query(['do'=>'ping']),
             'ping ok',
             'ping fail',
             true);
-        $ch = curl_init('http://wordpress46b1.org/?test=Forum');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_NOSIGNAL, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT_MS, 200);
-        $data = curl_exec($ch);
-        $curl_errno = curl_errno($ch);
-        $curl_error = curl_error($ch);
-        curl_close($ch);
-        if ($curl_errno > 0) {
-            echo "cURL Error ($curl_errno): $curl_error\n";
-        } else {
-            echo "Data received: $data\n";
-        }
-
     }
 
     public function testForumCRUDRemote()
