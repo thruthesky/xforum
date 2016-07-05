@@ -203,8 +203,8 @@ get_header();
             $args[ 'meta_query' ][] = [ 'key'=>'process', 'value'=>in('process') ];
         }
 
-        if ( in('percentage') && in('percentage') != 0 ) {
-            $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>in('percentage') ];
+        if ( in('percentage') ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>array( 1,in('percentage') ), 'compare'=>'BETWEEN' ];
         }
 
         if ( in('created_begin') ) {
