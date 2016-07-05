@@ -252,7 +252,7 @@ class testForumByViel extends forum
 
 
         // remove all templates.
-        $this->deleteAllTemplates($template_name);
+        $this->deleteAllTemplates();
 
         // delete the forum
         $re = forum()->delete($cat_ID);
