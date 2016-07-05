@@ -85,7 +85,7 @@ class forum {
 
 
     public function ping() {
-        $this->response(null, null, null, ['pong'=>time()]);
+        $this->response( ['data' => ['pong'=>time()] ] );
     }
 
 
@@ -185,6 +185,8 @@ class forum {
     /**
      * Returns URL of post write.
      *
+     * @note 만약 현제 페이지에 해당하는 게시판이 없다면, null 을 리턴한다.
+     *
      * @param null $slug
      * @return null|string - if it's not forum page, then it returns.
      */
@@ -192,11 +194,13 @@ class forum {
     {
         if ( in('forum') ) {
             if ( empty($slug) ) {
-                $slug = forum()->getCategory()->slug;
+                if ( forum()->getCategory() ) {
+                    $slug = forum()->getCategory()->slug;
+                    return "?forum=edit&slug=$slug";
+                }
             }
-            return "?forum=edit&slug=$slug";
         }
-        else return null;
+        return null;
     }
 
 
@@ -240,13 +244,13 @@ class forum {
         }
         if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
 
-        preg_match_all("/\/data\/upload\/[^\/]*\/[^\/]\/[^'\"]*/", $content, $ms);
+        preg_match_all("/http.*\/data\/upload\/[^\/]*\/[^\/]\/[^'\"]*/", $content, $ms);
         $files = $ms[0];
 
         // save files
         post()->meta( $post_ID, 'files', $files );
 
-        $this->response( null, $post_ID );
+        $this->response( [ 'post_ID' => $post_ID  ] );
     }
 
 
@@ -264,6 +268,9 @@ class forum {
      *
      * 글을 작성 또는 XForum 에 쿼리를 하고 처리 결과를 받거나 처리 후 이동을 한다면 이 함수를 사용한다.
      *
+     * @Attention in('return_url') 이 있으면 해당 페이지로 먼저 이동을 한다.
+     * @Attention
+     *
      * @Warning Use this only when you need to do something after post write/edit/delete, comment write/edit/dele.
      *          In other case, just use, wp_send_json_success() or wp_send_json_error().
      *
@@ -271,14 +278,26 @@ class forum {
      *
      * @attention 입력 값에 따라서 여러가지 동작이 가능하다.
      *
-     * @param null $slug - in('response') == 'list' 인 경우, 게시판 목록을 할 때 사용된다.
-     * @param null $post_ID - in('response') == 'view' 인 경우,글쓰기에서 글을 보여준다.
-     * @param null $comment_ID - in('response') == 'view' 인 경우,코멘트 쓰기에서 코멘트를 보여준다.
-     * @param null $data - 만약 위 3개의 값이 null 이고, data 에 값이 있으면 그 값을 wp_send_json_success() 로 출력한다.
+     * @param array $o
+     *      $slug - in('response') == 'list' 인 경우, 게시판 목록을 할 때 사용된다.
+     *      $post_ID - in('response') == 'view' 인 경우,글쓰기에서 글을 보여준다.
+     *      $comment_ID - in('response') == 'view' 인 경우,코멘트 쓰기에서 코멘트를 보여준다.
+     *      $data - 만약 위 3개의 값이 null 이고, data 에 값이 있으면 그 값을 wp_send_json_success() 로 출력한다.
      *
      * @todo add unit test code
      */
-    private function response( $slug=null, $post_ID=null, $comment_ID=null, $data = null) {
+    private function response( $o = array() ) {
+
+        $slug = isset($o['slug']) ? $o['slug'] : null;
+        $post_ID = isset($o['post_ID']) ? $o['post_ID'] : null;
+        $comment_ID = isset($o['comment_ID']) ? $o['comment_ID'] : null;
+        $data = isset($o['data']) ? $o['data'] : null;
+
+        $url = in('return_url');
+        if ( $url ) {
+            wp_redirect( $url );
+            exit;
+        }
         $res = in('response');
         if ( $res == 'list' ) {
             $this->url_redirect( $this->getUrlList( $slug ) );
@@ -304,17 +323,10 @@ class forum {
         else if ( $data ) {
             wp_send_json_success( $data );
         }
-        else {
+        else if ( empty($slug) && empty($post_ID) && empty($comment_ID) && empty($data) ) {
             echo ('No response coe. [response] must be one of list, view, ajax');
         }
         die();
-    }
-    private function redirect() {
-        if ( in('return_url') ) {
-            wp_redirect( in('return_url') );
-            die();
-        }
-        wp_send_json_success();
     }
 
 
@@ -426,7 +438,16 @@ class forum {
 
         $url = get_permalink( $post_ID ) . '#comment-' . $comment_ID ;
 
-        $this->response( null, $post_ID, $comment_ID );
+
+        //
+        $files = in('files');
+        if ( $files ) {
+            $arr = explode('| |', $files);
+            $files = array_filter( $arr );
+            comment()->meta( $comment_ID, 'files', $files );
+        }
+
+        $this->response( [ 'post_ID' => $post_ID, 'comment_ID' => $comment_ID ] );
 
     }
     /**
@@ -1050,13 +1071,13 @@ class forum {
             else ferror( -40131, "Wrong username" );
         }
         else {
-            $this->response( null, null, null, $this->get_list_menu_user( $user_login ) );
+            $this->response( ['data' => $this->get_list_menu_user( $user_login ) ] );
         }
     }
 
     public function logout() {
         wp_logout();
-        $this->response( null, null, null, $this->get_list_menu_user() );
+        $this->response( ['data'=>$this->get_list_menu_user()] );
     }
 
 

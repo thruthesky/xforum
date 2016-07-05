@@ -19,7 +19,7 @@ include DIR_XFORUM . 'etc/admin-function.php';
             <fieldset class="form-group">
                 <label for="xforum_url_file_server">File Server URL</label>
                 <input id='xforum_url_file_server' class='form-control' type="text" name="xforum_url_file_server" placeholder="Please input forum template postfix" value="<?php echo get_option('xforum_url_file_server', null)?>">
-                <small class="text-muted">Input full file server url including 'index.php'</small>
+                <small class="text-muted">Input full file server url beginning with 'http://' and ending with 'index.php'</small>
             </fieldset>
 
             <fieldset class="form-group">

@@ -12,10 +12,10 @@
         remove_all_comment_form_under_comment_list();
         var $this = $(this);
         var $comment = get_comment_parent( $this );
+        var $content = get_closest_content( $this );
         var parent_ID = get_comment_ID( $comment );
         var t = _.template($('#comment-form-template').html());
-        $comment.after(t({ parent : parent_ID, comment_ID : 0, text: text }));
-
+        $content.append(t({ parent_ID : parent_ID, comment_ID : 0, text: text }));
     }
     function comment_edit() {
         remove_all_comment_form_under_comment_list();
@@ -26,7 +26,7 @@
         $comment.hide();
         var text = $comment.find('.text').text();
         var t = _.template($('#comment-form-template').html());
-        $comment.after(t({ parent : 0, comment_ID : comment_ID, text: text }));
+        $comment.after(t({ parent_ID : 0, comment_ID : comment_ID, text: text }));
     }
     function comment_delete() {
         var $this = $(this);
@@ -57,6 +57,12 @@
     function get_comment_parent( $this ) {
         return $this.closest('.comment');
     }
+
+    function get_closest_content( $this ) {
+        return $this.closest('.content');
+    }
+
+
 
     /**
      *

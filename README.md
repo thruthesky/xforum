@@ -22,11 +22,6 @@ access index.php with "test=testAll" or "test=testForum", etc...
     * OSX + Nginx + PHP-FPM + cURL work fine.
     
 
-* 내공제를 한다.
-* 고수/중수/하수로 나눈다.
-* 고수는 자신의 글에 댓글을 삭제 할 수 있다.
-
-
 * If you are going to test on OSX or Linux, you need to have proper file permission since mkdir(), touch() will fail on test code of template hierarchy.
     * chmod 777 wp-content/plugins/xforum/template/
     * chmod 777 wp-content/themes/twentysixteen/
@@ -74,6 +69,21 @@ All the configuration (settings) format are in php INI format.
     => forum admins are the project managers.
 
 * Professional writing for SEO
+
+* 내공제를 하지 않는다. 사이트가 복잡해 진다.
+    * 기존 포인트 제도를 활용한다.
+* 20 레벨 부터는 자신의 글에 댓글을 삭제 할 수 있다.
+* 10 레벨 부터는 자신을 글에 코멘트를 달 수 없게 할 수 있다.
+* 30 레벨 부터는 광고를 잘 보이는 곳에 등록 할 수 있다.
+* 40 레벨 부터는 자기 게시판을 생성 하고 관리 할 수 있다.
+    * 게시판이 활성화되면 상단에 노출.
+* 50 레벨 부터는 자신의 게시판에 글 쓴 회원들에게 SMS 문자 메세지를 보낼 수 있다.
+* 총 3명 이상. 총 합 20 레벨 이상. 글 임시 조치되며 자동으로 운영자에게 신고.
+* 
+* 스크롤을 맨 밑에 까지 하거나 글을 다 읽었다는 표시를 하면,
+    이 글이 도움이 되었는지를 1 ~ 5 까지 하고
+    부족한 부분이 있으면 코멘트로 보충 요구를 할 수 있도록 한다.
+
 
 
 * Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
@@ -243,6 +253,21 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 # Coding Guide
 
 
+## Javascripts
+
+* forum.js is the JS file for whole xforum
+* post.js is only for post view/edit/delete
+* comment.js is only for comment list/view/edit/delete
+
+
+## Hidden iframe
+
+xforum_hidden_iframe is added at the end of html through whole xforum page.
+This is for form submit which should be hidden like file-upload.
+
+ 
+
+    <iframe name="xforum_hidden_iframe" src="javascript:;" width="0" height="0" style="width:0; height:0; display: none;"></iframe>
 
 ## Add xforum plugin in git addon
 
@@ -356,3 +381,5 @@ Developers must fully understand about file upload to apply t in his need.
 bootstrap v4 and twenty sixteen theme conflicts.
 
 Bootstrap is a well-known framework and it is not boot strap's problem.
+
+
