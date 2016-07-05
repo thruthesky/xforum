@@ -237,6 +237,18 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 
 # Coding Guide
 
+
+
+## Add xforum plugin in git addon
+
+* create a project pointing its workspace as xforum plugin path
+
+    * and then, it will ask to add whole project.
+    
+    * click OK and then it will detect the xforum git.
+    
+    
+
 ## forum()->getCategory()->xxxx
 
 Use this as much as you can.
