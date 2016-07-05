@@ -1,5 +1,7 @@
 <?php
 set_time_limit(0);
+$__count_isTrue = 0;
+
 xlog("test runs : main.php");
 foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
     if ( strpos($php, 'main.php') === false ) {
@@ -36,8 +38,6 @@ function testClass( $class ) {
 }
 
 
-
-$__count_isTrue = 0;
 
 /**
  * @deprecated use check
