@@ -10,8 +10,8 @@ class testPostByViel extends post
 
     public function runTest()
     {
-        $this->post_crud();
         $this->testInstance();
+        $this->post_crud();
     }
 
     private function testInstance()
@@ -19,13 +19,13 @@ class testPostByViel extends post
         $post1 = post();
         $post2 = post();
 
-        isTrue( $post1 instanceof post, "post instance" );
-        isTrue( $post2 instanceof post, "post instance" );
-        isTrue( post() instanceof post, "post instance" );
+        check( $post1 instanceof post, "post instance okay.", "should be post instance" );
+        check( $post2 instanceof post, "post instance okay.", "should be post instance" );
+        check( post() instanceof post, "post instance okay.", "should be post instance" );
 
-        isTrue( $post1 instanceof forum == false, "post instance" );
-        isTrue( $post2 instanceof forum == false, "post instance" );
-        isTrue( post() instanceof forum == false, "post instance" );
+        check( $post1 instanceof forum == false, "post instance okay.", "should be post instance" );
+        check( $post2 instanceof forum == false, "post instance okay.", "should be post instance" );
+        check( post() instanceof forum == false, "post instance okay.", "should be post instance" );
     }
 
     private function post_crud()
@@ -43,7 +43,7 @@ class testPostByViel extends post
             ->set('category_parent', $forum_category->term_id)
             ->set('category_description', 'test-description')
             ->save();
-        isTrue( is_integer($cat_ID), "failed on forum()->create()->save() : $cat_ID");
+        check( is_integer($cat_ID), "$test_slug forum has been created", "failed on forum()->create()->save() : $cat_ID");
 
         // initial count for published posts
         $initial_count = wp_count_posts()->publish;
@@ -56,12 +56,11 @@ class testPostByViel extends post
             ->set('post_status', 'publish')
             ->set('post_author', $author->ID)
             ->create();
-        isTrue( is_integer($post_ID), "failed on post()->create() : $post_ID");
-        isTrue( $post_ID == true, "failed on post()->update(): $post_ID");
+        check( is_integer($post_ID), "$post_ID post has been created", "failed on post()->create() : $post_ID");
 
         //check if post is published
         $post = get_post( $post_ID );
-        isTrue( $post->post_status == 'publish', "post is not published : $post_ID");
+        check( $post->post_status == 'publish', "Post has been published.", "post is not published : $post_ID");
 
 
         // edit the post.
@@ -73,24 +72,24 @@ class testPostByViel extends post
             ->set('post_status', 'publish')
             ->set('post_author', $author->ID)
             ->update();
-        isTrue( is_integer($update_ID), "failed on post()->update() : $update_ID");
+        check( is_integer($update_ID), "$update_ID post has been edited.", "failed on post()->update() : $update_ID");
 
         // check is post is updated not inserted again or not duplicated
-        isTrue( $post_ID == $update_ID, "Post is not updated, Another post was inserted with the ID: $update_ID");
+        check( $post_ID == $update_ID, "Post ID matched: post was updated.", "Post is not updated, Another post was inserted with the ID: $update_ID");
 
         //check if edited post is published
         $post = get_post( $update_ID );
-        isTrue( $post->post_status == 'publish', "post is not published : $update_ID");
+        check( $post->post_status == 'publish', "$update_ID post has been published.", "post is not published : $update_ID");
 
         // count again published posts
         $post_count = wp_count_posts()->publish;
 
         // check if only one post has been added
-        isTrue( ($initial_count + 1) == $post_count, "Error on the count of published posts");
+        check( ($initial_count + 1) == $post_count,"Post count for published posts matched.", "Error on the count of published posts");
 
         // delete the edited post
         $post = post()->delete($update_ID);
-        isTrue( $post,"failed on post()->delete( $update_ID )");
+        check( $post, "$update_ID post has been deleted.", "failed on post()->delete( $update_ID )");
 
         // check if the edited post is still exists; it should not exist
         $args = array(
@@ -98,7 +97,7 @@ class testPostByViel extends post
             'post_status' => 'publish'
         );
         $post_check  = get_post($args);
-        isTrue( ! $post_check, "$post_ID shouldn't exist.");
+        check( ! $post_check, "Deleted post ($post_ID) did not exist.", "Error: $post_ID shouldn't exist.");
 
         // create a draft post
         $post_ID = post()
@@ -108,19 +107,18 @@ class testPostByViel extends post
             ->set('post_status', 'draft')
             ->set('post_author', $author->ID)
             ->create();
-        isTrue( is_integer($post_ID), "failed on post()->create() : $post_ID");
-        isTrue( $post_ID == true, "failed on post()->update(): $post_ID");
+        check(is_integer($post_ID), "$post_ID draft post has been created.", "failed on post()->create() : $post_ID");
 
         // check if post is draft not published
         $post = get_post( $post_ID );
-        isTrue( $post->post_status == 'draft', "post is not draft : $post_ID");
+        check( $post->post_status == 'draft', "Draft post has been created", "Post is not draft : $post_ID");
 
         // count the number of draft posts
-        isTrue(  wp_count_posts()->draft == 1," Error on the count of draft posts. ( $post_ID )");
+        check(  wp_count_posts()->draft == 1, "Count for draft posts matched.", "Error on the count of draft posts. ( $post_ID )");
 
         // delete the draft post
         $post = post()->delete($post_ID);
-        isTrue( $post,"failed on post()->delete( $post_ID )");
+        check( $post, "$post_ID post has been deleted.", "failed on post()->delete( $post_ID )");
 
         // check if the draft post is still exists; it should not exist
         $args = array(
@@ -128,11 +126,11 @@ class testPostByViel extends post
             'post_status' => 'draft'
         );
         $post_check  = get_post($args);
-        isTrue( ! $post_check, "$post_ID shouldn't exist.");
+        check( ! $post_check, "Deleted post ($post_ID) did not exist.", "$post_ID shouldn't exist.");
 
         // delete the forum
         $re = forum()->delete($cat_ID);
-        isTrue( !$re,  "failed on forum()->delete($cat_ID) : $re");
+        check( !$re,  "$cat_ID forum has been deleted.", "failed on forum()->delete($cat_ID) : $re");
 
     }
 
