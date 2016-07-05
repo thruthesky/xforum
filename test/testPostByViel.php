@@ -107,24 +107,5 @@ class testPostByViel extends post
 
     }
 
-    public function attachments(){
-        // create a forum
-
-        // check if forum is created
-
-        // create post with attachment/ image
-
-        // check if post created
-
-        // edit post with attachment/ image
-
-        // check if post was edited
-
-        // delete post with attachment
-
-        // delete forum
-    }
-
-
 
 }
