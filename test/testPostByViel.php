@@ -30,7 +30,6 @@ class testPostByViel extends post
 
     private function post_crud()
     {
-        // code
         if ( ! function_exists('get_user_by') ) require_once ABSPATH . 'wp-includes/pluggable.php';
         $author = get_user_by('id', 1); // admin
 
@@ -89,14 +88,44 @@ class testPostByViel extends post
         // check if only one post has been added
         isTrue( ($initial_count + 1) == $post_count, "Error on the count of published posts");
 
-        // delete the post
-        $post = post()->delete($post_ID);
-        isTrue( $post,"failed on post()->delete( $post_ID )");
+        // delete the edited post
+        $post = post()->delete($update_ID);
+        isTrue( $post,"failed on post()->delete( $update_ID )");
 
-        // check if post is still exists; it should not exists
+        // check if the edited post is still exists; it should not exist
         $args = array(
             'ID' => $post_ID,
             'post_status' => 'publish'
+        );
+        $post_check  = get_post($args);
+        isTrue( ! $post_check, "$post_ID shouldn't exist.");
+
+        // create a draft post
+        $post_ID = post()
+            ->set('post_category', [$cat_ID])
+            ->set('post_title', "This is the title")
+            ->set('post_content', "This is post content")
+            ->set('post_status', 'draft')
+            ->set('post_author', $author->ID)
+            ->create();
+        isTrue( is_integer($post_ID), "failed on post()->create() : $post_ID");
+        isTrue( $post_ID == true, "failed on post()->update(): $post_ID");
+
+        // check if post is draft not published
+        $post = get_post( $post_ID );
+        isTrue( $post->post_status == 'draft', "post is not draft : $post_ID");
+
+        // count the number of draft posts
+        isTrue(  wp_count_posts()->draft == 1," Error on the count of draft posts. ( $post_ID )");
+
+        // delete the draft post
+        $post = post()->delete($post_ID);
+        isTrue( $post,"failed on post()->delete( $post_ID )");
+
+        // check if the draft post is still exists; it should not exist
+        $args = array(
+            'ID' => $post_ID,
+            'post_status' => 'draft'
         );
         $post_check  = get_post($args);
         isTrue( ! $post_check, "$post_ID shouldn't exist.");

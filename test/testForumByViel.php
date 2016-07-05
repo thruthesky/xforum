@@ -93,7 +93,7 @@ class testForumByViel extends forum
         $param = [];
         $param['do'] = 'forum_create';
         $param['cat_name'] = 'Test Forum on count()';
-        $param['slug'] = 'cat-count-test' . uniqid(); // change from category_nicename to slug 7/4/2016
+        $param['slug'] = 'cat-count-test' . uniqid(); 
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
@@ -111,9 +111,9 @@ class testForumByViel extends forum
         $category = get_category_by_slug( $param['slug'] );
         $param_edit = [];
         $param_edit['do'] = 'forum_edit';
-        $param_edit['term_id'] = $category->term_id; // changed cat_ID to term_id 7/4/2016
+        $param_edit['term_id'] = $category->term_id;
         $param_edit['cat_name'] = 'Test Forum on count() - Edited';
-        $param_edit['slug'] = $param['slug'];  //change from category_nicename to slug 7/4/2016
+        $param_edit['slug'] = $param['slug'];
         $param_edit['category_parent'] = $param['category_parent'];
         $param_edit['category_description'] = "This is a category created by unit test - Edited";
         $re = forum()->http_query( $param_edit );
@@ -131,9 +131,9 @@ class testForumByViel extends forum
         $category = get_category_by_slug( $param_edit['slug'] );
         $param_delete = [];
         $param_delete['do'] = 'forum_delete';
-        $param_delete['cat_ID'] =  $category->term_id; // changed $category->cat_ID to $category->term_id 7/4/2016
+        $param_delete['cat_ID'] =  $category->term_id;
         $param_delete['cat_name'] = 'Deleted: ' .$param_edit['cat_name'];
-        $param_delete['slug'] = 'deleted-' . $param_edit['slug']; // change from category_nicename to slug 7/4/2016
+        $param_delete['slug'] = 'deleted-' . $param_edit['slug'];
         $param_delete['category_parent'] = 0;
         $re = forum()->http_query( $param_delete );
         isTrue( $re['success'], $re['success'] ? null : "failed on do=forum_delete. {$re['data']['code']} : {$re['data']['message']}");
