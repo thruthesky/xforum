@@ -40,7 +40,7 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
                         </div>
                         <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->listURL($category->slug)?>"><?php echo $category->slug?></a></div>
                         <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->urlAdminForumEdit($category->term_id)?>">Edit</a></div>
-                        <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->urlForumDo('forum_delete')?>&term_id=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a></div>
+                        <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->urlForumDo('forum_delete')?>&cat_ID=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a></div>
                         <div class="col-xs-2 col-sm-1"><?php echo $category->count?></div>
                         <div class="col-xs-12 col-sm-4"><?php echo $category->description?></div>
                     </div>
