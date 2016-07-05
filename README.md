@@ -8,7 +8,7 @@ New forum for withcenter company.
 https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/edit#
 
 
-# How to test
+# How to test / UnitTest
 
 access index.php with "test=testAll" or "test=testForum", etc...
 
@@ -16,6 +16,11 @@ access index.php with "test=testAll" or "test=testForum", etc...
     - names of test file is like test[XXXXX].php
     - Just put [XXXXX] part of the class name.
 
+
+* Windows 8 + Nginx + PHP-FPM ( PHP 5.4 ) + cURL has a problem. it does not see hosts file.
+    * cURL works file with actual Domain but not the domains in hosts file in windows.
+    * OSX + Nginx + PHP-FPM + cURL work fine.
+    
 
 * 내공제를 한다.
 * 고수/중수/하수로 나눈다.

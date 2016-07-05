@@ -10,7 +10,6 @@
  *
  */
 global $_in;
-reset_http_query();
 /**
  * Merge $_GET, $_POST into $_in
  *
@@ -25,9 +24,12 @@ function reset_http_query() {
 }
 function in( $name = null, $default = null ) {
     global $_in;
-    if ( empty($name) ) return $_in;
-    else if ( isset($_in[$name]) ) return $_in[$name];
-    else return $default;
+    if ( !isset($_in) ) reset_http_query();
+    if ( empty($name) ) $re = $_in;
+    else if ( isset($_in[$name]) ) $re = $_in[$name];
+    else $re = $default;
+
+    return $re;
 }
 
 

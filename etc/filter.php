@@ -14,6 +14,7 @@ add_filter( 'template_include', function ( $template ) {
 
     $forum = in('forum');
 
+
     if ( $forum == 'all' ) {
         return forum()->locateTemplate( '', 'all');
     }
