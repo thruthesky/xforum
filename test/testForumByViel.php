@@ -44,7 +44,7 @@ class testForumByViel extends forum
             ->set('category_parent', $forum_category->term_id)
             ->set('category_description', 'test-description')
             ->save();
-        check( is_integer($cat_ID), "$test_slug has been created.", "failed on forum()->create()->save() : $cat_ID");
+        check( is_integer($cat_ID), "$test_slug forum has been created.", "failed on forum()->create()->save() : $cat_ID");
         check( $cat_ID == true, "creating $test_slug forum succeed: returns true." ,"failed on forum()->create()->save() : $cat_ID");
 
         // delete the forum
@@ -58,7 +58,7 @@ class testForumByViel extends forum
             ->set('category_parent', $forum_category->term_id)
             ->set('category_description', 'test-description-second create')
             ->save();
-        check( is_integer($cat_ID), "$test_slug has been created.", "failed on forum()->create()->save() second create : $cat_ID");
+        check( is_integer($cat_ID), "$test_slug forum has been created.", "failed on forum()->create()->save() second create : $cat_ID");
         check( $cat_ID == true, "creating $test_slug forum succeed: returns true." ,"failed on forum()->create()->save() second create : $cat_ID");
 
 
@@ -70,7 +70,7 @@ class testForumByViel extends forum
             ->set('category_parent', $forum_category->term_id)
             ->set('category_description', 'test-description - edited')
             ->save();
-        check( is_integer($cat_ID_update), "$test_slug has been edited.", "failed on forum()->create()->save() edit: $cat_ID_update");
+        check( is_integer($cat_ID_update), "$test_slug forum has been edited.", "failed on forum()->create()->save() edit: $cat_ID_update");
         check( $cat_ID_update == true, "editing $test_slug forum succeed: returns true." ,"failed on forum()->create()->save() edit: $cat_ID_update");
 
 
@@ -80,7 +80,7 @@ class testForumByViel extends forum
 
         // check if forum has been deleted (does not belong to XForum anymore)
         $category = get_category($cat_ID_update);
-        check( $category->parent == 0 , "$cat_ID_update has been deleted.", "forum not deleted : $cat_ID_update");
+        check( $category->parent == 0 , "$cat_ID_update forum has been deleted.", "forum not deleted : $cat_ID_update");
 
     }
     public function testCount(){
@@ -131,16 +131,14 @@ class testForumByViel extends forum
         check( ($no_of_categories + 1) == $no_of_categories_edit, "No of categories match.",
             "No of categories is wrong. prev: $no_of_categories, new: $no_of_categories_edit", true);
 
+        $slug = 'deleted-' . $param_edit['slug'];
         // delete forum (Not really deleted, we just remove it from xforum parent category)
         $category = get_category_by_slug( $param_edit['slug'] );
-        $param_delete = [];
-        $param_delete['do'] = 'forum_delete';
-        $param_delete['cat_ID'] =  $category->term_id;
-        $param_delete['cat_name'] = 'Deleted: ' .$param_edit['cat_name'];
-        $param_delete['slug'] = 'deleted-' . $param_edit['slug'];
-        $param_delete['category_parent'] = 0;
-        $re = forum()->http_query( $param_delete );
-        check( $re,"forum has been deleted.", "failed on do=forum_delete.");
+        success(
+            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ),
+            "Forum - $slug - has been deleted.",
+            "failed on forum_delete ", true
+        );
 
         // count again
         $cat = forum()->getXForumCategory();
