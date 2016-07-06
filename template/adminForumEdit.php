@@ -2,7 +2,9 @@
 $categories = forum()->categories();
 $term_id = in('term_id');
 if ( empty($term_id) ) jsBack("term_id was not provided.");
+
 $category = get_category( $term_id );
+forum()->setCategory( $category->slug );
 
 
 ?>

@@ -52,6 +52,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 
 * cron 을 이용한 xforum 에 글 자동 등록.
+    필리핀 대사관 정보를 자동 등록한다.
+    
 
 
 * Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
@@ -255,6 +257,15 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 
 
 # Coding Guide
+
+
+## How to use forum configuration
+
+Use forum config like below.
+
+    forum()->getCategory()->config['members']
+
+* comma(,) separated values will be automatically parsed into array.
 
 
 ## Javascripts

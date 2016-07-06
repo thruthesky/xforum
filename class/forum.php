@@ -702,15 +702,23 @@ class forum {
      *
      * @attention if $value is empty, then it return the value. If you want to delete the meta data, just call delete_term_meta().
      *
-     * @param $term_ID
-     * @param $key
+     * @update 2016-07-07 If $key is null, then term_ID is the key and the term_ID is comes from the current forum config.
+     *
+     * @param $term_ID - term_ID or key
+     * @param $key - if it's null, then $term_ID is $key, and $term_ID is given from current fourm config.
      * @param $value
      *
      *
      * @return mixed|null - return null on setting/updating. return value of string on getting.
+     *
+     * @todo add test on meta('name');
      */
-    public function meta($term_ID, $key, $value = null)
+    public function meta($term_ID, $key=null, $value = null)
     {
+        if ( $key === null ) {
+            $key = $term_ID;
+            $term_ID = $this->getCategory()->term_id;
+        }
         if ( $value !== null ) {
             delete_term_meta( $term_ID, $key );
             add_term_meta( $term_ID, $key, $value, true );
@@ -720,6 +728,7 @@ class forum {
             return get_term_meta($term_ID, $key, true);
         }
     }
+
 
     /**
      *
