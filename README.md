@@ -51,6 +51,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
     부족한 부분이 있으면 코멘트로 보충 요구를 할 수 있도록 한다.
 
 
+* cron 을 이용한 xforum 에 글 자동 등록.
+
 
 * Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
 

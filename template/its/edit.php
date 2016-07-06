@@ -46,8 +46,6 @@ else {
                 <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() )?>">
             </fieldset>
 
-
-
             <fieldset class="form-group">
                 <label for="worker">Worker</label>
                 <input type="text" class="form-control" id="worker" name="worker" placeholder="Input worker" value="<?php e( post()->worker )?>">
