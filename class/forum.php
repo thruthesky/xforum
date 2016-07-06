@@ -243,6 +243,14 @@ class forum {
                 ->update();
         }
         if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
+        // post meta
+        $workers = implode(",", in('worker'));
+        post()->meta($post_ID,'workers', $workers);
+        post()->meta($post_ID,'deadline',in('deadline'));
+        post()->meta($post_ID,'work_priority',in('work_priority'));
+        post()->meta($post_ID,'work_difficulty',in('work_difficulty'));
+        post()->meta($post_ID,'work_evaluation',in('work_evaluation'));
+
 
         preg_match_all("/http.*\/data\/upload\/[^\/]*\/[^\/]\/[^'\"]*/", $content, $ms);
         $files = $ms[0];
