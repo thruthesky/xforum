@@ -10,7 +10,7 @@
 class forum {
 
     static $entity;
-
+    public static $query_vars = ['forum', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
 
 
     private $category = null;
@@ -243,20 +243,20 @@ class forum {
                 ->update();
         }
         if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
-        // post meta
-        $workers = implode(",", in('worker'));
-        post()->meta($post_ID,'workers', $workers);
-        post()->meta($post_ID,'deadline',in('deadline'));
-        post()->meta($post_ID,'work_priority',in('work_priority'));
-        post()->meta($post_ID,'work_difficulty',in('work_difficulty'));
-        post()->meta($post_ID,'work_evaluation',in('work_evaluation'));
 
 
+        // file upload
         preg_match_all("/http.*\/data\/upload\/[^\/]*\/[^\/]\/[^'\"]*/", $content, $ms);
         $files = $ms[0];
-
-        // save files
+        // save uploaded files
         post()->meta( $post_ID, 'files', $files );
+
+
+        // Save All extra input into post meta.
+        post()->saveAllMeta( $post_ID );
+
+
+
 
         $this->response( [ 'post_ID' => $post_ID  ] );
     }
@@ -351,6 +351,17 @@ class forum {
     {
         $this->checkOwnership( $post_ID, 'post' );       // check post owner.
     }
+
+    public function isEdit()
+    {
+        return in('forum') == 'edit' && in('post_ID');
+    }
+
+    public function isNew()
+    {
+        return in('forum') == 'edit' && in('post_ID') == null;
+    }
+
     public function endIfNotMyComment($comment_ID)
     {
         $this->checkOwnership( $comment_ID, 'comment' );       // check comment owner.
@@ -505,7 +516,7 @@ class forum {
         }
 
         $this->updateMeta( $term_ID );
-        $this->redirect();
+        $this->response();
     }
 
     public function forum_edit() {
@@ -527,7 +538,7 @@ class forum {
             wp_send_json_error( ['code'=>-4101, 'message'=>$term_ID->get_error_message()] );
         }
         $this->updateMeta( $term_ID );
-        $this->redirect();
+        $this->response();
     }
 
 
@@ -625,7 +636,7 @@ class forum {
                     'category_parent' => 0,
                 ]);
                 if ( ! function_exists('wp_redirect') ) require_once (ABSPATH . "/wp-includes/pluggable.php");
-                $this->redirect();
+                $this->response();
             }
             else {
                 wp_send_json_error(['code'=>-50011, 'message'=>'term_id is ok. But category does not exists.']);

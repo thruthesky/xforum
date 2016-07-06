@@ -1,6 +1,8 @@
 <?php
+
 /**
  * Class post
+ *
  * @file class/post.php
  *
  * @warning 2016-07-01. it does not extends forum class anymore.
@@ -9,6 +11,31 @@ class post {
 
     static $cu_data = []; // create / update data.
     static $post = []; // WP_Post object for loading a post.
+    static $fields = [
+        'ID',
+        'post_author',
+        'post_date',
+        'post_date_gmt',
+        'post_content',
+        'post_title',
+        'post_excerpt',
+        'post_status',
+        'comment_status',
+        'ping_status',
+        'post_password',
+        'post_name',
+        'to_ping',
+        'pinged',
+        'post_modified',
+        'post_modified_gmt',
+        'post_content_filtered',
+        'post_parent',
+        'guid',
+        'menu_order',
+        'post_type',
+        'post_mime_type',
+        'comment_count'
+    ];
 
     public function __construct()
     {
@@ -146,6 +173,26 @@ class post {
         else return null;
     }
 
+    /**
+     *
+     * Magical methods __get()
+     *
+     * @Warning to use this 'magical __get()', the Object must be instantiated with 'post()' and must have a valid post data.
+     *
+     *
+     * @param $property
+     * @return mixed|null
+     *
+     * @todo add unit test. add a test on property_exists or not. by viel.
+     */
+    public function __get( $property ) {
+        if ( empty( self::$post ) || ! property_exists( self::$post, 'ID' ) ) return false;
+        if ( isset( self::$fields[$property] ) ) return self::$fields[$property];
+        else {
+            return $this->meta( self::$post->ID, $property );
+        }
+    }
+
 
     /**
      * Increase post view count and returns new number.
@@ -176,7 +223,7 @@ class post {
     /**
      *
      * Saves data into 'post_meta'.
-     * @note it automatically serialize and unserialize.
+     * @note it automatically serialize and un-serialize.
      *
      * @param $post_ID
      * @param $key
@@ -200,6 +247,27 @@ class post {
             return $value;
         }
     }
+
+
+    /**
+     *
+     * This method saves all the input into post_meta except those are already saved in wp_posts table.
+     *
+     * @attention This will save everything except wp_posts fields,
+     *      so you need to be careful not to add un-wanted form values.
+     *
+     * @param $post_ID
+     */
+    public function saveAllMeta( $post_ID )
+    {
+        $in = in();
+        foreach ( $in as $k => $v ) {
+            if ( in_array( $k, self::$fields ) ) continue;
+            if ( in_array( $k, forum::$query_vars) ) continue;
+            $this->meta( $post_ID, $k, $v );
+        }
+    }
+
 
 
 

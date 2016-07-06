@@ -127,3 +127,8 @@ function file_upload($type='post') {
     include_once DIR_XFORUM . 'template/file-upload.php';
 }
 
+
+
+function e( $string ) {
+    echo esc_html( $string );
+}
