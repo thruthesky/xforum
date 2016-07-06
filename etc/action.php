@@ -30,6 +30,14 @@ var xforum_write_url="$write_url";
 EOH;
 });
 
+add_action('wp_footer', function(){
+    echo <<<EOH
+<iframe name="xforum_hidden_iframe" src="javascript:;" width="0" height="0" style="width:0; height:0; display: none;"></iframe>
+EOH;
+
+});
+
+
 add_action( 'wp_before_admin_bar_render', function () {
     global $wp_admin_bar;
     $wp_admin_bar->add_menu( array(

@@ -4,6 +4,7 @@ $id = post()->getViewPostID();
 setup_postdata(get_post( $id ));
 
 get_header();
+wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 ?>
 
 <h1><?php echo in('slug') ?> VIEW PAGE : TITLE : <?php the_title()?></h1>

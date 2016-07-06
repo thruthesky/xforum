@@ -3,7 +3,7 @@
 <?php
 //di( forum()->getCategory() );
 
-
+wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
 if ( in('post_ID') ) {
     forum()->setCategoryByPostID( in('post_ID') );
@@ -41,7 +41,6 @@ else {
         <input type="hidden" name="post_ID" value="<?php echo in('post_ID')?>">
     <?php } ?>
     <input type="hidden" name="on_error" value="alert_and_go_back">
-    <input type="hidden" name="return_url" value="<?php forum()->urlList()?>">
     <fieldset class="form-group">
         <label for="post-title">Title</label>
         <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() )?>">
@@ -72,7 +71,6 @@ else {
         <input type="submit">
     </div>
 </form>
-
 
 <?php file_upload()?>
 

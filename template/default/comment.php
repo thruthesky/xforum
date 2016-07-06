@@ -20,16 +20,13 @@ if ( post_password_required() ) {
 wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
 //wp_enqueue_style( 'forum-comments-basic', FORUM_URL . 'css/forum-comments-basic.css' );
 ?>
+
+
 <style>
-    .file-upload {
+    .file-upload-form .file-upload {
         max-width: 160px;
     }
 </style>
-<!--suppress ALL -->
-<script>
-    var url_endpoint = "<?php echo home_url("forum/submit")?>";
-    var max_upload_size = <?php echo wp_max_upload_size();?>;
-</script>
 
 
 <?php
@@ -47,9 +44,18 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
             <?php endif; ?>
             <?php printf( __('%1$s at %2$s'), get_comment_date(),  get_comment_time() ); ?>
             <div>
-                <?php _e('No.:', 'k-forum')?> <?php echo $comment->comment_ID?>
+                Comment No.: <?php echo $comment->comment_ID?>
             </div>
         </div>
+
+        <?php
+        $files = comment()->meta($comment->comment_ID, 'files');
+        if ( $files ) {
+            foreach ( $files as $file ) {
+                echo "<img src='$file'>";
+            }
+        }
+        ?>
 
         <div class="text">
             <?php comment_text(); ?>
@@ -69,19 +75,19 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
     ?>
 
     <script type="text/template" id="comment-form-template">
-        <section class="comment-form">
-            <%
-            if ( typeof comment_ID == 'undefined' ) comment_ID = 0;
-            if ( typeof text == 'undefined' ) text = '';
-            else text = s(text).trim().value();
-            %>
-            <form action="<?php echo home_url()?>" method="get" enctype="multipart/form-data">
+        <%
+        if ( typeof comment_ID == 'undefined' ) comment_ID = 0;
+        if ( typeof text == 'undefined' ) text = '';
+        else text = s(text).trim().value();
+        %>
+        <section class="comment-form" parent_ID="<%=parent_ID%>" comment_ID="<%=comment_ID%>">
+            <form action="<?php echo home_url()?>" method="post">
                 <input type="hidden" name="forum" value="comment_edit_submit">
                 <input type="hidden" name="post_ID" value="<?php the_ID()?>">
                 <input type="hidden" name="comment_ID" value="<%=comment_ID%>">
-                <input type="hidden" name="comment_parent" value="<%=parent%>">
+                <input type="hidden" name="comment_parent" value="<%=parent_ID%>">
                 <input type="hidden" name="response" value="view">
-                <input type="hidden" name="file_ids" value="">
+                <input type="hidden" name="files" value="">
                 <div class="line comment-content">
                     <label for="comment-content" style="display:none;">
                         <?php _e('Comment Content', 'k-fourm')?>
@@ -109,7 +115,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
             window.addEventListener( 'load', function() {
                 jQuery( function( $ ) {
                     var t = _.template($('#comment-form-template').html());
-                    $('.comments-area').prepend(t({ parent : 0 }));
+                    $('.comments-area').prepend(t({ parent_ID : 0 }));
                 });
             });
         </script>

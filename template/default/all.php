@@ -10,14 +10,6 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
 
         <h2>X Forum - List</h2>
 
-        <div class="forum-list">
-
-            <a class="button btn-primary forum-create-button" href="<?php url_forum_create()?>">
-                Create Forum
-            </a>
-
-
-            <h2><?php _e('Forum List', 'xforum')?></h2>
 
             <div class="forum-list container">
                 <div class="row">

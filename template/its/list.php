@@ -20,8 +20,6 @@ $posts = get_posts(
 wp_enqueue_style( 'xforum-list', URL_XFORUM . 'css/its/forum-list.css' );
 ?>
 <div class="wrap">
-
-
     <div class="col-lg-12 pull-lg-right padding-bottom">
         <?php forum()->list_menu_user()?>
     </div>

@@ -202,6 +202,7 @@ class post {
     }
 
 
+
     /**
      * Returns post view count.
      * @note Use this code in theme code

@@ -21,6 +21,7 @@ include_once DIR_XFORUM . 'etc/function.php';
 include_once DIR_CLASS . 'library.php';
 include_once DIR_CLASS . 'forum.php';
 include_once DIR_CLASS . 'post.php';
+include_once DIR_CLASS . 'comment.php';
 include_once DIR_CLASS . 'user.php';
 include_once DIR_XFORUM . 'etc/action.php';
 include_once DIR_XFORUM . 'etc/filter.php';
