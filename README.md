@@ -10,8 +10,9 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 # TODO
 * create ITS and put all the works on it.
 * @done comment CRUD
-*
-* file CRUD
+* @done file update
+* Do file deletion from command line.
+
 * ITS template development.
 * @done : post CRUD
 
