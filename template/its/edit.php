@@ -43,24 +43,24 @@ else {
 
             <fieldset class="form-group">
                 <label for="post-title">Issue Title</label>
-                <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() )?>">
+                <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() );?>">
             </fieldset>
 
 
 
             <fieldset class="form-group">
                 <label for="worker">Worker</label>
-                <input type="text" class="form-control" id="worker" name="worker" placeholder="Input worker" value="<?php e( post()->worker )?>">
+                <input type="text" class="form-control" id="worker" name="worker" placeholder="Input worker" value="<?php e( post()->worker );?>">
             </fieldset>
 
             <fieldset class="form-group">
                 <label for="incharge">Who is in charge?</label>
-                <input type="text" class="form-control" id="incharge" name="incharge" placeholder="Input who is in charge" value="<?php e( post()->incharge ) ?>">
+                <input type="text" class="form-control" id="incharge" name="incharge" placeholder="Input who is in charge" value="<?php e( post()->incharge ); ?>">
             </fieldset>
 
             <fieldset class="form-group">
                 <label for="dead-line">Deadline</label>
-                <input type="date" class="form-control" id="dead-line" name="deadline" placeholder="Input who is in charge" value="">
+                <input type="date" class="form-control" id="dead-line" name="deadline" placeholder="Input who is in charge" value="<?php e( post()->deadline ); ?>">
             </fieldset>
 
 
@@ -68,22 +68,22 @@ else {
             <fieldset class="form-group">
                 <div class="caption">Priority</div>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="N"> Never mind
+                    <input type="radio" name="priority" value="N" <?php if ( post()->priority == 'N' ) echo 'checked=1'; ?>> Never mind
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="L"> Low
+                    <input type="radio" name="priority" value="L" <?php if ( post()->priority == 'L' ) echo 'checked=1'; ?>> Low
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="M"> Medium
+                    <input type="radio" name="priority" value="M" <?php if ( post()->priority == 'M' ) echo 'checked=1'; ?>> Medium
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="H"> High
+                    <input type="radio" name="priority" value="H" <?php if ( post()->priority == 'H' ) echo 'checked=1'; ?>> High
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="I"> Immediate
+                    <input type="radio" name="priority" value="I" <?php if ( post()->priority == 'I' ) echo 'checked=1'; ?>> Immediate
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="C"> Critical
+                    <input type="radio" name="priority" value="C" <?php if ( post()->priority == 'C' ) echo 'checked=1'; ?>> Critical
                 </label>
             </fieldset>
 
@@ -91,16 +91,16 @@ else {
             <fieldset class="form-group">
                 <div class="caption">Work process</div>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="N"> Not started
+                    <input type="radio" name="difficulty" value="N" <?php if ( post()->difficulty == 'N' ) echo 'checked=1'; ?>> Not started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="S"> Started
+                    <input type="radio" name="difficulty" value="S" <?php if ( post()->difficulty == 'S' ) echo 'checked=1'; ?>> Started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="P"> In Progress
+                    <input type="radio" name="difficulty" value="P" <?php if ( post()->difficulty == 'P' ) echo 'checked=1'; ?>> In Progress
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="F"> Finished
+                    <input type="radio" name="difficulty" value="F" <?php if ( post()->difficulty == 'F' ) echo 'checked=1'; ?>> Finished
                 </label>
             </fieldset>
 
@@ -110,10 +110,10 @@ else {
                 <fieldset class="form-group">
                     <div class="caption">Work evaluation</div>
                     <label class="radio-inline">
-                        <input type="radio" name="difficulty" value="A"> Approved
+                        <input type="radio" name="evaluation" value="A" <?php if ( post()->evaluation == 'A' ) echo 'checked=1'; ?>> Approved
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="difficulty" value="R"> Rejected
+                        <input type="radio" name="evaluation" value="R" <?php if ( post()->evaluation == 'R' ) echo 'checked=1'; ?>> Rejected
                     </label>
                 </fieldset>
             <? } ?>
@@ -146,7 +146,8 @@ else {
             </div>
         </form>
 
-        <?php file_upload()?>
+    </div>
+<?php file_upload();?>
 
     </div>
 
