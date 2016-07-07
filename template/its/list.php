@@ -46,7 +46,7 @@ title + content search,
 
                 <?php
                 foreach ( $posts as $post ) {
-                    setup_postdata( $post );
+                    post()->setup( $post );
                     ?>
                     <tr>
                         <td>
@@ -61,7 +61,7 @@ title + content search,
                         <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
 
                         <td>
-                            <?php the_date()?>
+                            <?php e( post()->meta('deadline') ) ?>
                         </td>
                     </tr>
                 <?php } ?>

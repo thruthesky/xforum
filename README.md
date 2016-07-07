@@ -1,13 +1,30 @@
 # xforum
 New forum for withcenter company.
 
-
 # documents
 
 https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/edit#
 
+# ITS
+
+* http://dev.withcenter.com/ 에서 모든 작업을 관리한다.
+
+* 모든 TODO 나 모든 작업을 위 ITS 에서 한다.
+  
+# Work Environment
+
+* DB server & File server are on http://dev.withcenter.com
+    * see https://docs.google.com/document/d/1_eq21Xj2uBApeu9P-FmYQtLGcHL92oR8h_Impg02IBs/edit#heading=h.si5iimehk6gw
+    * How to setup DB information and Site information.
+* ITS is also in http://dev.withcenter.com
+
+
 
 # TODO
+
+* MOVE ALL Work DATA to ITS
+
+
 * create ITS and put all the works on it.
 * @done comment CRUD
 * @done file update
@@ -100,6 +117,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
     
     
 * Check: When the postmeta() data is loaded? If it is loaded automatically on wordpress boot like get_option(), it becomes a serious problem.
+
+
 
 
 

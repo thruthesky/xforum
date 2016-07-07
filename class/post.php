@@ -230,8 +230,15 @@ class post {
      * @param null $value
      * @return mixed|null
      */
-    public function meta($post_ID, $key, $value = null)
+    public function meta($post_ID, $key = null, $value = null)
     {
+        if ( $key === null ) {
+            $key = $post_ID;
+            if ( self::$post ) {
+                $post_ID = self::$post->ID;
+            }
+            else return FALSE;
+        }
         if ( $value !== null ) {
             if ( ! is_string($value) && ! is_numeric( $value ) && ! is_integer( $value ) ) {
                 $value = serialize($value);
@@ -282,6 +289,30 @@ class post {
         $count_key = 'no_of_views';
         $count = get_post_meta($post_ID, $count_key, true);
         return $count ? $count : 0;
+    }
+
+    /**
+     * This post gets a WP_Post Object
+     *  and sets into current post Object's 'self::$post' and sets as 'setup_postdata'
+     * @USE when you need to get a 'post' Object and to 'setup_posts()' at the same time.
+     *
+     *
+     * @param $post
+     *
+     * @code example of best use
+            $posts = get_posts( [ ... ] );  // Query
+                foreach ( $posts as $post ) { // Loop
+                    post()->setup( $post );     // set post.
+                        the_ID(); the_title();      //  use
+                        post()->meta('no-of-view'); //  use
+     *
+     * @endcode
+     *
+     */
+    public function setup($post)
+    {
+        self::$post = $post;
+        setup_postdata( $post );
     }
 
 }
