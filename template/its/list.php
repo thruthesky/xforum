@@ -9,10 +9,28 @@ get_header();
     </style>
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
-
-
 <?php forum()->list_menu_write()?>
 <?php forum()->list_menu_user()?>
+
+
+combination of search items:
+
+
+worker,
+incharge,
+date of a work begin ( begin/end date option. so you know works began in the last month )
+deadline ( work of deadline in a week, in a day, ... give begin/end date of deadline. so you know deadline work of today, next week, last month )
+newly comments( day option. how old days of the comment is considers as new. )
+priority,
+process,
+percentage of work,
+title search,
+title + content search,
+
+
+
+
+
 
 
     <div class="post-list">
@@ -28,7 +46,7 @@ get_header();
 
                 <?php
                 foreach ( $posts as $post ) {
-                    setup_postdata( $post );
+                    post()->setup( $post );
                     ?>
                     <tr>
                         <td>
@@ -43,7 +61,7 @@ get_header();
                         <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
 
                         <td>
-                            <?php the_date()?>
+                            <?php e( post()->meta('deadline') ) ?>
                         </td>
                     </tr>
                 <?php } ?>

@@ -46,16 +46,32 @@ else {
                 <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() );?>">
             </fieldset>
 
-
-
             <fieldset class="form-group">
-                <label for="worker">Worker</label>
-                <input type="text" class="form-control" id="worker" name="worker" placeholder="Input worker" value="<?php e( post()->worker );?>">
+                <div class="caption">Worker</div>
+                <?php
+                $members = forum()->getCategory()->config['members'];
+                foreach( $members as $member ) {
+                ?>
+                <label class="radio-inline">
+                    <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>> <?php echo $member?>
+                </label>
+                <?php
+                }
+                 ?>
             </fieldset>
 
             <fieldset class="form-group">
-                <label for="incharge">Who is in charge?</label>
-                <input type="text" class="form-control" id="incharge" name="incharge" placeholder="Input who is in charge" value="<?php e( post()->incharge ); ?>">
+                <div class="caption">Who is in charge?</div>
+                <?php
+                $members = forum()->getCategory()->config['members'];
+                foreach( $members as $member ) {
+                ?>
+                <label class="radio-inline">
+                    <input type="radio" name="incharge" value="<?php echo $member?>" <?php if ( $member == post()->incharge ) echo 'checked=1'; ?>> <?php echo $member?>
+                </label>
+                <?php
+                }
+                 ?>
             </fieldset>
 
             <fieldset class="form-group">
@@ -105,6 +121,10 @@ else {
             </fieldset>
 
 
+            <b>@TODO :</b> If the work is in progress, let worker select what percentage he is in and how it on the list.
+
+
+
 
             <?php if( forum()->isEdit() ) { ?>
                 <fieldset class="form-group">
@@ -117,10 +137,6 @@ else {
                     </label>
                 </fieldset>
             <? } ?>
-
-
-
-
 
             <fieldset class="form-group">
                 <?php
