@@ -9,11 +9,16 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 * http://dev.withcenter.com/ 에서 모든 작업을 관리한다.
 
-* 모든 TODO 나 모든 작업을 위 ITS 에서 한다.
+* 모든 TODO 나 모든 작업을 위 ITS 옮긴다.
+
+    * 모든 문서를 다 찾아서 하나 하나 재 검토하고 옮긴다.
+
+  
   
 # Work Environment
 
 * DB server & File server are on http://dev.withcenter.com
+    * Needs to edit DB info and Site address info.
     * see https://docs.google.com/document/d/1_eq21Xj2uBApeu9P-FmYQtLGcHL92oR8h_Impg02IBs/edit#heading=h.si5iimehk6gw
     * How to setup DB information and Site information.
 * ITS is also in http://dev.withcenter.com
@@ -23,6 +28,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 # TODO
 
 * MOVE ALL Work DATA to ITS
+
+* ITS 서버 백업.
 
 
 * create ITS and put all the works on it.

@@ -60,19 +60,6 @@ else {
                  ?>
             </fieldset>
 
-            <fieldset class="form-group">
-                <div class="caption">Who is in charge?</div>
-                <?php
-                $members = forum()->getCategory()->config['members'];
-                foreach( $members as $member ) {
-                ?>
-                <label class="radio-inline">
-                    <input type="radio" name="incharge" value="<?php echo $member?>" <?php if ( $member == post()->incharge ) echo 'checked=1'; ?>> <?php echo $member?>
-                </label>
-                <?php
-                }
-                 ?>
-            </fieldset>
 
             <fieldset class="form-group">
                 <label for="dead-line">Deadline</label>

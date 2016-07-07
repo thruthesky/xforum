@@ -12,21 +12,74 @@ get_header();
 <?php forum()->list_menu_write()?>
 <?php forum()->list_menu_user()?>
 
-
-combination of search items:
-
-
-worker,
-incharge,
-date of a work begin ( begin/end date option. so you know works began in the last month )
+<pre>combination of search items:
 deadline ( work of deadline in a week, in a day, ... give begin/end date of deadline. so you know deadline work of today, next week, last month )
 newly comments( day option. how old days of the comment is considers as new. )
 priority,
 process,
 percentage of work,
 title search,
-title + content search,
+title + content search,</pre>
 
+<style>
+    .form-group {
+
+    }
+    .form-group .caption {
+        display: inline-block;
+        margin-right: 10px;
+    }
+</style>
+<form>
+
+    <fieldset>
+        <span class="caption">Worker :</span>
+        <?php
+        $members = forum()->getCategory()->config['members'];
+        foreach( $members as $member ) {
+            ?>
+            <label class="radio-inline">
+                <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>> <?php echo $member?>
+            </label>
+            <?php
+        }
+        ?>
+    </fieldset>
+
+
+    <fieldset>
+        <div class="caption">Who is in charge?</div>
+        <?php
+        $members = forum()->getCategory()->config['members'];
+        foreach( $members as $member ) {
+            ?>
+            <label class="radio-inline">
+                <input type="radio" name="incharge" value="<?php echo $member?>" <?php if ( $member == post()->incharge ) echo 'checked=1'; ?>> <?php echo $member?>
+            </label>
+            <?php
+        }
+        ?>
+    </fieldset>
+
+
+
+    <fieldset>
+        <label for="created-begin">Created</label>
+        <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="">
+
+        <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="">
+    </fieldset>
+
+    <fieldset>
+        <label for="created-begin">Deadline</label>
+        <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="">
+
+        <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="">
+    </fieldset>
+
+
+
+</form>
 
 
 
