@@ -1,4 +1,5 @@
 <?php
+include DIR_XFORUM . 'template/its/its.class.php';
 $category = forum()->getCategory();
 get_header();
 ?>
@@ -88,13 +89,11 @@ get_header();
     <fieldset>
         <label class="caption" for="priority">Priority</label>
         <select id="priority" name="priority">
-            <option value="A" <?php if ( 'A' == in('priority') ) echo 'selected=1'?>>ALL</option>
-            <option value="N" <?php if ( 'N' == in('priority') ) echo 'selected=1'?>>Never mind</option>
-            <option value="L" <?php if ( 'L' == in('priority') ) echo 'selected=1'?>>Low</option>
-            <option value="M" <?php if ( 'M' == in('priority') ) echo 'selected=1'?>>Medium</option>
-            <option value="H" <?php if ( 'H' == in('priority') ) echo 'selected=1'?>>High</option>
-            <option value="I" <?php if ( 'I' == in('priority') ) echo 'selected=1'?>>Immediate</option>
-            <option value="C" <?php if ( 'C' == in('priority') ) echo 'selected=1'?>>Critical</option>
+            <option value="" <?php if ( ! in('priority') ) echo 'selected=1'?>>ALL</option>
+            <?php foreach ( its::$priority as $num => $text ) { ?>
+                <option value="<?php echo $num?>" <?php if ( in('priority') == $num ) echo 'selected=1'?>><?php echo $text?></option>
+            <?php } ?>
+
         </select>
     </fieldset>
 
@@ -119,21 +118,16 @@ get_header();
 
 
     <fieldset>
-        <label class="caption" for="title">Title</label>
-        <input id="title" type="text" name="title" value="<?php echo in('title') ?>"/>
+        <label class="caption" for="keyword">Search Text</label>
+        <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
     </fieldset>
 
-    <fieldset>
-        <label class="caption" for="title_content">Title + Content</label>
-        <input id="title_content" type="text" name="title_content" value="<?php echo in('title_content') ?>"/>
-    </fieldset>
 
     <fieldset>
         <label class="caption" for="order1">Order by</label>
         <select id="order1" name="order1">
             <option value="" <?php if ( '' == in('order1') ) echo 'selected=1'?>>Random</option>
             <option value="priority" <?php if ( 'priority' == in('order1') ) echo 'selected=1'?>>Priority</option>
-            <option value="process" <?php if ( 'process' == in('order1') ) echo 'selected=1'?>>Process</option>
             <option value="percentage" <?php if ( 'percentage' == in('order1') ) echo 'selected=1'?>>Percentage</option>
             <option value="created" <?php if ( 'created' == in('order1') ) echo 'selected=1'?>>Created</option>
             <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
@@ -152,7 +146,6 @@ get_header();
         <select id="order2" name="order2">
             <option value="" <?php if ( '' == in('order2') ) echo 'selected=1'?>>Random</option>
             <option value="priority" <?php if ( 'priority' == in('order2') ) echo 'selected=1'?>>Priority</option>
-            <option value="process" <?php if ( 'process' == in('order2') ) echo 'selected=1'?>>Process</option>
             <option value="percentage" <?php if ( 'percentage' == in('order2') ) echo 'selected=1'?>>Percentage</option>
             <option value="created" <?php if ( 'created' == in('order2') ) echo 'selected=1'?>>Created</option>
             <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
@@ -173,7 +166,9 @@ get_header();
 
 
 
+
 </form>
+
 
 
 
@@ -184,7 +179,7 @@ get_header();
         <?php
         $args = ['category' => $category->term_id];
 
-        if( in('title_content') ){
+        if ( in('title_content') ) {
             $args += [ 's' => in('title_content') ];
         }
 
@@ -192,7 +187,7 @@ get_header();
             $args[ 'meta_query' ][] = ['key'=>'worker', 'value'=>in('worker')];
         }
 
-        if ( in('priority') ) {
+        if ( in('priority') && in('priority') != 'A' ) {
             $args[ 'meta_query' ][] = ['key'=>'priority', 'value'=>in('priority')];
         }
 
@@ -200,19 +195,38 @@ get_header();
             $args[ 'meta_query' ][] = ['key'=>'incharge', 'value'=>in('incharge')];
         }
 
-        if ( in('process') ) {
+        if ( in('progress') && in('process') != 'A' ) {
             $args[ 'meta_query' ][] = ['key'=>'process', 'value'=>in('process')];
         }
 
-        if ( in('created_begin') && in('created_end') ) {
-            $args[ 'date_query' ][] = ['after'=>in('created_begin'), 'before'=>in('created_end')];
+
+        if ( in('created_begin') ) {
+            $begin = date('Y-m-d', strtotime( in('created_begin') ) - 60 * 60 * 24 );
+            $args[ 'date_query' ][] = [ 'after'=> $begin ];
         }
+
+        if ( in('created_end') ) {
+            $end = date('Y-m-d', strtotime( in('created_end') ) + 60 * 60 * 24 );
+            $args[ 'date_query' ][] = [ 'before'=> $end ];
+        }
+
 
         if ( in('deadline_begin') && in('deadline_end') ) {
             $args[ 'meta_query' ][] = ['key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
         }
         
         $posts = get_posts( $args );
+
+/*
+        global $wpdb;
+        echo "<pre>";
+        print_r($wpdb->queries);
+        echo "</pre>";
+*/
+
+
+
+
 
 
         if ( $posts ) { ?>

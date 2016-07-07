@@ -1,3 +1,6 @@
+<?php
+include DIR_XFORUM . 'template/its/its.class.php';
+?>
 <?php get_header(); ?>
 
 <?php
@@ -86,24 +89,13 @@ else {
 
             <fieldset class="form-group">
                 <div class="caption">Priority</div>
+
+                <?php foreach ( its::$priority as $num => $text ) { ?>
                 <label class="radio-inline">
-                    <input type="radio" name="priority" value="N" <?php if ( post()->priority == 'N' ) echo 'checked=1'; ?>> Never mind
+                    <input type="radio" name="priority" value="<?php echo $num?>" <?php if ( post()->priority == $num ) echo 'checked=1'; ?>> <?php echo $text?>
                 </label>
-                <label class="radio-inline">
-                    <input type="radio" name="priority" value="L" <?php if ( post()->priority == 'L' ) echo 'checked=1'; ?>> Low
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="priority" value="M" <?php if ( post()->priority == 'M' ) echo 'checked=1'; ?>> Medium
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="priority" value="H" <?php if ( post()->priority == 'H' ) echo 'checked=1'; ?>> High
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="priority" value="I" <?php if ( post()->priority == 'I' ) echo 'checked=1'; ?>> Immediate
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="priority" value="C" <?php if ( post()->priority == 'C' ) echo 'checked=1'; ?>> Critical
-                </label>
+                <?php } ?>
+
             </fieldset>
 
 
