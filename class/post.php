@@ -184,6 +184,11 @@ class post {
      * @return mixed|null
      *
      * @todo add unit tet test. add a test on property_exists or not. by viel.
+     *
+     * @code The two codes below are the same.
+            post()->meta('worker')
+            post()->worker
+     * @endcode
      */
     public function __get( $property ) {
         if ( empty( self::$post ) || ! property_exists( self::$post, 'ID' ) ) return false;

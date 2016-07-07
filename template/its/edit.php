@@ -62,6 +62,22 @@ else {
 
 
             <fieldset class="form-group">
+                <div class="caption">In charge : who is in charge of this work?</div>
+                <?php
+                $members = forum()->getCategory()->config['members'];
+                foreach( $members as $member ) {
+                ?>
+                <label class="radio-inline">
+                    <input type="radio" name="incharge" value="<?php echo $member?>" <?php if ( $member == post()->incharge ) echo 'checked=1'; ?>> <?php echo $member?>
+                </label>
+                <?php
+                }
+                 ?>
+            </fieldset>
+
+
+
+            <fieldset class="form-group">
                 <label for="dead-line">Deadline</label>
                 <input type="date" class="form-control" id="dead-line" name="deadline" placeholder="Input who is in charge" value="<?php e( post()->deadline ); ?>">
             </fieldset>
@@ -94,16 +110,16 @@ else {
             <fieldset class="form-group">
                 <div class="caption">Work process</div>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="N" <?php if ( post()->difficulty == 'N' ) echo 'checked=1'; ?>> Not started
+                    <input type="radio" name="process" value="N" <?php if ( post()->process == 'N' ) echo 'checked=1'; ?>> Not started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="S" <?php if ( post()->difficulty == 'S' ) echo 'checked=1'; ?>> Started
+                    <input type="radio" name="process" value="S" <?php if ( post()->process == 'S' ) echo 'checked=1'; ?>> Started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="P" <?php if ( post()->difficulty == 'P' ) echo 'checked=1'; ?>> In Progress
+                    <input type="radio" name="process" value="P" <?php if ( post()->process == 'P' ) echo 'checked=1'; ?>> In Progress
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="F" <?php if ( post()->difficulty == 'F' ) echo 'checked=1'; ?>> Finished
+                    <input type="radio" name="process" value="F" <?php if ( post()->process == 'F' ) echo 'checked=1'; ?>> Finished
                 </label>
             </fieldset>
 
