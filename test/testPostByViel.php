@@ -41,7 +41,6 @@ class testPostByViel extends post
         check( property_exists('testPostByViel', 'priv'), "Property exists.", "Property 'pub' does not exists." );
         check( property_exists(new testPostByViel, 'pub'), "Property exists.", "Property 'pub' does not exists." );
         check( property_exists($this, 'test'), "Property exists.", "Property 'test' does not exists." );
-        check( property_exists(self::post, 'test-content'), "Property exists.", "Property 'test' does not exists." );
     }
 
     public function post_crud()
