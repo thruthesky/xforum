@@ -183,7 +183,7 @@ class post {
      * @param $property
      * @return mixed|null
      *
-     * @todo add unit test. add a test on property_exists or not. by viel.
+     * @todo add unit tet test. add a test on property_exists or not. by viel.
      */
     public function __get( $property ) {
         if ( empty( self::$post ) || ! property_exists( self::$post, 'ID' ) ) return false;
