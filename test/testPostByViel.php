@@ -5,7 +5,7 @@ class testPostByViel extends post
     protected $prop;
     public $pub;
     private $priv;
-    static protected $test;
+    static $test = ['test-content'];
 
     public function __construct()
     {
@@ -34,12 +34,14 @@ class testPostByViel extends post
     }
 
     public function testProperty(){
-        check( property_exists($this, 'prop'), "Property exists.", "Property does not exists." );
-        check( !property_exists($this, 'method'), "Property does not exists.", "It should not exist." );
+        check( property_exists($this, 'prop'), "Property exists.", "Property 'prop' does not exists." );
+        check( !property_exists($this, 'method'), "Property does not exists.", "Property 'method' should not exist." );
 
-        check( property_exists('testPostByViel', 'pub'), "Property exists.", "Property does not exists." );
-        check( property_exists(new testPostByViel, 'pub'), "Property exists.", "Property does not exists." );
-        check( property_exists($this, 'test'), "Property exists.", "Property does not exists." );
+        check( property_exists('testPostByViel', 'pub'), "Property exists.", "Property 'pub' does not exists." );
+        check( property_exists('testPostByViel', 'priv'), "Property exists.", "Property 'pub' does not exists." );
+        check( property_exists(new testPostByViel, 'pub'), "Property exists.", "Property 'pub' does not exists." );
+        check( property_exists($this, 'test'), "Property exists.", "Property 'test' does not exists." );
+        check( property_exists(self::post, 'test-content'), "Property exists.", "Property 'test' does not exists." );
     }
 
     public function post_crud()
