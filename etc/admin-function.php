@@ -81,8 +81,9 @@ EOH;
 
 
 function forum_edit_line_admins( $term_id = 0 ) {
-    if ( $term_id ) $admins = get_term_meta( $term_id, 'admins', true);
-    else $admins = null;
+    //if ( $term_id ) $admins = get_term_meta( $term_id, 'admins', true);
+    //else $admins = null;
+    $admins = forum()->meta('admins');
     echo <<<EOH
             <fieldset class="form-group">
                 <label for="ForumAdmins">Forum Admins</label>
@@ -93,8 +94,11 @@ EOH;
 }
 
 function forum_edit_line_members( $term_id = 0 ) {
-    if ( $term_id ) $members = get_term_meta( $term_id, 'members', true);
+    /**
+     * if ( $term_id ) $members = get_term_meta( $term_id, 'members', true);
     else $members = null;
+     * */
+    $members = forum()->meta('members');
     echo <<<EOH
             <fieldset class="form-group">
                 <label for="ForumMembers">Forum Members</label>
@@ -105,8 +109,11 @@ EOH;
 }
 
 function forum_edit_line_template( $term_id = 0 ) {
+    /**
     if ( $term_id ) $template = get_term_meta( $term_id, 'template', true);
     else $template = null;
+     */
+    $template = forum()->meta('template');
     echo <<<EOH
             <fieldset class="form-group">
                 <label for="ForumTemplate">Forum Template</label>
@@ -116,8 +123,9 @@ function forum_edit_line_template( $term_id = 0 ) {
 EOH;
 }
 function forum_edit_line_category( $term_id = 0 ) {
-    if ( $term_id ) $category = get_term_meta( $term_id, 'category', true);
-    else $category = null;
+    //if ( $term_id ) $category = get_term_meta( $term_id, 'category', true);
+    //else $category = null;
+    $category = forum()->meta('category');
     echo <<<EOH
             <fieldset class="form-group">
                 <label for="ForumCategory">Forum Category ( .ini format )</label>

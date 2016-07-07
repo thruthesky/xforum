@@ -1,13 +1,37 @@
 # xforum
 New forum for withcenter company.
 
-
 # documents
 
 https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/edit#
 
+# ITS
+
+* http://dev.withcenter.com/ 에서 모든 작업을 관리한다.
+
+* 모든 TODO 나 모든 작업을 위 ITS 옮긴다.
+
+    * 모든 문서를 다 찾아서 하나 하나 재 검토하고 옮긴다.
+
+  
+  
+# Work Environment
+
+* DB server & File server are on http://dev.withcenter.com
+    * Needs to edit DB info and Site address info.
+    * see https://docs.google.com/document/d/1_eq21Xj2uBApeu9P-FmYQtLGcHL92oR8h_Impg02IBs/edit#heading=h.si5iimehk6gw
+    * How to setup DB information and Site information.
+* ITS is also in http://dev.withcenter.com
+
+
 
 # TODO
+
+* MOVE ALL Work DATA to ITS
+
+* ITS 서버 백업.
+
+
 * create ITS and put all the works on it.
 * @done comment CRUD
 * @done file update
@@ -52,6 +76,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 
 * cron 을 이용한 xforum 에 글 자동 등록.
+    필리핀 대사관 정보를 자동 등록한다.
+    
 
 
 * Remove un-necessary query - there are some SQL query doen by WP  but it is not used in the theme.
@@ -98,6 +124,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
     
     
 * Check: When the postmeta() data is loaded? If it is loaded automatically on wordpress boot like get_option(), it becomes a serious problem.
+
+
 
 
 
@@ -255,6 +283,15 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 
 
 # Coding Guide
+
+
+## How to use forum configuration
+
+Use forum config like below.
+
+    forum()->getCategory()->config['members']
+
+* comma(,) separated values will be automatically parsed into array.
 
 
 ## Javascripts

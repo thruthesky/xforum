@@ -47,14 +47,35 @@ else {
             </fieldset>
 
             <fieldset class="form-group">
-                <label for="worker">Worker</label>
-                <input type="text" class="form-control" id="worker" name="worker" placeholder="Input worker" value="<?php e( post()->worker );?>">
+                <div class="caption">Worker</div>
+                <?php
+                $members = forum()->getCategory()->config['members'];
+                foreach( $members as $member ) {
+                ?>
+                <label class="radio-inline">
+                    <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>> <?php echo $member?>
+                </label>
+                <?php
+                }
+                 ?>
             </fieldset>
 
+
             <fieldset class="form-group">
-                <label for="incharge">Who is in charge?</label>
-                <input type="text" class="form-control" id="incharge" name="incharge" placeholder="Input who is in charge" value="<?php e( post()->incharge ); ?>">
+                <div class="caption">In charge : who is in charge of this work?</div>
+                <?php
+                $members = forum()->getCategory()->config['members'];
+                foreach( $members as $member ) {
+                ?>
+                <label class="radio-inline">
+                    <input type="radio" name="incharge" value="<?php echo $member?>" <?php if ( $member == post()->incharge ) echo 'checked=1'; ?>> <?php echo $member?>
+                </label>
+                <?php
+                }
+                 ?>
             </fieldset>
+
+
 
             <fieldset class="form-group">
                 <label for="dead-line">Deadline</label>
@@ -89,22 +110,26 @@ else {
             <fieldset class="form-group">
                 <div class="caption">Work process</div>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="N" <?php if ( post()->difficulty == 'N' ) echo 'checked=1'; ?>> Not started
+                    <input type="radio" name="process" value="N" <?php if ( post()->process == 'N' ) echo 'checked=1'; ?>> Not started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="S" <?php if ( post()->difficulty == 'S' ) echo 'checked=1'; ?>> Started
+                    <input type="radio" name="process" value="S" <?php if ( post()->process == 'S' ) echo 'checked=1'; ?>> Started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="P" <?php if ( post()->difficulty == 'P' ) echo 'checked=1'; ?>> In Progress
+                    <input type="radio" name="process" value="P" <?php if ( post()->process == 'P' ) echo 'checked=1'; ?>> In Progress
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="difficulty" value="F" <?php if ( post()->difficulty == 'F' ) echo 'checked=1'; ?>> Finished
+                    <input type="radio" name="process" value="F" <?php if ( post()->process == 'F' ) echo 'checked=1'; ?>> Finished
                 </label>
             </fieldset>
 
 
+            <b>@TODO :</b> If the work is in progress, let worker select what percentage he is in and how it on the list.
 
-            <?php if ( forum()->isEdit() ) { ?>
+
+
+
+            <?php if( forum()->isEdit() ) { ?>
                 <fieldset class="form-group">
                     <div class="caption">Work evaluation</div>
                     <label class="radio-inline">
@@ -115,10 +140,6 @@ else {
                     </label>
                 </fieldset>
             <?php } ?>
-
-
-
-
 
             <fieldset class="form-group">
                 <?php
