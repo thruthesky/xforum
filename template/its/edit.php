@@ -113,7 +113,7 @@ else {
 
 
 
-            <?php if ( forum()->isEdit() ) { ?>
+            <?php if( forum()->isEdit() ) { ?>
                 <fieldset class="form-group">
                     <div class="caption">Work evaluation</div>
                     <label class="radio-inline">

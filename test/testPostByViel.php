@@ -2,6 +2,10 @@
 
 class testPostByViel extends post
 {
+    protected $prop;
+    public $pub;
+    private $priv;
+    static protected $test;
 
     public function __construct()
     {
@@ -11,6 +15,7 @@ class testPostByViel extends post
     public function runTest()
     {
         $this->testInstance();
+        $this->testProperty();
         $this->post_crud();
     }
 
@@ -26,6 +31,15 @@ class testPostByViel extends post
         check( $post1 instanceof forum == false, "post instance okay.", "should be post instance" );
         check( $post2 instanceof forum == false, "post instance okay.", "should be post instance" );
         check( post() instanceof forum == false, "post instance okay.", "should be post instance" );
+    }
+
+    public function testProperty(){
+        check( property_exists($this, 'prop'), "Property exists.", "Property does not exists." );
+        check( !property_exists($this, 'method'), "Property does not exists.", "It should not exist." );
+
+        check( property_exists('testPostByViel', 'pub'), "Property exists.", "Property does not exists." );
+        check( property_exists(new testPostByViel, 'pub'), "Property exists.", "Property does not exists." );
+        check( property_exists($this, 'test'), "Property exists.", "Property does not exists." );
     }
 
     public function post_crud()
@@ -125,6 +139,7 @@ class testPostByViel extends post
         check( !$re,  "$cat_ID forum has been deleted.", "failed on forum()->delete($cat_ID) : $re");
 
     }
+
 
 
 }
