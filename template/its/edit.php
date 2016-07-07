@@ -114,7 +114,7 @@ else {
                         <input type="radio" name="evaluation" value="R" <?php if ( post()->evaluation == 'R' ) echo 'checked=1'; ?>> Rejected
                     </label>
                 </fieldset>
-            <? } ?>
+            <?php } ?>
 
 
 
@@ -150,3 +150,4 @@ else {
     </div>
 
 <?php get_footer(); ?>
+
