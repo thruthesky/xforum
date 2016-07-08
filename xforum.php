@@ -34,7 +34,7 @@ include_once DIR_XFORUM . 'etc/init.php';
 
 /* apply this filter only on relevant to you pages */
 function xforum_remove_main_query( $sql, WP_Query &$wpQuery ) {
-    if ( $wpQuery->is_main_query() ) {
+    if ( ! is_single() && $wpQuery->is_main_query() ) {
         /* prevent SELECT FOUND_ROWS() query*/
         $wpQuery->query_vars['no_found_rows'] = true;
 

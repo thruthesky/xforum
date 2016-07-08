@@ -335,16 +335,16 @@ get_header();
         }
 
 
-        di($args);
+//        di($args);
 
         $posts = get_posts( $args );
 
-//
-//        global $wpdb;
-//        echo "<pre>";
-//        print_r($wpdb->queries);
-//        echo "</pre>";
-
+/**
+        global $wpdb;
+        echo "<pre>";
+        print_r($wpdb->queries);
+        echo "</pre>";
+**/
 
 
 
