@@ -21,7 +21,54 @@ get_header();
         display: inline-block;
         margin-right: 10px;
     }
+
 </style>
+
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+
+        $("#order1").change(function() {
+            $("#order1_sort").show();
+        });
+
+        $("#order2").change(function() {
+            $("#order2_sort").show();
+        });
+
+        $("#process").change(function () {
+            if ($(this).val() == "P") {
+                $("#percent").show();
+            }
+        });
+
+        if( $('#order1 option').is(':selected') ) {
+            if ($("#order1 ")[0].selectedIndex <= 0 ) {
+                $("#order1_sort").hide();
+            } else {
+                $("#order1_sort").show();
+            }
+        }
+
+        if( $('#order2 option').is(':selected') ) {
+            if ( $("#order2 ")[0].selectedIndex <= 0 ) {
+                $("#order2_sort").hide();
+            } else {
+                $("#order2_sort").show();
+            }
+
+        }
+
+        if( $('#process option').is(':selected') ) {
+            if ($("#process").val() == "P") {
+                $("#percent").show();
+            } else {
+                $("#percent").hide();
+            }
+        }
+
+    });
+</script>
+
 <form action="?">
     <input type="hidden" name="forum" value="list">
     <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
@@ -110,10 +157,15 @@ get_header();
 
 
     <fieldset>
-        <label class="caption" for="percentage">Percentage</label>
-        <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="0" oninput="percentage_value.value=percentage.value"/>
-        <output name="percentage_value">0</output>
-<!--        @todo: show percentage in text.-->
+        <div id="percent">
+            <?php
+            if ( in('percentage') ) $percent = in('percentage');
+            else $percent = 0;
+            ?>
+            <label class="caption" for="percentage">Percentage</label>
+            <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
+            <output name="percentage_value"><?php echo $percent; ?></output>
+        </div>
     </fieldset>
 
 
@@ -133,12 +185,15 @@ get_header();
             <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
             <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
         </select>
-        <label>
-            <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
-        </label>
-        <label>
-            <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
-        </label>
+
+        <div id="order1_sort">
+            <label>
+                <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
+            </label>
+            <label>
+                <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
+            </label>
+        </div>
     </fieldset>
 
     <fieldset class="order2">
@@ -151,12 +206,14 @@ get_header();
             <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
             <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
         </select>
-        <label>
-            <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
-        </label>
-        <label>
-            <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
-        </label>
+        <div id="order2_sort">
+            <label>
+                <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
+            </label>
+            <label>
+                <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
+            </label>
+        </div>
     </fieldset>
 
 
@@ -182,26 +239,29 @@ get_header();
             'posts_per_page' => 20,
         ];
 
-        if ( in('title_content') ) {
-            $args += [ 's' => in('title_content') ];
+        if ( in('keyword') ) {
+            $args += [ 's' => in('keyword') ];
         }
 
         if ( in('worker') ) {
-            $args[ 'meta_query' ][] = ['key'=>'worker', 'value'=>in('worker')];
+            $args[ 'meta_query' ][] = [ 'key'=>'worker', 'value'=>in('worker') ];
         }
 
         if ( in('priority') && in('priority') != 'A' ) {
-            $args[ 'meta_query' ][] = ['key'=>'priority', 'value'=>in('priority')];
+            $args[ 'meta_query' ][] = [ 'key'=>'priority', 'value'=>in('priority') ];
         }
 
         if ( in('incharge') ) {
-            $args[ 'meta_query' ][] = ['key'=>'incharge', 'value'=>in('incharge')];
+            $args[ 'meta_query' ][] = [ 'key'=>'incharge', 'value'=>in('incharge') ];
         }
 
-        if ( in('progress') && in('process') != 'A' ) {
-            $args[ 'meta_query' ][] = ['key'=>'process', 'value'=>in('process')];
+        if ( in('process') && in('process') != 'A' ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'process', 'value'=>in('process') ];
         }
 
+        if ( in('percentage') ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>array( 1,in('percentage') ), 'compare'=>'BETWEEN' ];
+        }
 
         if ( in('created_begin') ) {
             $begin = date('Y-m-d', strtotime( in('created_begin') ) - 60 * 60 * 24 );
@@ -213,18 +273,77 @@ get_header();
             $args[ 'date_query' ][] = [ 'before'=> $end ];
         }
 
-
-        if ( in('deadline_begin') && in('deadline_end') ) {
-            $args[ 'meta_query' ][] = ['key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
+        if ( in('deadline_begin') || in('deadline_end') ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
         }
-        
+
+
+
+        if ( in('order1') ) {
+            if ( in('order1') == 'priority' ) {
+                $sort_what = 'priority';
+                $args[ 'meta_query' ]['priority'] = [ 'key'=>'priority', 'orderby'=>'meta_value_num' ];
+            }
+
+            elseif ( in('order1') == 'created' ) {
+                $sort_what = 'date';
+            }
+
+            elseif ( in('order1') == 'deadline' ) {
+                $sort_what = 'deadline';
+                $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
+            }
+
+            elseif ( in('order1') == 'percentage' ) {
+                $sort_what = 'percentage';
+                $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
+            }
+
+            $args[ 'orderby' ] = [ $sort_what=>in('order1_sort') ];
+        }
+
+
+
+        if ( in('order2') ) {
+            if ( in('order2') == 'priority' ) {
+                $sort_what = 'priority';
+                $args[ 'meta_query' ]['priority'] = [ 'key'=>'priority', 'orderby'=>'meta_value_num' ];
+            }
+
+            elseif ( in('order2') == 'created' ) {
+                $sort_what = 'post_date';
+            }
+
+            elseif ( in('order2') == 'deadline' ) {
+                $sort_what = 'deadline';
+                $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
+            }
+
+            elseif ( in('order2') == 'percentage' ) {
+                $sort_what = 'percentage';
+                $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
+            }
+
+            if ( in('order1_sort') ) {
+                // if there's a sorting selected on 'order1_sort', append to the current array
+                $args[ 'orderby' ] += [ $sort_what=>in('order2_sort') ];
+            } else {
+                // else, do not append or else: Unsupported operand types error
+                $args[ 'orderby' ] = [ $sort_what=>in('order2_sort') ];
+            }
+
+        }
+
+
+        di($args);
+
         $posts = get_posts( $args );
 
-
-        global $wpdb;
-        echo "<pre>";
-        print_r($wpdb->queries);
-        echo "</pre>";
+//
+//        global $wpdb;
+//        echo "<pre>";
+//        print_r($wpdb->queries);
+//        echo "</pre>";
 
 
 
@@ -247,6 +366,9 @@ get_header();
                                 <?php the_title()?>
                                 <?php forum()->count_comments( get_the_ID() ) ?>
                             </a>
+                        </td>
+                        <td>
+                            <?php echo get_the_date();?>
                         </td>
                         <td>
                             <?php echo post()->priority?>

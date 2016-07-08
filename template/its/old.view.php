@@ -38,7 +38,7 @@ wp_enqueue_style( 'xforum-view', URL_XFORUM . 'css/its/forum-view.css' );
                 <h5 class="list-group-item-heading">Work Status</h5>
                 <p class="list-group-item-text">
                     Immediate <br/>
-                    Medium <br/>
+                    Medium <br/><d
                     Work Started <br/>
                 </p>
             </div>
