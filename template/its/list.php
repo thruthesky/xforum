@@ -22,6 +22,7 @@ get_header();
         margin-right: 10px;
     }
 </style>
+
 <form action="?">
     <input type="hidden" name="forum" value="list">
     <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
