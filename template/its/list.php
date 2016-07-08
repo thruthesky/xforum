@@ -184,19 +184,19 @@ get_header();
         }
 
         if ( in('worker') ) {
-            $args[ 'meta_query' ][] = ['key'=>'worker', 'value'=>in('worker')];
+            $args[ 'meta_query' ][] = [ 'key'=>'worker', 'value'=>in('worker') ];
         }
 
         if ( in('priority') && in('priority') != 'A' ) {
-            $args[ 'meta_query' ][] = ['key'=>'priority', 'value'=>in('priority')];
+            $args[ 'meta_query' ][] = [ 'key'=>'priority', 'value'=>in('priority') ];
         }
 
         if ( in('incharge') ) {
-            $args[ 'meta_query' ][] = ['key'=>'incharge', 'value'=>in('incharge')];
+            $args[ 'meta_query' ][] = [ 'key'=>'incharge', 'value'=>in('incharge') ];
         }
 
         if ( in('progress') && in('process') != 'A' ) {
-            $args[ 'meta_query' ][] = ['key'=>'process', 'value'=>in('process')];
+            $args[ 'meta_query' ][] = [ 'key'=>'process', 'value'=>in('process') ];
         }
 
 
@@ -211,17 +211,38 @@ get_header();
         }
 
 
-        if ( in('deadline_begin') && in('deadline_end') ) {
-            $args[ 'meta_query' ][] = ['key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
+        if ( in('deadline_begin') || in('deadline_end') ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
         }
-        
+
+        if ( in('order1') ) {
+            $args += [ 'order' => in('order1_sort') ];
+
+            if ( in('order1') == 'priority' ) {
+                $args += [ 'meta_key'=>'priority', 'orderby'=> 'meta_value_num' ];
+
+            }
+
+            elseif ( in('order1') == 'created' ) {
+                $args += [ 'orderby'=> 'date' ];
+
+            }
+
+            elseif ( in('order1') == 'deadline' ) {
+                $args += [ 'meta_key'=>'deadline', 'orderby'=>'meta_value date' ];
+
+            }
+
+
+
+        }
         $posts = get_posts( $args );
 
-
-        global $wpdb;
-        echo "<pre>";
-        print_r($wpdb->queries);
-        echo "</pre>";
+//
+//        global $wpdb;
+//        echo "<pre>";
+//        print_r($wpdb->queries);
+//        echo "</pre>";
 
 
 
