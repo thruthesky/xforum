@@ -217,28 +217,52 @@ get_header();
             $args[ 'date_query' ][] = [ 'before'=> $end ];
         }
 
-
         if ( in('deadline_begin') || in('deadline_end') ) {
             $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
         }
 
+
+
         if ( in('order1') ) {
             if ( in('order1') == 'priority' ) {
-                $args[ 'meta_query' ][] = [ 'key'=>'priority', 'orderby'=>'meta_value_num', 'order'=> in('order1_sort') ];
+                $args[ 'meta_query' ]['priority'] = [ 'key'=>'priority', 'orderby'=>'meta_value_num' ];
             }
 
             elseif ( in('order1') == 'created' ) {
-                $args += [ 'orderby'=>'date', 'order'=>in('order1_sort') ];
+                $args += [ 'orderby'=>'date' ];
             }
 
             elseif ( in('order1') == 'deadline' ) {
-                $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'orderby'=>'meta_value date', 'order'=> in('order1_sort') ];
+                $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
             }
 
             elseif ( in('order1') == 'percentage' ) {
-                $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num', 'order'=> in('order1_sort') ];
+                $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
             }
 
+            $args[ 'orderby' ] = [ in('order1')=>in('order1_sort') ];
+        }
+
+
+
+        if ( in('order2') ) {
+            if ( in('order2') == 'priority' ) {
+                $args[ 'meta_query' ]['priority'] = [ 'key'=>'priority', 'orderby'=>'meta_value_num' ];
+            }
+
+            elseif ( in('order2') == 'created' ) {
+                $args += [ 'orderby'=>'date' ];
+            }
+
+            elseif ( in('order2') == 'deadline' ) {
+                $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
+            }
+
+            elseif ( in('order2') == 'percentage' ) {
+                $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
+            }
+
+            $args[ 'orderby' ] += [ in('order2')=>in('order2_sort') ];
         }
 
 
