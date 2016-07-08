@@ -21,7 +21,28 @@ get_header();
         display: inline-block;
         margin-right: 10px;
     }
+
 </style>
+
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+
+        $("#order1").change(function() {
+            $("#order1_sort").show();
+        });
+
+        $("#order2").change(function() {
+            $("#order2_sort").show();
+        });
+
+        $("#process").change(function () {
+            if ($(this).val() == "P") {
+                $("#percent").show();
+            }
+        });
+
+    });
+</script>
 
 <form action="?">
     <input type="hidden" name="forum" value="list">
@@ -111,13 +132,15 @@ get_header();
 
 
     <fieldset>
-        <?php
-        if ( in('percentage') ) $percent = in('percentage');
-        else $percent = 0;
-        ?>
-        <label class="caption" for="percentage">Percentage</label>
-        <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
-        <output name="percentage_value"><?php echo $percent; ?></output>
+        <div id="percent" style="display: none;">
+            <?php
+            if ( in('percentage') ) $percent = in('percentage');
+            else $percent = 0;
+            ?>
+            <label class="caption" for="percentage">Percentage</label>
+            <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
+            <output name="percentage_value"><?php echo $percent; ?></output>
+        </div>
     </fieldset>
 
 
@@ -137,12 +160,15 @@ get_header();
             <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
             <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
         </select>
-        <label>
-            <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
-        </label>
-        <label>
-            <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
-        </label>
+
+        <div id="order1_sort" style="display: none;">
+            <label>
+                <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
+            </label>
+            <label>
+                <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
+            </label>
+        </div>
     </fieldset>
 
     <fieldset class="order2">
@@ -155,12 +181,14 @@ get_header();
             <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
             <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
         </select>
-        <label>
-            <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
-        </label>
-        <label>
-            <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
-        </label>
+        <div id="order2_sort" style="display: none;">
+            <label>
+                <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
+            </label>
+            <label>
+                <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
+            </label>
+        </div>
     </fieldset>
 
 
@@ -279,7 +307,7 @@ get_header();
         }
 
 
-        di($args);
+//        di($args);
 
         $posts = get_posts( $args );
 

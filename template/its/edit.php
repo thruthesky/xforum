@@ -32,6 +32,19 @@ else {
         }
     </style>
 
+    <script type="text/javascript">
+        jQuery(document).ready(function(){
+
+            $("#process").change(function() {
+                $("#percent").show();
+            });
+
+            if($('#process').is(':checked')) {
+                    $("#percent").show();
+            }
+
+        });
+    </script>
     <div class="post-edit-box">
 
         <form action="?" method="post">
@@ -108,7 +121,7 @@ else {
                     <input type="radio" name="process" value="S" <?php if ( post()->process == 'S' ) echo 'checked=1'; ?>> Started
                 </label>
                 <label class="radio-inline">
-                    <input type="radio" name="process" value="P" <?php if ( post()->process == 'P' ) echo 'checked=1'; ?>> In Progress
+                    <input type="radio" name="process" id="process" value="P" <?php if ( post()->process == 'P' ) echo 'checked=1'; ?>> In Progress
                 </label>
                 <label class="radio-inline">
                     <input type="radio" name="process" value="F" <?php if ( post()->process == 'F' ) echo 'checked=1'; ?>> Finished
@@ -117,7 +130,7 @@ else {
 
 
             <b>@TODO :</b> If the work is in progress, let worker select what percentage he is in and how it on the list.
-            <fieldset>
+            <fieldset id="percent" style="display: none;">
                 <?php
                 if ( post()->percentage != NULL ) $percent = post()->percentage;
                 else $percent = 0;
