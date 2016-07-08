@@ -183,8 +183,8 @@ get_header();
         <?php
         $args = ['category' => $category->term_id];
 
-        if ( in('title_content') ) {
-            $args += [ 's' => in('title_content') ];
+        if ( in('keyword') ) {
+            $args += [ 's' => in('keyword') ];
         }
 
         if ( in('worker') ) {
@@ -223,29 +223,26 @@ get_header();
         }
 
         if ( in('order1') ) {
-            $args += [ 'order' => in('order1_sort') ];
-
             if ( in('order1') == 'priority' ) {
-                $args += [ 'meta_key'=>'priority', 'orderby'=> 'meta_value_num' ];
-
+                $args[ 'meta_query' ][] = [ 'key'=>'priority', 'orderby'=>'meta_value_num', 'order'=> in('order1_sort') ];
             }
 
             elseif ( in('order1') == 'created' ) {
-                $args += [ 'orderby'=> 'date' ];
-
+                $args += [ 'orderby'=>'date', 'order'=>in('order1_sort') ];
             }
 
             elseif ( in('order1') == 'deadline' ) {
-                $args += [ 'meta_key'=>'deadline', 'orderby'=>'meta_value date' ];
-
+                $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'orderby'=>'meta_value date', 'order'=> in('order1_sort') ];
             }
 
             elseif ( in('order1') == 'percentage' ) {
-                $args += [ 'meta_key'=>'percentage', 'orderby'=>'meta_value_num' ];
-
+                $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num', 'order'=> in('order1_sort') ];
             }
 
         }
+
+
+        di($args);
 
         $posts = get_posts( $args );
 
@@ -276,6 +273,9 @@ get_header();
                                 <?php the_title()?>
                                 <?php forum()->count_comments( get_the_ID() ) ?>
                             </a>
+                        </td>
+                        <td>
+                            <?php echo get_the_date();?>
                         </td>
                         <td>
                             <?php echo post()->priority?>
