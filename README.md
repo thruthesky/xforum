@@ -18,6 +18,8 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 # Work Environment
 
 * DB server & File server are on http://dev.withcenter.com
+    ( 소스는 현재 컴퓨터에 있고, DB 서버와 파일 서버를 실제서버에서 하는 경우 )
+    ( 중요 : DB 서버와 ping 에서 time 이 100 이하로 나와야 작업을 할 수 있다. 아니면 시간이 너무 오래 걸림 )
     * Needs to edit DB info and Site address info.
     * see https://docs.google.com/document/d/1_eq21Xj2uBApeu9P-FmYQtLGcHL92oR8h_Impg02IBs/edit#heading=h.si5iimehk6gw
     * How to setup DB information and Site information.
