@@ -32,6 +32,21 @@ include_once DIR_XFORUM . 'etc/init.php';
 
 
 
+/* apply this filter only on relevant to you pages */
+function xforum_remove_main_query( $sql, WP_Query &$wpQuery ) {
+    if ( $wpQuery->is_main_query() ) {
+        /* prevent SELECT FOUND_ROWS() query*/
+        $wpQuery->query_vars['no_found_rows'] = true;
+
+        /* prevent post term and meta cache update queries */
+        $wpQuery->query_vars['cache_results'] = false;
+
+        return false;
+    }
+    return $sql;
+}
+add_filter( 'posts_request', 'xforum_remove_main_query', 10, 2 );
+
 
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');
 xlog( in() );

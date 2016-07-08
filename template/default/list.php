@@ -19,9 +19,11 @@ get_header();
         <?php
         $posts = get_posts(
             [
-                'category' => $category->term_id,
+                'cat' => $category->term_id,
+
             ]
         );
+
 
         if ( $posts ) { ?>
             <table class="table">
@@ -48,6 +50,14 @@ get_header();
                     </tr>
                 <?php } ?>
             </table>
+
+
+            <?php the_posts_pagination( array(
+                'mid_size' => 2,
+                'prev_text' => __( 'Back', 'textdomain' ),
+                'next_text' => __( 'Onward', 'textdomain' ),
+            ) ); ?>
+
         <?php } ?>
     </div>
 

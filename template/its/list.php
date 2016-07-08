@@ -177,7 +177,10 @@ get_header();
 
     <div class="post-list">
         <?php
-        $args = ['category' => $category->term_id];
+        $args = [
+            'cat' => $category->term_id,
+            'posts_per_page' => 20,
+        ];
 
         if ( in('title_content') ) {
             $args += [ 's' => in('title_content') ];
