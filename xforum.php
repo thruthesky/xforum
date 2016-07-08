@@ -32,7 +32,10 @@ include_once DIR_XFORUM . 'etc/init.php';
 
 
 
-/* apply this filter only on relevant to you pages */
+/**
+ * 아래의 filter 는 main query 를 하지 않는다.
+ * 단, 글 읽기 페이지에서는 main query 를 한다.
+ */
 function xforum_remove_main_query( $sql, WP_Query &$wpQuery ) {
     if ( ! is_single() && $wpQuery->is_main_query() ) {
         /* prevent SELECT FOUND_ROWS() query*/
