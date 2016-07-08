@@ -27,22 +27,22 @@ get_header();
 <script type="text/javascript">
     jQuery(document).ready(function(){
 
-        $( "#order1").change(function() {
+        $("#order1").change(function() {
             $("#order1_sort").show();
         });
 
-        $( "#order2").change(function() {
+        $("#order2").change(function() {
             $("#order2_sort").show();
         });
 
-        $( "#process").change(function () {
+        $("#process").change(function () {
             if ($(this).val() == "P") {
                 $("#percent").show();
             }
         });
 
         if( $('#order1 option').is(':selected') ) {
-            if ($("#order1 ")[0].selectedIndex <= 0) {
+            if ($("#order1 ")[0].selectedIndex <= 0 ) {
                 $("#order1_sort").hide();
             } else {
                 $("#order1_sort").show();
@@ -50,12 +50,20 @@ get_header();
         }
 
         if( $('#order2 option').is(':selected') ) {
-            if ($("#order2 ")[0].selectedIndex <= 0) {
+            if ( $("#order2 ")[0].selectedIndex <= 0 ) {
                 $("#order2_sort").hide();
             } else {
                 $("#order2_sort").show();
             }
 
+        }
+
+        if( $('#process option').is(':selected') ) {
+            if ($("#process").val() == "P") {
+                $("#percent").show();
+            } else {
+                $("#percent").hide();
+            }
         }
 
     });
@@ -149,7 +157,7 @@ get_header();
 
 
     <fieldset>
-        <div id="percent" style="display: none;">
+        <div id="percent">
             <?php
             if ( in('percentage') ) $percent = in('percentage');
             else $percent = 0;
@@ -300,7 +308,7 @@ get_header();
             }
 
             elseif ( in('order2') == 'created' ) {
-                $sort_what = 'date';
+                $sort_what = 'post_date';
             }
 
             elseif ( in('order2') == 'deadline' ) {
@@ -324,7 +332,7 @@ get_header();
         }
 
 
-//        di($args);
+        di($args);
 
         $posts = get_posts( $args );
 
