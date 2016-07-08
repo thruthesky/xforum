@@ -27,19 +27,36 @@ get_header();
 <script type="text/javascript">
     jQuery(document).ready(function(){
 
-        $("#order1").change(function() {
+        $( "#order1").change(function() {
             $("#order1_sort").show();
         });
 
-        $("#order2").change(function() {
+        $( "#order2").change(function() {
             $("#order2_sort").show();
         });
 
-        $("#process").change(function () {
+        $( "#process").change(function () {
             if ($(this).val() == "P") {
                 $("#percent").show();
             }
         });
+
+        if( $('#order1 option').is(':selected') ) {
+            if ($("#order1 ")[0].selectedIndex <= 0) {
+                $("#order1_sort").hide();
+            } else {
+                $("#order1_sort").show();
+            }
+        }
+
+        if( $('#order2 option').is(':selected') ) {
+            if ($("#order2 ")[0].selectedIndex <= 0) {
+                $("#order2_sort").hide();
+            } else {
+                $("#order2_sort").show();
+            }
+
+        }
 
     });
 </script>
@@ -161,7 +178,7 @@ get_header();
             <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
         </select>
 
-        <div id="order1_sort" style="display: none;">
+        <div id="order1_sort">
             <label>
                 <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
             </label>
@@ -181,7 +198,7 @@ get_header();
             <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
             <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
         </select>
-        <div id="order2_sort" style="display: none;">
+        <div id="order2_sort">
             <label>
                 <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
             </label>
