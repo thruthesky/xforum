@@ -90,7 +90,7 @@ class user extends WP_User {
      * @return false|WP_User
      */
     public function forceLogin($user_login) {
-        echo "user_login: $user_login\n";
+        // echo "user_login: $user_login\n";
         $user = get_user_by( 'login', $user_login );
         if ( $user === false ) {
             xlog("error on forceLogin");

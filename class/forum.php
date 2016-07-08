@@ -587,7 +587,12 @@ class forum {
 
 
     /**
-     * @return int|object - returns INT on success.
+     * @return int|object - returns term_id (INT) on success.
+     *          return string on error.
+     *
+     *
+     * @todo remove save(). do something like "forum()->set(...)->create()"
+     *
      */
     public function save() {
         $term_ID = $this->createOrUpdate( self::$entity );
@@ -711,13 +716,24 @@ class forum {
      *
      * @return mixed|null - return null on setting/updating. return value of string on getting.
      *
+     * @code to get meta data
+     *      forum()->meta('template');
+     *      forum()->meta($cat_ID, 'template');
+     * @endcode
+     * @code to save meta data
+     *         forum()->meta($cat_ID, 'template', $template_name);
+     * @endcode
+     *
      * @todo add test on meta('name');
      */
     public function meta($term_ID, $key=null, $value = null)
     {
         if ( $key === null ) {
-            $key = $term_ID;
-            $term_ID = $this->getCategory()->term_id;
+            if ( $this->getCategory() ) {
+                $key = $term_ID;
+                $term_ID = $this->getCategory()->term_id;
+            }
+            else return null;
         }
         if ( $value !== null ) {
             delete_term_meta( $term_ID, $key );

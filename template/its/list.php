@@ -217,12 +217,14 @@ get_header();
         
         $posts = get_posts( $args );
 
-/*
+
         global $wpdb;
         echo "<pre>";
         print_r($wpdb->queries);
         echo "</pre>";
-*/
+
+
+
 
 
 
