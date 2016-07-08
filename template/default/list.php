@@ -20,6 +20,7 @@ get_header();
         $posts = get_posts(
             [
                 'cat' => $category->term_id,
+                'posts_per_page' => 3,
 
             ]
         );
@@ -51,6 +52,19 @@ get_header();
                 <?php } ?>
             </table>
 
+
+<?php
+
+
+            global $wpdb;
+            echo "<pre>";
+            print_r($wpdb->queries);
+            echo "</pre>";
+
+            di( $wp_query );
+
+
+            ?>
 
             <?php the_posts_pagination( array(
                 'mid_size' => 2,

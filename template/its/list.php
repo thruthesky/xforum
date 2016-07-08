@@ -236,7 +236,7 @@ get_header();
         <?php
         $args = [
             'cat' => $category->term_id,
-            'posts_per_page' => 20,
+            'posts_per_page' => 40,
         ];
 
         if ( in('keyword') ) {
@@ -338,13 +338,6 @@ get_header();
 //        di($args);
 
         $posts = get_posts( $args );
-
-/**
-        global $wpdb;
-        echo "<pre>";
-        print_r($wpdb->queries);
-        echo "</pre>";
-**/
 
 
 
