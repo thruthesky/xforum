@@ -117,8 +117,15 @@ else {
 
 
             <b>@TODO :</b> If the work is in progress, let worker select what percentage he is in and how it on the list.
-
-
+            <fieldset>
+                <?php
+                if ( post()->percentage != NULL ) $percent = post()->percentage;
+                else $percent = 0;
+                ?>
+                <label class="caption" for="percentage">Percentage</label>
+                <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
+                <output name="percentage_value"><?php echo $percent; ?></output>
+            </fieldset>
 
 
             <?php if( forum()->isEdit() ) { ?>

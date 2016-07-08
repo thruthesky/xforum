@@ -110,10 +110,13 @@ get_header();
 
 
     <fieldset>
+        <?php
+        if ( in('percentage') ) $percent = in('percentage');
+        else $percent = 0;
+        ?>
         <label class="caption" for="percentage">Percentage</label>
-        <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="0" oninput="percentage_value.value=percentage.value"/>
-        <output name="percentage_value">0</output>
-<!--        @todo: show percentage in text.-->
+        <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
+        <output name="percentage_value"><?php echo $percent; ?></output>
     </fieldset>
 
 
@@ -195,10 +198,13 @@ get_header();
             $args[ 'meta_query' ][] = [ 'key'=>'incharge', 'value'=>in('incharge') ];
         }
 
-        if ( in('progress') && in('process') != 'A' ) {
+        if ( in('process') && in('process') != 'A' ) {
             $args[ 'meta_query' ][] = [ 'key'=>'process', 'value'=>in('process') ];
         }
 
+        if ( in('percentage') && in('percentage') != 0 ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>in('percentage') ];
+        }
 
         if ( in('created_begin') ) {
             $begin = date('Y-m-d', strtotime( in('created_begin') ) - 60 * 60 * 24 );
@@ -233,9 +239,13 @@ get_header();
 
             }
 
+            elseif ( in('order1') == 'percentage' ) {
+                $args += [ 'meta_key'=>'percentage', 'orderby'=>'meta_value_num' ];
 
+            }
 
         }
+
         $posts = get_posts( $args );
 
 //
