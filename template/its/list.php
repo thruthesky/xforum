@@ -234,9 +234,11 @@ get_header();
 
     <div class="post-list">
         <?php
+        $page = in('page');
         $args = [
             'cat' => $category->term_id,
-            'posts_per_page' => 40,
+            'posts_per_page' => forum()->meta( 'posts_per_page' ),
+            'paged' => $page,
         ];
 
         if ( in('keyword') ) {
@@ -336,22 +338,26 @@ get_header();
 
 
 //        di($args);
+//        $posts = get_posts( $args );
 
-        $posts = get_posts( $args );
-
-
-
+        $query = new WP_Query( $args );
 
 
 
 
 
-        if ( $posts ) { ?>
+
+
+
+
+        if ( $query->have_posts() ) { ?>
             <table class="table">
 
                 <?php
-                foreach ( $posts as $post ) {
-                    post()->setup( $post );
+                while ( $query->have_posts() ) {
+                    post()->setup( $query );
+//                    $query->the_post();
+//                    post()->setup( $post );
                     ?>
                     <tr>
                         <td>

@@ -317,10 +317,12 @@ class post {
      * @endcode
      *
      */
-    public function setup($post)
+    public function setup(WP_Query $query)
     {
-        self::$post = $post;
-        setup_postdata( $post );
+        $query->the_post();
+        self::$post = get_post();
+//        self::$post = $post;
+//        setup_postdata( $post );
     }
 
 

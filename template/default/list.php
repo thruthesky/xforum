@@ -14,7 +14,6 @@ get_header();
 <?php forum()->list_menu_write()?>
 <?php forum()->list_menu_user()?>
 
-
     <div class="post-list">
         <?php
         $page = in('page');
