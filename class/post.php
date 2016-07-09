@@ -300,22 +300,20 @@ class post {
     }
 
     /**
-     * This post gets a WP_Post Object
-     *  and sets into current post Object's 'self::$post' and sets as 'setup_postdata'
+     * This method gets a WP_Query Object
+     *  and do 'the_post()' and sets into current post Object's 'self::$post'
      * @USE when you need to get a 'post' Object and to 'setup_posts()' at the same time.
      *
      *
-     * @param $post
+     * @param WP_Query $query
+     *
      *
      * @code example of best use
-            $posts = get_posts( [ ... ] );  // Query
-                foreach ( $posts as $post ) { // Loop
-                    post()->setup( $post );     // set post.
-                        the_ID(); the_title();      //  use
-                        post()->meta('no-of-view'); //  use
+     *
+     *      $q = new WP_Query
+     *      post()->setup($q);
      *
      * @endcode
-     *
      */
     public function setup(WP_Query $query)
     {

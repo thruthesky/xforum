@@ -343,21 +343,12 @@ get_header();
         $query = new WP_Query( $args );
 
 
-
-
-
-
-
-
-
         if ( $query->have_posts() ) { ?>
             <table class="table">
 
                 <?php
                 while ( $query->have_posts() ) {
                     post()->setup( $query );
-//                    $query->the_post();
-//                    post()->setup( $post );
                     ?>
                     <tr>
                         <td>
@@ -383,6 +374,10 @@ get_header();
                     </tr>
                 <?php } ?>
             </table>
+
+            <?php include forum()->locateTemplate( forum()->slug, 'pagination') ?>
+
+
         <?php } ?>
     </div>
 

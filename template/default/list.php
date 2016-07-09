@@ -31,7 +31,7 @@ get_header();
 
                 <?php
                 while ( $query->have_posts() ) {
-                    $query->the_post();
+                    post()->setup( $query );
                     ?>
                     <tr>
                         <td>
