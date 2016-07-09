@@ -17,13 +17,18 @@ get_header();
 
     <div class="post-list">
         <?php
-        $posts = get_posts(
+        $query = new WP_Query(
             [
                 'cat' => $category->term_id,
                 'posts_per_page' => 3,
 
             ]
         );
+
+        di($query->have_posts());
+
+
+
 
 
         if ( $posts ) { ?>
@@ -54,8 +59,6 @@ get_header();
 
 
 <?php
-
-
             global $wpdb;
             echo "<pre>";
             print_r($wpdb->queries);
