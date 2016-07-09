@@ -21,7 +21,7 @@ get_header();
         $query = new WP_Query(
             [
                 'cat' => $category->term_id,
-                'posts_per_page' => 40,
+                'posts_per_page' => forum()->meta( 'posts_per_page' ),
                 'paged' => $page,
 
             ]
@@ -46,7 +46,7 @@ get_header();
                         </td>
                         <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
                         <td>
-                            <?php the_date()?>
+                            <?php echo get_the_date()?>
                         </td>
                     </tr>
                 <?php } ?>

@@ -194,3 +194,14 @@ function forum_edit_line_list( $term_id = 0 ) {
     </fieldset>
 EOH;
 }
+
+function forum_edit_line_posts_per_page( ) {
+    $posts_per_page = forum()->meta('posts_per_page');
+    echo <<<EOH
+            <fieldset class="form-group">
+                <label for="Forum_posts_per_page">Forum posts_per_page</label>
+                <input id='Forum_posts_per_page' class='form-control' type="text" name="posts_per_page" placeholder="Please input forum posts_per_page" value="$posts_per_page">
+                <small class="text-muted"><?php _e('Input forum posts_per_page post.')?></small>
+            </fieldset>
+EOH;
+}

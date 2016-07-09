@@ -215,16 +215,38 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 # Submission - How submission works.
 
-* When you submit a form of xforum, you can use the form
-    * in ordinary form ( a form submit and redirect into another page )
-    * or as in ajax call ( a forum submit with ajax and get return thru ajax )
+* When you submit a form of xforum, you do the form submission as
+    * ordinary form submit ( a form submit and redirect into another page )
+    * ajax call ( a forum submit with ajax and get return through JSON string )
 
-    * you can do this with wordpress wp_redirect since it only prints out the redirect information in the header,
-        * you can put 'return_url' parameter thru the form if you want to redirect a page
-        * or you can echo json data from the php script if you want to use it as ajax.
-        * see forum()->url_redirect()
-        * you can use it both at the same time since wordpress wp_redirect() does not print out any data in the body.
-        
+
+    * form options of return urls.
+        * return_url for success. ( You can add query var as "&success=true"
+        * return_url_on_error for error.
+
+        * examples
+
+            <input type="hidden" name="return_url" value="<?php forum()->urlAdminImport()?>&amp;success=true">
+            <input type="hidden" name="return_url_on_error" value="<?php forum()->urlAdminImport()?>">
+
+    * if you don't put return urls in the form
+
+        'response' will be used.
+
+        'response' has three values.
+
+            'list' - will list the posts of the fourm after submission.
+
+            'view' - will view the post after submission.
+
+            'ajax' - will echo JSON string with post information after submission.
+
+    * if there is no 'return urls', nor 'response',
+
+        it will just echo some HTML contents in json.
+
+    * 2016-07-10 'on_error' option will not be used any more.
+
 
 * 폼 전송 후, 페이지 이동 또는 json 데이터 출력
 
@@ -426,3 +448,22 @@ bootstrap v4 and twenty sixteen theme conflicts.
 Bootstrap is a well-known framework and it is not boot strap's problem.
 
 
+
+
+# IMPORT / EXPORT
+
+URL : http://work.org/?forum=export&slug=its
+
+Use export & import when you need to copy posts of a category into another category or even another site.
+
+You can use this as a backup. If you need to backup, simply save the JSON string into a file.
+
+When you export, you will get JSON string containg all the posts of the category and its meta datas.
+
+    - copy the JSON string and paste it into admin page's IMPORT menu.
+
+* This was made for test purpose.
+
+    * you need posts of production server on your local machine to test.
+
+* This was not tested and not recommended for a big category of manay posts.

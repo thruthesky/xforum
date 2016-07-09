@@ -18,6 +18,10 @@
             <?php forum_edit_line_members() ?>
             <?php forum_edit_line_template() ?>
             <?php forum_edit_line_category() ?>
+
+            <?php forum_edit_line_posts_per_page( ) ?>
+
+
             <?php forum_edit_line_view() ?>
             <?php forum_edit_line_write() ?>
             <?php forum_edit_line_list() ?>

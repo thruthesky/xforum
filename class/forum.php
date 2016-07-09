@@ -284,16 +284,7 @@ class forum {
     /**
      * Exports posts and its related data as JSON string.
      *
-     * @note URL sample http://work.org/?forum=export&slug=its
-     *
-     * @use when you need to export and import it into another site.
-     *
-     *      - If you need to backup, simply save the JSON string into a file.
-     *
-     *      - If you need to copy data into another category of same site or different site,
-     *
-     *          Use 'Import' function on admin page.
-     *
+     * @see README
      */
     public function export( ) {
         $slug = in( 'slug' );
@@ -1084,6 +1075,7 @@ class forum {
         $this->meta( $term_ID, 'members', in('members') );
         $this->meta( $term_ID, 'template', in('template') );
         $this->meta( $term_ID, 'category', in('category') );
+        $this->meta( $term_ID, 'posts_per_page', in('posts_per_page') );
     }
 
     /**
