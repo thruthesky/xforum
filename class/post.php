@@ -228,11 +228,14 @@ class post {
     /**
      *
      * Saves data into 'post_meta'.
+     *
      * @note it automatically serialize and un-serialize.
+     * @Attention This returns on 'single' value.
      *
      * @param $post_ID
      * @param $key
      * @param null $value
+     *
      * @return mixed|null
      */
     public function meta($post_ID, $key = null, $value = null)

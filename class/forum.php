@@ -75,6 +75,8 @@ class forum {
             'blogger_getUsersBlogs',
             'login',
             'logout',
+            'export',
+            'import_submit',
         ];
         if ( in_array( $what, $forum_do_list ) ) {
             $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
@@ -278,6 +280,65 @@ class forum {
         $this->response();
     }
 
+
+    /**
+     * Exports posts and its related data as JSON string.
+     *
+     * @note URL sample http://work.org/?forum=export&slug=its
+     *
+     * @use when you need to export and import it into another site.
+     *
+     *      - If you need to backup, simply save the JSON string into a file.
+     *
+     *      - If you need to copy data into another category of same site or different site,
+     *
+     *          Use 'Import' function on admin page.
+     *
+     */
+    public function export( ) {
+        $slug = in( 'slug' );
+        $category = get_category_by_slug( $slug );
+        $term_id = $category->term_id;
+        $posts = get_posts([
+                'cat' => $term_id,
+                'posts_per_page' => -1,
+        ]
+        );
+        $_posts = [];
+        foreach ( $posts as $post ) {
+            $post->meta = get_post_meta( $post->ID );
+            $_posts[] = $post;
+        }
+        echo json_encode( $_posts );
+        exit;
+    }
+
+
+    public function import_submit() {
+        $data = in('data');
+        $slug = in('slug');
+        if ( empty($data) ) $this->errorResponse(-50060, 'No data');
+        if ( empty($slug) ) $this->errorResponse(-50061, 'No slug');
+
+        $category = get_category_by_slug($slug);
+        $term_id = $category->term_id;
+        $posts = json_decode($data, true);
+        if ( $posts ) {
+            foreach ( $posts as $post ) {
+                $post_ID = post()
+                    ->set('post_category', [$term_id])
+                    ->set('post_title', $post['post_title'])
+                    ->set('post_content', $post['post_content'])
+                    ->set('post_status', 'publish')
+                    ->set('post_author', 1)
+                    ->create();
+                if ( ! is_integer($post_ID) ) $this->errorResponse(-50062, $post_ID);
+
+            }
+        }
+        $this->response();
+    }
+
     /**
      *
      * 글을 작성 또는 XForum 에 쿼리를 하고 처리 결과를 받거나 처리 후 이동을 한다면 이 함수를 사용한다.
@@ -325,6 +386,8 @@ class forum {
             }
             else wp_die("forum()->response() : no post_ID or comment_ID provided.");
         }
+
+
         else if ( $res == 'ajax' ) {
             $json = [
                 'slug' => $slug,
@@ -340,6 +403,15 @@ class forum {
         else if ( empty($slug) && empty($post_ID) && empty($comment_ID) && empty($data) ) {
             echo ('No response coe. [response] must be one of list, view, ajax');
         }
+        die();
+    }
+
+    public function errorResponse($code, $message) {
+        $url = in('return_url_on_error');
+        $message = urlencode($message);
+        $url .= "&error_code=$code&error_message=$message";
+        $this->url_redirect( $url );
+        //echo $url;
         die();
     }
 
@@ -809,6 +881,10 @@ class forum {
         echo $this->getUrlAdmin();
     }
 
+    public function urlAdminImport() {
+        echo home_url("wp-admin/admin.php?page=xforum%2Ftemplate%2Fimport.php");
+    }
+
     public function urlAdminSetting() {
         echo home_url('/wp-admin/admin.php?page=xforum%2Ftemplate%2Fsetting.php');
     }
@@ -869,8 +945,14 @@ class forum {
 
 
 
+    public function urlExport( $slug = null ) {
+        if ( empty($slug) ) $slug = $this->getSlug();
+        echo home_url("?forum=export&slug=$slug");
+    }
+
 
     /**
+     * @deprecated use forum()->slug or $this->slug
      * Returns the slug of the current forum.
      * @return null
      */

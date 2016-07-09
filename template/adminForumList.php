@@ -29,11 +29,12 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
 
         <div class="forum-list container">
             <div class="row">
-                <div class="col-xs-4 col-sm-4">Category</div>
+                <div class="col-xs-3 col-sm-3">Category</div>
                 <div class="col-xs-2 col-sm-1">View(Slug)</div>
                 <div class="col-xs-2 col-sm-1">Edit</div>
                 <div class="col-xs-2 col-sm-1">Delete</div>
                 <div class="col-xs-2 col-sm-1">Posts</div>
+                <div class="col-xs-1 col-sm-1">Export</div>
                 <div class="col-xs-12 col-sm-4">Description</div>
             </div>
             <?php
@@ -41,7 +42,7 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
                 foreach($categories as $category) {
                     ?>
                     <div class="row">
-                        <div class="col-xs-4 col-sm-4">
+                        <div class="col-xs-3 col-sm-3">
                             <a href="<?php echo forum()->listURL($category->slug)?>" target="_blank">
                                 <?php
                                 $pads = str_repeat( '----', $category->depth );
@@ -54,6 +55,7 @@ $categories = lib()->get_categories_with_depth( $cat->term_id );
                         <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->urlAdminForumEdit($category->term_id)?>">Edit</a></div>
                         <div class="col-xs-2 col-sm-1"><a href="<?php echo forum()->urlForumDo('forum_delete')?>&term_id=<?php echo $category->term_id?>&return_url=<?php echo urlencode(forum()->adminURL())?>">Delete</a></div>
                         <div class="col-xs-2 col-sm-1"><?php echo $category->count?></div>
+                        <div class="col-xs-1 col-sm-1"><a href="<?php forum()->urlExport( $category->slug )?>" target="_blank">Export</a></div>
                         <div class="col-xs-12 col-sm-4"><?php echo $category->description?></div>
                     </div>
                 <?php } } ?>

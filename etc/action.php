@@ -74,4 +74,13 @@ add_action('admin_menu', function () {
         'xforum/template/admin-blog-posting.php',
         ''
     );
+
+    add_submenu_page(
+        'xforum/template/admin.php', // parent slug id
+        __('Import', 'xforum'),
+        __('Import', 'xforum'),
+        'manage_options',
+        'xforum/template/import.php',
+        ''
+    );
 } );
