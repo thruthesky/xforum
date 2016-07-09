@@ -17,26 +17,22 @@ get_header();
 
     <div class="post-list">
         <?php
+        $page = in('page');
         $query = new WP_Query(
             [
                 'cat' => $category->term_id,
-                'posts_per_page' => 3,
+                'posts_per_page' => 40,
+                'paged' => $page,
 
             ]
         );
 
-        di($query->have_posts());
-
-
-
-
-
-        if ( $posts ) { ?>
+        if ( $query->have_posts() ) { ?>
             <table class="table">
 
                 <?php
-                foreach ( $posts as $post ) {
-                    setup_postdata( $post );
+                while ( $query->have_posts() ) {
+                    $query->the_post();
                     ?>
                     <tr>
                         <td>
@@ -49,7 +45,6 @@ get_header();
                             <?php the_author()?>
                         </td>
                         <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
-
                         <td>
                             <?php the_date()?>
                         </td>
@@ -58,22 +53,21 @@ get_header();
             </table>
 
 
+            <?php include forum()->locateTemplate( forum()->slug, 'pagination') ?>
+
+
 <?php
+
+/*
             global $wpdb;
             echo "<pre>";
             print_r($wpdb->queries);
             echo "</pre>";
 
-            di( $wp_query );
-
+            di( $query );
+*/
 
             ?>
-
-            <?php the_posts_pagination( array(
-                'mid_size' => 2,
-                'prev_text' => __( 'Back', 'textdomain' ),
-                'next_text' => __( 'Onward', 'textdomain' ),
-            ) ); ?>
 
         <?php } ?>
     </div>

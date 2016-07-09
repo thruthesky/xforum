@@ -320,6 +320,20 @@ class post {
         setup_postdata( $post );
     }
 
+
+    public function count_comments( $post_ID ) {
+        $count = $this->get_count_comments( $post_ID );
+        if ( $count )  echo "($count)";
+        echo '';
+    }
+
+    public function get_count_comments( $post_ID ) {
+        $count = wp_count_comments( $post_ID );
+        if ( $count->approved )  return $count->approved;
+        else return 0;
+    }
+
+
 }
 
 

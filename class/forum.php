@@ -21,6 +21,12 @@ class forum {
 
     }
 
+    public function __get( $field ) {
+        if ( $this->category && isset( $this->category->$field ) ) {
+            return $this->category->$field;
+        }
+        else return false;
+    }
 
 
 
@@ -601,12 +607,23 @@ class forum {
     }
 
 
-
-
+    /**
+     * @deprecated
+     * @param $post_ID
+     */
     public function count_comments( $post_ID ) {
-        $count = wp_count_comments( $post_ID );
-        if ( $count->approved )  echo "({$count->approved})";
+        post()->count_comments( $post_ID );
     }
+
+    /**
+     * @deprecated
+     * @param $post_ID
+     * @return int
+     */
+    public function get_count_comments( $post_ID ) {
+        return post()->get_count_comments( $post_ID );
+    }
+
 
 
 
