@@ -282,7 +282,7 @@ get_header();
         }
 
         if ( in('deadline_begin') || in('deadline_end') ) {
-            $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'value'=>array(in('deadline_begin'),in('deadline_end')),'compare'=>'BETWEEN','type'=>'DATE' ];
+            $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'value'=>array( in('deadline_begin' ),in( 'deadline_end') ),'compare'=>'BETWEEN','type'=>'DATE' ];
         }
 
 
@@ -294,7 +294,7 @@ get_header();
             }
 
             elseif ( in('order1') == 'created' ) {
-                $sort_what = 'date';
+                $sort_what = 'post_date';
             }
 
             elseif ( in('order1') == 'deadline' ) {
@@ -332,8 +332,8 @@ get_header();
                 $args[ 'meta_query' ]['percentage'] = [ 'key'=>'percentage', 'orderby'=>'meta_value_num' ];
             }
 
-            if ( in('order1_sort') ) {
-                // if there's a sorting selected on 'order1_sort', append to the current array
+            if ( in('order1') ) {
+                // if there's a sorting selected on 'order1', append to the current array
                 $args[ 'orderby' ] += [ $sort_what=>in('order2_sort') ];
             } else {
                 // else, do not append or else: Unsupported operand types error
