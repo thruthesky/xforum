@@ -9,6 +9,9 @@
  */
 class forum {
 
+    use Url;
+
+
     static $entity;
     public static $query_vars = ['forum', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
 
@@ -67,7 +70,7 @@ class forum {
             'forum_delete',
             'setting_submit',
             'edit_submit',
-            'delete_submit', // @todo implement ajax call.
+            'post_delete_submit', // @todo implement ajax call.
             'comment_edit_submit', // @todo implement ajax call.
             'comment_delete_submit', // @todo implement ajax call.
             'file_upload', // @todo implement ajax call.
@@ -263,10 +266,54 @@ class forum {
         // Save All extra input into post meta.
         post()->saveAllMeta( $post_ID );
 
-
-
-
         $this->response( [ 'post_ID' => $post_ID  ] );
+    }
+
+
+    /**
+     *
+     * Deletes a post.
+     *
+     * @note if $_REQUEST['return_url'] and $_REQUEST['response'] are empty,
+     *
+     *      The default, on success, is 'response'='list'
+     *
+     */
+    public function post_delete_submit() {
+        $post_ID = in('post_ID');
+        forum()->endIfNotMyPost( $post_ID );
+        $this->setCategoryByPostID( $post_ID );
+
+        $re = wp_delete_post( $post_ID );
+
+        if ( $re ) {
+            reset_http_query_with(['response'=>'list']);
+            $this->response( ['post_ID' => $post_ID] );
+        }
+        else {
+            $this->errorResponse( -50314, "Failed to delete post");
+        }
+    }
+
+    public function comment_delete_submit() {
+
+
+        $comment_ID = in('comment_ID');
+        $comment = get_comment( $comment_ID );
+        $post_ID = $comment->comment_post_ID;
+
+        
+        $this->endIfNotMyComment( $comment_ID );
+
+        $re = wp_delete_comment( $comment_ID );
+        if ( $re ) {
+            reset_http_query_with(['response'=>'view']);
+            $this->response( ['post_ID' => $post_ID ] );
+        }
+        else {
+            $this->errorResponse(-50310, "Failed to delete comment");
+        }
+
     }
 
 
@@ -366,6 +413,7 @@ class forum {
         }
         $res = in('response');
         if ( $res == 'list' ) {
+            if ( empty($slug) ) $slug = $this->getCategory()->slug; // $_REQUEST['slug'] 에 값이 없으면 현재 카테고리로 이동한다.
             $this->url_redirect( $this->getUrlList( $slug ) );
         }
         else if ( $res == 'view' ) {
@@ -377,8 +425,6 @@ class forum {
             }
             else wp_die("forum()->response() : no post_ID or comment_ID provided.");
         }
-
-
         else if ( $res == 'ajax' ) {
             $json = [
                 'slug' => $slug,
@@ -397,13 +443,28 @@ class forum {
         die();
     }
 
+
+    /**
+     *
+     * Exists with Error message / JSON / Redirect.
+     *
+     * @use when there is error and need to terminate.
+     *
+     * @param $code
+     * @param $message
+     */
     public function errorResponse($code, $message) {
-        $url = in('return_url_on_error');
-        $message = urlencode($message);
-        $url .= "&error_code=$code&error_message=$message";
-        $this->url_redirect( $url );
-        //echo $url;
-        die();
+        if ( $url = in('return_url_on_error') ) {
+            $message = urlencode($message);
+            $url .= "&error_code=$code&error_message=$message";
+            $this->url_redirect( $url );
+        }
+        else if ( in('response') == 'ajax' ) {
+            wp_send_json_error( ['code'=>$code, 'message'=>$message]);
+        }
+        else {
+            wp_die($message, "XForum Error");
+        };
     }
 
 
@@ -442,44 +503,61 @@ class forum {
      *
      * @Attention if the logged-in user is admin, then he can do 'edit/delete'
      *
+     * @Warning it ends if the user has no ownership of the post/comment.
+     *
+     *          - It uses $this->errorResponse();
+     *
+     *            so, follow the rules.
+     *
+     * @note by calling this method, it is ensured that the post/comment exists.
+     *
+     * @see README.md for error response.
+     *
+     *
      * @param $id
      * @param string $type
      *
      * @return bool
+     *              - Returns true if admin
+     *              - returns true if the user has permission.
+     *
      */
     private function checkOwnership( $id, $type='post' )
     {
-        if ( ! is_user_logged_in() ) wp_die("Please login");
+        if ( ! is_user_logged_in() ) $this->errorResponse(-50400, "Please login");
 
         if ( current_user_can( 'manage_options' ) ) return true;
 
         $user = wp_get_current_user();
-        $user_id = 0;
-        if ( $user->exists() ) {
-            if ( $type == 'post' ) {
-                $post = get_post( $id );
-                if ( empty($post) ) { // if post does not exists, it is a new post writing.
-                    wp_die("Post does not exists");
-                }
-                $user_id = $post->post_author;
-            }
-            else if ( $type == 'comment' ) {
-                $comment = get_comment( $id );
-                if ( empty( $comment ) ) wp_die("Comment does not exists");
-                $user_id = $comment->user_id;
-            }
-            else wp_die( 'Wrong Post Type Check');
 
-            if ( $user->ID == $user_id ) {
-                // ok
+
+        // Get post/comment user info.
+        $user_id = 0;
+        if ( $type == 'post' ) {
+            $post = get_post( $id );
+            if ( empty($post) ) { // if post does not exists, it may be a new post writing.
+                $this->errorResponse( -50402, "Post does not exists");
             }
-            else {
-                wp_die("You are not the owner of the $type");
-            }
+            $user_id = $post->post_author;
+        }
+        else if ( $type == 'comment' ) {
+            $comment = get_comment( $id );
+            if ( empty( $comment ) ) $this->errorResponse(-50408, "Comment does not exists");
+            $user_id = $comment->user_id;
+        }
+        else $this->errorResponse(-50409, 'Wrong Post Type Check');
+
+
+
+        // compare.
+        if ( $user->ID == $user_id ) {
+            // ok
+            return true;
         }
         else {
-            wp_die("User does not exists.");
+            $this->errorResponse(-50405, "You are not the owner of the $type no. $id");
         }
+
         return true;
     }
 
@@ -518,7 +596,7 @@ class forum {
                 'comment_approved' => 1,
             ]);
             if ( ! $comment_ID ) {
-                wp_die("Comment was not created");
+                $this->errorResponse(-50302, "Comment was not created");
             }
         }
 
@@ -534,6 +612,8 @@ class forum {
             $files = array_filter( $arr );
             comment()->meta( $comment_ID, 'files', $files );
         }
+
+
 
         $this->response( [ 'post_ID' => $post_ID, 'comment_ID' => $comment_ID ] );
 
@@ -973,7 +1053,21 @@ class forum {
      */
     public function urlEdit( $post_ID )
     {
-        echo home_url("?forum=edit&post_ID=$post_ID");
+        echo $this->getUrlEdit( $post_ID );
+    }
+    public function getUrlEdit( $post_ID ) {
+        return home_url("?forum=edit&post_ID=$post_ID");
+    }
+
+    /**
+     * @param $post_ID
+     */
+    public function urlDelete( $post_ID ) {
+        echo $this->getUrlDelete( $post_ID );
+    }
+
+    public function getUrlDelete( $post_ID ) {
+        return home_url("?forum=post_delete_submit&post_ID=$post_ID");
     }
 
 
@@ -1047,10 +1141,25 @@ class forum {
         $this->loadConfig();
     }
 
+
+    /**
+     *
+     * Sets forum category information to $this->category.
+     *
+     * @note it does what setCategory() does.
+     *
+     * @param $id - POST ID
+     *
+     *
+     *
+     */
     public function setCategoryByPostID($id)
     {
         $categories = get_the_category( $id );
         $this->category = current( $categories ); // @todo Warning: what if the post has more than 1 categories?
+        if ( empty($this->category) ) {
+            wp_die("Error: Category(slug) - does not exists by that post id: $id");
+        }
         $this->loadConfig();
     }
 
@@ -1206,23 +1315,29 @@ class forum {
             else ferror( -40131, "Wrong username" );
         }
         else {
-            $this->response( ['data' => $this->get_list_menu_user( $user_login ) ] );
+            $this->response( ['data' => $this->get_button_user( $user_login ) ] );
         }
     }
 
     public function logout() {
         wp_logout();
-        $this->response( ['data'=>$this->get_list_menu_user()] );
+        $this->response( ['data'=>$this->get_button_user()] );
     }
 
 
-
+    /**
+     * @deprecated use button_list_menu_user()
+     */
     public function list_menu_user() {
+        $this->button_user();
+    }
+
+    public function button_user() {
         $id = null;
         if ( user()->login() ) $id = my()->user_login;
-        echo $this->get_list_menu_user($id);
+        echo $this->get_button_user($id);
     }
-    public function get_list_menu_user($id = null) {
+    public function get_button_user($id = null) {
 
         if ( $id ) {
             return <<<EOH
@@ -1243,16 +1358,48 @@ EOH;
         }
         else {
             return <<<EOH
-    <button type="button" class="btn btn-primary xforum-login-button">Login</button>
+    <button type="button" class="btn btn-secondary xforum-login-button">Login</button>
 EOH;
         }
     }
 
-    public function list_menu_write() {
+
+    public function button_write() {
         echo <<<EOH
-        <button class="btn btn-primary xforum-edit-button">Write</button>
+        <button class="btn btn-secondary xforum-edit-button">Write</button>
 EOH;
     }
+
+    /**
+     *
+     */
+    public function button_edit() {
+        $url = forum()->getUrlEdit( get_the_ID() );
+        echo <<<EOH
+<a class="btn btn-secondary" href="$url">EDIT</a>
+EOH;
+
+    }
+    public function button_delete() {
+        $url = forum()->getUrlDelete( get_the_ID() );
+        echo <<<EOH
+<a class="btn btn-secondary" href="$url">DELETE</a>
+EOH;
+
+    }
+
+    public function button_list( array $o = [] ) {
+        $defaults = [
+            'text' => 'LIST',
+        ];
+        $o = array_merge( $defaults, $o );
+        $url = forum()->getUrlList();
+        echo <<<EOH
+        <a class="btn btn-secondary" href="$url">$o[text]</a>
+EOH;
+    }
+
+
 
 
 

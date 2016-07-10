@@ -213,14 +213,17 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 
 
-# Submission - How submission works.
+# Submission & Response - How submission works.
 
 * When you submit a form of xforum, you do the form submission as
+
     * ordinary form submit ( a form submit and redirect into another page )
+    
     * ajax call ( a forum submit with ajax and get return through JSON string )
 
 
     * form options of return urls.
+    
         * return_url for success. ( You can add query var as "&success=true"
         * return_url_on_error for error.
 
@@ -229,9 +232,9 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
             <input type="hidden" name="return_url" value="<?php forum()->urlAdminImport()?>&amp;success=true">
             <input type="hidden" name="return_url_on_error" value="<?php forum()->urlAdminImport()?>">
 
-    * if you don't put return urls in the form
+    * if there is no put return urls in the form
 
-        'response' will be used.
+        then, 'response' will be used secondly.
 
         'response' has three values.
 
@@ -248,13 +251,29 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
     * 2016-07-10 'on_error' option will not be used any more.
 
 
-* 폼 전송 후, 페이지 이동 또는 json 데이터 출력
+If you need to get return data in Ajax or you need to get error in JSON String, use 'reponse' with 'ajax'.
 
-    * 글 쓰기/코멘트 쓰기의 경우
-        * response = list 이면 게시판 목록 페이지로 간다.
-        * response = view 이면 글 읽기 페이지로 간다.
-        * response = ajax 이면, 글/코멘트 쓰기 성공 여부를 json 으로 출력한다.
-        
+
+    * When form is submitted with 'response'='list',
+    
+        if there is error, it will be displayed on the browser with 'wp_die()'
+
+    * Logially, 'reponse' and return_url_on_error can be used at the same time.
+    
+
+
+## Form Submission and Rewrite
+
+WordPress uses rewrite for nice url.
+
+if rewrite is like "/wordpress" and a form's action is "/wordpress", it may redirect to a wrong page.
+
+So, the best way to submit to is to send to index.php like below.
+
+    <form action="<?php echo home_url('index.php')?>" method="post">
+
+
+
 
 
 
@@ -349,13 +368,6 @@ This is for form submit which should be hidden like file-upload.
 Use this as much as you can.
 
 
-## File Server
-
-see README.md of file-upload
-the setting var - xforum_url_file_server will have the url of the file server.
-
-
-
 
 ## xforum_admins
 
@@ -363,28 +375,46 @@ xforum_admins in setting(option) tells who can manage all the forum.
 
 
 
+
+
+# FILE SERVER
+
+See README.md of file-upload GIT project for more detail.
+
+        https://github.com/thruthesky/file-upload
+
+
+## Installation of File Server
+
+See README.md of file-upload GIT project for more detail.
+
+        https://github.com/thruthesky/file-upload
+
+
+
+The setting var - xforum_url_file_server will have the url of the file server.
+
 ## File upload
 
 Developers must fully understand about file upload to apply t in his need.
 
-### To upload
+
+## To Upload
 
 * create a form ( independent form from editing form )
     * set the domain, uid and action of the form.
     * submit through a hidden iframe.
+
 * when submit
     * listen 'message' event since the hidden iframe will send back a message with 'postMessage'
     * save the url of the uploaded file into post_meta or comment_meta.
 
 
-###
 
-### description
-
-
+## description
 
 * We save files into a different server. There are many reasons for this especially the site gets bigger, ... and on distributed web server.
-* To install a file server "git clone https://github.com/thruthesky/file-upload" and follow README.md instruction.
+*
 * User's secret key is my()->uniqid()
 
 * 글을 쓸 때, 첨부 파일을 아래와 같이 저장한다.
@@ -406,6 +436,10 @@ Developers must fully understand about file upload to apply t in his need.
         * delete files on file server that are not used in the post/comment content.
         * to do this, first get all the list of files in file server and get all the list of file that are used in post content, comment content.
             * compare the list and find files of file server that are not exists in post/comment content and delete it.
+
+
+
+
 
 
 
@@ -467,3 +501,6 @@ When you export, you will get JSON string containg all the posts of the category
     * you need posts of production server on your local machine to test.
 
 * This was not tested and not recommended for a big category of manay posts.
+
+
+* WARNING : You need to copy the JSON string from the source view page. or it may causes propblems.

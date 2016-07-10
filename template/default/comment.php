@@ -31,6 +31,7 @@ wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
 
 <?php
 function comments_basic($comment, $args, $depth) {
+comment()->set($comment);
 $parent_comment = null;
 if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_parent);
 ?>
@@ -49,7 +50,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         </div>
 
         <?php
-        $files = comment()->meta($comment->comment_ID, 'files');
+        $files = comment()->meta('files');
         if ( $files ) {
             foreach ( $files as $file ) {
                 echo "<img src='$file'>";
@@ -64,7 +65,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         <div class="buttons">
             <span class="reply">Reply</span>
             <span class="edit">Edit</span>
-            <span class="delete">Delete</span>
+            <span class="delete"><a href="<?php comment()->urlDelete()?>">Delete</a></span>
             <span class="report" title="This function is not working, yet.">Report</span>
             <span class="like" title="This function is not working, yet.">Like</span>
         </div>
@@ -81,7 +82,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         else text = s(text).trim().value();
         %>
         <section class="comment-form" parent_ID="<%=parent_ID%>" comment_ID="<%=comment_ID%>">
-            <form action="<?php echo home_url()?>" method="post">
+            <form action="<?php echo home_url('index.php')?>" method="post">
                 <input type="hidden" name="forum" value="comment_edit_submit">
                 <input type="hidden" name="post_ID" value="<?php the_ID()?>">
                 <input type="hidden" name="comment_ID" value="<%=comment_ID%>">
@@ -90,7 +91,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <input type="hidden" name="files" value="">
                 <div class="line comment-content">
                     <label for="comment-content" style="display:none;">
-                        <?php _e('Comment Content', 'k-fourm')?>
+                        Comment Content
                     </label>
                     <textarea id="comment-content" name="comment_content" placeholder="<?php _e('Please input comment', 'xforum')?>"><%=text%></textarea>
                 </div>

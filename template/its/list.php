@@ -10,7 +10,7 @@ get_header();
     </style>
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
-<?php forum()->list_menu_write()?>
+<?php forum()->button_list_menu_write()?>
 <?php forum()->list_menu_user()?>
 
 <style>
@@ -76,6 +76,11 @@ get_header();
 
     <fieldset>
         <span class="caption">Worker :</span>
+
+        <label class="radio-inline">
+            <input type="radio" name="worker" value="" <?php if ( null == in('worker') ) echo 'checked=1'; ?>> All
+        </label>
+
         <?php
         $members = forum()->getCategory()->config['members'];
         foreach( $members as $member ) {
@@ -91,6 +96,7 @@ get_header();
 
     <fieldset>
         <div class="caption">Who is in charge?</div>
+        <input type="radio" name="incharge" value="" <?php if ( null == in('incharge') ) echo 'checked=1'; ?>> All
         <?php
         $members = forum()->getCategory()->config['members'];
         foreach( $members as $member ) {

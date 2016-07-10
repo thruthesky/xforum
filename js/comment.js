@@ -3,7 +3,7 @@
     var $body = $('body');
     $body.on('click', '.comment .reply', comment_reply);
     $body.on('click', '.comment .edit', comment_edit);
-    $body.on('click', '.comment .delete', comment_delete);
+//    $body.on('click', '.comment .delete', comment_delete);
     $body.on('click', '.comment .report', comment_report);
     $body.on('click', '.comment .like', comment_like);
     $body.on('click', '.comment-cancel-button', comment_cancel);
@@ -28,12 +28,14 @@
         var t = _.template($('#comment-form-template').html());
         $comment.after(t({ parent_ID : 0, comment_ID : comment_ID, text: text }));
     }
+    /*
     function comment_delete() {
         var $this = $(this);
         var $comment = get_comment_parent( $this );
         var comment_ID = get_comment_ID( $comment );
         alert( comment_ID );
     }
+    */
     function comment_report() {
         var $this = $(this);
         var $comment = get_comment_parent( $this );

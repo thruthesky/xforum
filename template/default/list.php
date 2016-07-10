@@ -11,7 +11,8 @@ get_header();
 
 
 
-<?php forum()->list_menu_write()?>
+<?php forum()->button_write()?>
+<?php forum()->button_list(['text'=>'TOP'])?>
 <?php forum()->list_menu_user()?>
 
     <div class="post-list">
@@ -27,6 +28,10 @@ get_header();
         );
 
         if ( $query->have_posts() ) { ?>
+
+            <div>
+                No of posts: <?php echo $query->found_posts?>
+            </div>
             <table class="table">
 
                 <?php

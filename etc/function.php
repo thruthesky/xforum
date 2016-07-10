@@ -17,10 +17,35 @@ global $_in;
  *
  * @note it does not use $_REQUEST
  *
+ * @important @attention @use when you need to change $_GET or $_POST
+ *
+ * @code
+ *          $_POST['response'] = 'list';
+ *          reset_http_query();
+ * @endcode
  */
 function reset_http_query() {
     global $_in;
     $_in = array_merge( $_GET, $_POST );
+}
+
+/**
+ *
+ * @use when you need to add a query variable and its value in HTTP Query Vars programatically.
+ *
+ * @see forum()->post_delete_submit() for use case.
+ *
+ * @todo test this code.
+ * @param $vars
+ * @code
+ *              reset_http_query_with(['response'=>'list']);
+ * @endcode
+ */
+function reset_http_query_with( $vars ) {
+    foreach ( $vars as $k => $v ) {
+        $_POST[$k] = $v;
+    }
+    reset_http_query();
 }
 function in( $name = null, $default = null ) {
     global $_in;
@@ -78,20 +103,18 @@ function get_url_admin_page() {       return forum()->urlAdminPage(); }
 
 
 /**
- * It echoes / displays / alerts / goes back depending on the input.
+ * It echoes JSON of error message or redirects to $_REQUEST['return_url_on_error'];
  *
- * @param $code - Code to alert or ajax-return
- * @param $message - Message to alert or ajax-return
+ * @param $code - error code
+ * @param $message - message.
  *
- * @attention if $_REQUEST['on_error'] == 'alert_and_go_back', then it alerts and goes previous page.
+ * @note use of $_REQUEST['on_error'] has deprecated.
  *
- *      Or, it echoes json error code and exits.
- *
- *
- * @note if in('on_error') == 'alert_and_go_back', it alerts error and go back.
  */
 function ferror( $code, $message ) {
 
+    forum()->errorResponse( $code, $message );
+    /*
     if ( in('on_error') == 'alert_and_go_back' ) {
         echo <<<EOH
             <script>
@@ -104,6 +127,7 @@ EOH;
     else {
         wp_send_json_error(['code'=>$code,'message'=>$message]);
     }
+    */
 }
 
 
