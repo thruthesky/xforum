@@ -4,25 +4,27 @@ $category = forum()->getCategory();
 get_header();
 ?>
     <style>
+
+        .form-group {
+
+        }
+        .form-group .caption {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+
         .post-list {
             margin: 1em 0;
         }
     </style>
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
-<?php forum()->button_list_menu_write()?>
+
+<?php forum()->button_write()?>
+<?php forum()->button_list(['text'=>'TOP'])?>
 <?php forum()->list_menu_user()?>
 
-<style>
-    .form-group {
-
-    }
-    .form-group .caption {
-        display: inline-block;
-        margin-right: 10px;
-    }
-
-</style>
 
 <script type="text/javascript">
     jQuery(document).ready(function(){
@@ -350,6 +352,9 @@ get_header();
 
 
         if ( $query->have_posts() ) { ?>
+
+            <?php include forum()->locateTemplate( forum()->slug, 'list-meta-top') ?>
+
             <table class="table">
 
                 <?php

@@ -29,9 +29,9 @@ get_header();
 
         if ( $query->have_posts() ) { ?>
 
-            <div>
-                No of posts: <?php echo $query->found_posts?>
-            </div>
+            <?php include forum()->locateTemplate( forum()->slug, 'list-meta-top') ?>
+
+
             <table class="table">
 
                 <?php

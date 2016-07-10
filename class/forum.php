@@ -302,7 +302,7 @@ class forum {
         $comment = get_comment( $comment_ID );
         $post_ID = $comment->comment_post_ID;
 
-        
+
         $this->endIfNotMyComment( $comment_ID );
 
         $re = wp_delete_comment( $comment_ID );
