@@ -1,6 +1,4 @@
 <?php
-$id = post()->getViewPostID();
-setup_postdata(get_post( $id ));
 get_header();
 wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
@@ -43,9 +41,9 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 ?>
 
 
-<section class="content">
+<main class="content">
     <?php the_content()?>
-</section>
+</main>
 
     <nav class="buttons">
         <?php forum()->button_edit()?>

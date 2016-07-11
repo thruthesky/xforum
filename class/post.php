@@ -6,6 +6,19 @@
  * @file class/post.php
  *
  * @warning 2016-07-01. it does not extends forum class anymore.
+ *
+ *
+ * @cycle
+ *
+ *      - construct
+ *          - if it is post view page,
+ *                  'the_post()' is called on 'filter'.
+ *              It already has the 'post'.
+ *              the constructor then, it automatically save the post into self::$post.
+ *              so, it does not need to 'load()' for the post.
+ *              You can use 'post()->ID' directly.
+ *      - load()
+ *          - if you call 'post()->load(123)', then the main 'post' will be voided.
  */
 class post {
 
@@ -41,7 +54,10 @@ class post {
     {
 
         self::$cu_data = [];
-
+        $post_ID = get_the_ID();
+        if ( $post_ID ) {
+            self::$post = get_post();
+        }
     }
 
 
@@ -158,6 +174,7 @@ class post {
         else return null;
     }
 
+
     public function title()
     {
         if ( self::$post ) {
@@ -191,11 +208,16 @@ class post {
      * @endcode
      */
     public function __get( $property ) {
-        if ( empty( self::$post ) || ! property_exists( self::$post, 'ID' ) ) return false;
-        if ( isset( self::$fields[$property] ) ) return self::$fields[$property];
+
+        if ( empty( self::$post ) ) return false;
+
+        if ( self::$post->$property ) {
+            return self::$post->$property;
+        }
         else {
             return $this->meta( self::$post->ID, $property );
         }
+
     }
 
 

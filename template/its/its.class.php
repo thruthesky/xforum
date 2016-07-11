@@ -2,6 +2,9 @@
 
 class its {
     static $priority = [
+        false => '',
+        '' => '',
+        0 => '',
         10 => 'Never Mind',
         20 => 'Low',
         30 => 'Medium',
