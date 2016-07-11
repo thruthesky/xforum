@@ -17,6 +17,16 @@ get_header();
         .post-list {
             margin: 1em 0;
         }
+
+        #deadline-begin,
+        #deadline-end {
+            width: 150px;
+        }
+
+        .more {
+            display: none;
+        }
+
     </style>
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
 
@@ -26,229 +36,210 @@ get_header();
 <?php forum()->list_menu_user()?>
 
 
-<script type="text/javascript">
-    jQuery(document).ready(function(){
+    <script type="text/javascript">
+        window.addEventListener('load', function(){
+            (function( $ ) {
 
-        $("#order1").change(function() {
-            $("#order1_sort").show();
+
+                $("#order1").change(function() {
+                    $("fieldset.order2").show();
+                });
+
+                $('#show-more-options').click(function(){
+                    $('.more').show();
+                });
+
+
+                $("#process").change(function () {
+                    if ($(this).val() == "P") {
+                        $("#percent").show();
+                    }
+                });
+
+                if( $('#process option').is(':selected') ) {
+                    if ($("#process").val() == "P") {
+                        $("#percent").show();
+                    } else {
+                        $("#percent").hide();
+                    }
+                }
+
+            })( jQuery );
         });
 
-        $("#order2").change(function() {
-            $("#order2_sort").show();
-        });
+    </script>
 
-        $("#process").change(function () {
-            if ($(this).val() == "P") {
-                $("#percent").show();
-            }
-        });
-
-        if( $('#order1 option').is(':selected') ) {
-            if ($("#order1 ")[0].selectedIndex <= 0 ) {
-                $("#order1_sort").hide();
-            } else {
-                $("#order1_sort").show();
-            }
-        }
-
-        if( $('#order2 option').is(':selected') ) {
-            if ( $("#order2 ")[0].selectedIndex <= 0 ) {
-                $("#order2_sort").hide();
-            } else {
-                $("#order2_sort").show();
-            }
-
-        }
-
-        if( $('#process option').is(':selected') ) {
-            if ($("#process").val() == "P") {
-                $("#percent").show();
-            } else {
-                $("#percent").hide();
-            }
-        }
-
-    });
-</script>
-
-<form action="?">
-    <input type="hidden" name="forum" value="list">
-    <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
+    <form action="?">
+        <input type="hidden" name="forum" value="list">
+        <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
 
 
-    <fieldset class="form-group">
-        <div class="caption">Category</div>
-        <?php
-        $cats = forum()->getCategory()->config['category'];
-        foreach( $cats as $cat ) {
-            ?>
-            <label class="radio-inline">
-                <input type="radio" name="category" value="<?php echo $cat?>"> <?php echo $cat?>
-            </label>
+        <fieldset class="form-group">
+            <div class="caption">Category</div>
             <?php
-        }
-        ?>
-    </fieldset>
-
-
-    <fieldset>
-
-        <span class="caption">Worker :</span>
-
-        <label class="radio-inline">
-            <input type="radio" name="worker" value="" <?php if ( null == in('worker') ) echo 'checked=1'; ?>> All
-        </label>
-
-        <?php
-        $members = forum()->getCategory()->config['members'];
-        foreach( $members as $member ) {
+            $cats = forum()->getCategory()->config['category'];
+            foreach( $cats as $cat ) {
+                ?>
+                <label class="radio-inline">
+                    <input type="radio" name="category" value="<?php echo $cat?>"> <?php echo $cat?>
+                </label>
+                <?php
+            }
             ?>
-            <label class="radio-inline">
-                <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == in('worker') ) echo 'checked=1'; ?>> <?php echo $member?>
+        </fieldset>
+
+
+        <fieldset>
+            <label for="worker">
+                <select name="worker">
+                    <option value="">Worker</option>
+                    <?php
+                    $members = forum()->getCategory()->config['members'];
+                    foreach( $members as $member ) {
+                        ?>
+                        <option value="<?php echo $member?>"<?php if ( $member == in('worker') ) echo ' selected=1'; ?>><?php echo $member?></option>
+                        <?php
+                    }
+                    ?>
+                </select>
             </label>
-            <?php
-        }
-        ?>
-    </fieldset>
 
-
-    <fieldset>
-        <div class="caption">Who is in charge?</div>
-        <input type="radio" name="incharge" value="" <?php if ( null == in('incharge') ) echo 'checked=1'; ?>> All
-        <?php
-        $members = forum()->getCategory()->config['members'];
-        foreach( $members as $member ) {
-            ?>
-            <label class="radio-inline">
-                <input type="radio" name="incharge" value="<?php echo $member?>" <?php if ( $member == in('incharge') ) echo 'checked=1'; ?>> <?php echo $member?>
+            <label for="incharge">
+                <select name="incharge">
+                    <option value="">In charge</option>
+                    <?php
+                    $members = forum()->getCategory()->config['members'];
+                    foreach( $members as $member ) {
+                        ?>
+                        <option value="<?php echo $member?>"<?php if ( $member == in('incharge') ) echo ' selected=1'; ?>><?php echo $member?></option>
+                        <?php
+                    }
+                    ?>
+                </select>
             </label>
-            <?php
-        }
-        ?>
-    </fieldset>
 
+            <label for="created-begin">Deadline</label>
+            <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
+            <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
 
-
-    <fieldset>
-        <label for="created-begin">Created</label>
-        <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
-
-        <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
-    </fieldset>
-
-    <fieldset>
-        <label for="created-begin">Deadline</label>
-        <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
-
-        <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
-    </fieldset>
-
-
-    <fieldset>
-        <label class="caption" for="newly-commented">Newly commented</label>
-        <select id="newly-commented" name="newly_commented">
-            <option value="0" <?php if ( '0' == in('newly_commented') ) echo 'selected=1'?>>Select</option>
-            <option value="1" <?php if ( '1' == in('newly_commented') ) echo 'selected=1'?>>Today</option>
-            <option value="2" <?php if ( '2' == in('newly_commented') ) echo 'selected=1'?>>Today + Yesterday</option>
-            <option value="3" <?php if ( '3' == in('newly_commented') ) echo 'selected=1'?>>Within 3 days</option>
-            <option value="5" <?php if ( '5' == in('newly_commented') ) echo 'selected=1'?>>Within 5 days</option>
-            <option value="7" <?php if ( '7' == in('newly_commented') ) echo 'selected=1'?>>Within 7 days</option>
-            <option value="30" <?php if ( '30' == in('newly_commented') ) echo 'selected=1'?>>Within 30 days</option>
-        </select>
-    </fieldset>
-
-    <fieldset>
-        <label class="caption" for="priority">Priority</label>
-        <select id="priority" name="priority">
-            <option value="" <?php if ( ! in('priority') ) echo 'selected=1'?>>ALL</option>
-            <?php foreach ( its::$priority as $num => $text ) { ?>
-                <option value="<?php echo $num?>" <?php if ( in('priority') == $num ) echo 'selected=1'?>><?php echo $text?></option>
-            <?php } ?>
-
-        </select>
-    </fieldset>
-
-    <fieldset>
-        <label class="caption" for="process">Process</label>
-        <select id="process" name="process">
-            <option value="A" <?php if ( 'A' == in('process') ) echo 'selected=1'?>>ALL</option>
-            <option value="N" <?php if ( 'N' == in('process') ) echo 'selected=1'?>>Not started</option>
-            <option value="S" <?php if ( 'S' == in('process') ) echo 'selected=1'?>>Started</option>
-            <option value="P" <?php if ( 'P' == in('process') ) echo 'selected=1'?>>In progress</option>
-            <option value="F" <?php if ( 'F' == in('process') ) echo 'selected=1'?>>Finished</option>
-        </select>
-    </fieldset>
-
-
-    <fieldset>
-        <div id="percent">
-            <?php
-            if ( in('percentage') ) $percent = in('percentage');
-            else $percent = 0;
-            ?>
-            <label class="caption" for="percentage">Percentage</label>
-            <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
-            <output name="percentage_value"><?php echo $percent; ?></output>
-        </div>
-    </fieldset>
-
-
-    <fieldset>
-        <label class="caption" for="keyword">Search Text</label>
-        <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
-    </fieldset>
-
-
-    <fieldset>
-        <label class="caption" for="order1">Order by</label>
-        <select id="order1" name="order1">
-            <option value="" <?php if ( '' == in('order1') ) echo 'selected=1'?>>Random</option>
-            <option value="priority" <?php if ( 'priority' == in('order1') ) echo 'selected=1'?>>Priority</option>
-            <option value="percentage" <?php if ( 'percentage' == in('order1') ) echo 'selected=1'?>>Percentage</option>
-            <option value="created" <?php if ( 'created' == in('order1') ) echo 'selected=1'?>>Created</option>
-            <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
-            <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
-        </select>
-
-        <div id="order1_sort">
-            <label>
-                <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
-            </label>
-            <label>
-                <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
-            </label>
-        </div>
-    </fieldset>
-
-    <fieldset class="order2">
-        <label class="caption" for="order2">Order by</label>
-        <select id="order2" name="order2">
-            <option value="" <?php if ( '' == in('order2') ) echo 'selected=1'?>>Random</option>
-            <option value="priority" <?php if ( 'priority' == in('order2') ) echo 'selected=1'?>>Priority</option>
-            <option value="percentage" <?php if ( 'percentage' == in('order2') ) echo 'selected=1'?>>Percentage</option>
-            <option value="created" <?php if ( 'created' == in('order2') ) echo 'selected=1'?>>Created</option>
-            <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
-            <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
-        </select>
-        <div id="order2_sort">
-            <label>
-                <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
-            </label>
-            <label>
-                <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
-            </label>
-        </div>
-    </fieldset>
-
-
-    <input type="submit" value="Search Works">
-    <button type="button">Reset Search</button>
+        </fieldset>
 
 
 
 
 
-</form>
+        <fieldset>
+            <label class="caption" for="priority">Priority</label>
+            <select id="priority" name="priority">
+                <option value="" <?php if ( ! in('priority') ) echo 'selected=1'?>>ALL</option>
+                <?php foreach ( its::$priority as $num => $text ) {
+                    if ( empty($text) ) continue;
+                    ?>
+                    <option value="<?php echo $num?>" <?php if ( in('priority') == $num ) echo 'selected=1'?>><?php echo $text?></option>
+                <?php } ?>
+
+            </select>
+
+            <label class="caption" for="process">Process</label>
+            <select id="process" name="process">
+                <option value="A" <?php if ( 'A' == in('process') ) echo 'selected=1'?>>ALL</option>
+                <option value="N" <?php if ( 'N' == in('process') ) echo 'selected=1'?>>Not started</option>
+                <option value="S" <?php if ( 'S' == in('process') ) echo 'selected=1'?>>Started</option>
+                <option value="P" <?php if ( 'P' == in('process') ) echo 'selected=1'?>>In progress</option>
+                <option value="F" <?php if ( 'F' == in('process') ) echo 'selected=1'?>>Finished</option>
+            </select>
+
+            <span id="percent">
+                <?php
+                if ( in('percentage') ) $percent = in('percentage');
+                else $percent = 0;
+                ?>
+                <label class="caption" for="percentage">Percentage</label>
+                <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
+                <output name="percentage_value"><?php echo $percent; ?></output>
+            </span>
+
+
+            <label class="caption" for="newly-commented">Comment</label>
+            <select id="newly-commented" name="newly_commented">
+                <option value="0" <?php if ( '0' == in('newly_commented') ) echo 'selected=1'?>>Newly commented</option>
+                <option value="1" <?php if ( '1' == in('newly_commented') ) echo 'selected=1'?>>Today</option>
+                <option value="2" <?php if ( '2' == in('newly_commented') ) echo 'selected=1'?>>Today + Yesterday</option>
+                <option value="3" <?php if ( '3' == in('newly_commented') ) echo 'selected=1'?>>Within 3 days</option>
+                <option value="5" <?php if ( '5' == in('newly_commented') ) echo 'selected=1'?>>Within 5 days</option>
+                <option value="7" <?php if ( '7' == in('newly_commented') ) echo 'selected=1'?>>Within 7 days</option>
+                <option value="30" <?php if ( '30' == in('newly_commented') ) echo 'selected=1'?>>Within 30 days</option>
+            </select>
+
+        </fieldset>
+
+
+        <fieldset>
+            <label class="caption" for="keyword">Search Text</label>
+            <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
+        </fieldset>
+
+
+        <fieldset>
+            <label class="caption" for="order1">Order by</label>
+            <select id="order1" name="order1">
+                <option value="" <?php if ( '' == in('order1') ) echo 'selected=1'?>>Random</option>
+                <option value="priority" <?php if ( 'priority' == in('order1') ) echo 'selected=1'?>>Priority</option>
+                <option value="percentage" <?php if ( 'percentage' == in('order1') ) echo 'selected=1'?>>Percentage</option>
+                <option value="created" <?php if ( 'created' == in('order1') ) echo 'selected=1'?>>Created</option>
+                <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
+                <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
+            </select>
+
+            <span id="order1_sort">
+                <label>
+                    <input type="radio" name="order1_sort" value="ASC" <?php if ( 'ASC' == in('order1_sort') ) echo 'checked=1'; ?>> Asc,
+                </label>
+                <label>
+                    <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
+                </label>
+            </span>
+        </fieldset>
+
+        <fieldset class="order2" style="display:none;">
+            <label class="caption" for="order2">Order by</label>
+            <select id="order2" name="order2">
+                <option value="" <?php if ( '' == in('order2') ) echo 'selected=1'?>>Random</option>
+                <option value="priority" <?php if ( 'priority' == in('order2') ) echo 'selected=1'?>>Priority</option>
+                <option value="percentage" <?php if ( 'percentage' == in('order2') ) echo 'selected=1'?>>Percentage</option>
+                <option value="created" <?php if ( 'created' == in('order2') ) echo 'selected=1'?>>Created</option>
+                <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
+                <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
+            </select>
+            <span id="order2_sort">
+                <label>
+                    <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
+                </label>
+                <label>
+                    <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
+                </label>
+            </span>
+        </fieldset>
+
+
+        <fieldset class="more">
+
+            <label for="created-begin">Created</label>
+            <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
+            <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
+
+        </fieldset>
+
+
+        <input type="submit" value="Search Works">
+        <button type="button" id="show-more-options">Show more options</button>
+        <button type="button">Reset Search</button>
+
+
+
+
+
+    </form>
 
 
 
@@ -361,8 +352,8 @@ get_header();
         }
 
 
-//        di($args);
-//        $posts = get_posts( $args );
+        //        di($args);
+        //        $posts = get_posts( $args );
 
         $query = new WP_Query( $args );
 
@@ -372,6 +363,18 @@ get_header();
             <?php include forum()->locateTemplate( forum()->slug, 'list-meta-top') ?>
 
             <table class="table">
+                <thead>
+                <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Priority</th>
+                <th>Worker</th>
+                <th>Incharge</th>
+                <th>View</th>
+                <th>Date</th>
+                </tr>
+                </thead>
+                <tbody>
 
                 <?php
                 while ( $query->have_posts() ) {
@@ -393,6 +396,9 @@ get_header();
                         <td>
                             <?php echo post()->worker?>
                         </td>
+                        <td>
+                            <?php echo post()->incharge?>
+                        </td>
                         <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
 
                         <td>
@@ -400,6 +406,7 @@ get_header();
                         </td>
                     </tr>
                 <?php } ?>
+                </tbody>
             </table>
 
             <?php include forum()->locateTemplate( forum()->slug, 'pagination') ?>
