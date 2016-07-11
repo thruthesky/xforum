@@ -67,6 +67,9 @@ else {
 
             <fieldset class="form-group">
                 <div class="caption">Category</div>
+
+                <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> none
+
                 <?php
                 $cats = forum()->getCategory()->config['category'];
                 foreach( $cats as $cat ) {

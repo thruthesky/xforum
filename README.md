@@ -50,6 +50,7 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
     remove redirect().
     make response with options
 
+* @warning. somehow, when i work WordPress on my computer but the real site and db server is on different server, a post had disappeared.
 
 * add forum admins ( who owns the forum. separated by comma )
 * add forum members ( who can 'cud' for the forum. )

@@ -18,6 +18,31 @@ add_action('init', function() {
     wp_enqueue_script( 'xforum', URL_XFORUM . 'js/forum.js', array(), false, true);
 });
 
+
+
+
+/**
+ *
+ *
+ * 아래의 filter 는 main query 를 하지 않는다.
+ * 단, 글 읽기 페이지에서는 main query 를 한다.
+ */
+function xforum_remove_main_query( $sql, WP_Query &$wpQuery ) {
+    if ( ! is_admin() && ! is_single() && $wpQuery->is_main_query() ) {
+        /* prevent SELECT FOUND_ROWS() query*/
+        $wpQuery->query_vars['no_found_rows'] = true;
+
+        /* prevent post term and meta cache update queries */
+        $wpQuery->query_vars['cache_results'] = false;
+
+        return false;
+    }
+    return $sql;
+}
+add_filter( 'posts_request', 'xforum_remove_main_query', 10, 2 );
+
+
+
 /**
  *
  *

@@ -76,12 +76,16 @@ get_header();
 
         <fieldset class="form-group">
             <div class="caption">Category</div>
+
+            <label class="radio-inline">
+                <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> all
+            </label>
             <?php
             $cats = forum()->getCategory()->config['category'];
             foreach( $cats as $cat ) {
                 ?>
                 <label class="radio-inline">
-                    <input type="radio" name="category" value="<?php echo $cat?>"> <?php echo $cat?>
+                    <input type="radio" name="category" value="<?php echo $cat?>"<?php if ( in('category') == $cat ) echo ' checked=1'?>> <?php echo $cat?>
                 </label>
                 <?php
             }
@@ -260,6 +264,12 @@ get_header();
             $args += [ 's' => in('keyword') ];
         }
 
+
+        if ( in('category') ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'category', 'value'=>in('category') ];
+        }
+
+
         if ( in('worker') ) {
             $args[ 'meta_query' ][] = [ 'key'=>'worker', 'value'=>in('worker') ];
         }
@@ -366,7 +376,8 @@ get_header();
                 <thead>
                 <tr>
                 <th>Title</th>
-                <th>Date</th>
+                    <th>Category</th>
+                    <th>Date</th>
                 <th>Priority</th>
                 <th>Worker</th>
                 <th>Incharge</th>
@@ -386,6 +397,9 @@ get_header();
                                 <?php the_title()?>
                                 <?php forum()->count_comments( get_the_ID() ) ?>
                             </a>
+                        </td>
+                        <td>
+                            <?php echo post()->category?>
                         </td>
                         <td>
                             <?php echo get_the_date();?>

@@ -20,7 +20,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             <dt>Author:</dt>
             <dd><address rel="author"><?php the_author()?></address></dd>
             <dt>Date:</dt>
-            <dd><time pubdate datetime="<?php echo get_the_date("Y-m-d")?>" title="<?php echo get_the_date("h:i a on F dS, Y")?>"><?php echo get_the_date()?></time></dd>
+            <dd><time pubdate datetime="<?php echo get_the_date("Y-m-d")?>" title="<?php echo get_the_date("h:i a on F dS, Y")?>"><?php echo get_the_date("h:i a - F dS, Y")?></time></dd>
             <dt>No of views:</dt>
             <dd>No of views: <?php echo $GLOBALS['post_view_count']?></dd>
             <dt>All posts by author:</dt>

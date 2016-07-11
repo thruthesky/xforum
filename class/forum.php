@@ -1390,7 +1390,7 @@ EOH;
     public function button_delete() {
         $url = forum()->getUrlDelete( get_the_ID() );
         echo <<<EOH
-<a class="btn btn-secondary" href="$url">DELETE</a>
+<a class="btn btn-secondary" href="$url" onclick="return confirm('Are you sure you want to Delete this post?');">DELETE</a>
 EOH;
 
     }
