@@ -1,5 +1,5 @@
 <?php
-include DIR_XFORUM . 'template/its/its.class.php';
+include_once DIR_XFORUM . 'template/its/init.php';
 
 
 get_header();

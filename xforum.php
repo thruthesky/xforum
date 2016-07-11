@@ -34,6 +34,7 @@ include_once DIR_XFORUM . 'etc/init.php';
 
 
 
+
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');
 xlog( in() );
 if ( in('test') ) {

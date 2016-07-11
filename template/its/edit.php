@@ -1,5 +1,5 @@
 <?php
-include DIR_XFORUM . 'template/its/its.class.php';
+include_once DIR_XFORUM . 'template/its/init.php';
 ?>
 <?php get_header(); ?>
 
@@ -139,14 +139,17 @@ else {
 
             <fieldset class="form-group">
                 <div class="caption">Process</div>
-                <?php foreach ( its::$process as $num => $text ) {
+                <?php foreach ( its::$process as $code => $text ) {
                     if ( empty($text) ) continue;
-                    if ( $num == 'A' || $num == 'R' ) {
+                    if ( $code == 'A' || $code == 'R' ) {
                         if ( ! forum()->admin() ) continue;
                     }
+                    
+                    $p = post()->process;
+                    if ( empty($p) ) $p = 'N';
                     ?>
                     <label class="radio-inline">
-                        <input type="radio" name="process" value="<?php echo $num?>" <?php if ( post()->process == $num ) echo 'checked=1'; ?>> <?php echo $text?>
+                        <input type="radio" name="process" value="<?php echo $code?>" <?php if ( $code == $p ) echo 'checked=1'; ?>> <?php echo $text?>
                     </label>
                 <?php } ?>
             </fieldset>

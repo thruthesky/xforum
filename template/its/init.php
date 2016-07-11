@@ -1,10 +1,10 @@
 <?php
+$old_timezone = date_default_timezone_get();
+date_default_timezone_set( 'Asia/Manila' );
 
 class its {
     static $priority = [
-        false => '',
-        '' => '',
-        0 => '',
+        0 => 'None',
         10 => 'Never Mind',
         20 => 'Low',
         30 => 'Medium',
@@ -20,5 +20,12 @@ class its {
         'A' => 'Approved',
         'R' => 'Rejected',
     ];
+
+    public static function isOverdue()
+    {
+        if ( post()->process == 'A' || post()->process == 'R' ) return false;
+        if ( post()->deadline < date('Y-m-d') ) return false;
+        return true;
+    }
 }
 
