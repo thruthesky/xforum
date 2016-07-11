@@ -21,7 +21,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 <article class="forum">
     <header>
         <h1><?php the_title()?></h1>
-        <dl class="dateline">
+        <dl class="meta">
             <dt>Author:</dt>
             <dd><address rel="author"><?php the_author()?></address></dd>
             <dt>Date:</dt>

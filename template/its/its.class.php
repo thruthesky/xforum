@@ -12,4 +12,12 @@ class its {
         50 => 'Immediate',
         60 => 'Critical',
     ];
+    static $process = [
+        '' => '',
+        'A' => 'ALL',
+        'N' => 'Not started',
+        'P' => 'Progress (Started)',
+        'F' => 'Finished',
+    ];
 }
+

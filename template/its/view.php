@@ -16,7 +16,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 <article class="forum its">
     <header>
         <h1><?php the_title()?></h1>
-        <dl class="dateline">
+        <dl class="meta">
             <dt>Author:</dt>
             <dd><address rel="author"><?php the_author()?></address></dd>
             <dt>Date:</dt>
@@ -31,18 +31,14 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             <dt>Worker</dt><dd><?php echo post()->worker; ?></dd>
             <dt>Deadline</dt><dd><?php echo date( 'M d, Y', strtotime( post()->deadline) );?></dd>
             <dt>Work Status</dt>
-            <dd>
-                                <?php $process = post()->meta( 'process' );
-                                if ( $process == 'A' ) echo "ALL";
-                                elseif ( $process == 'N' ) echo "Not yet started";
-                                elseif ( $process == 'S' ) echo "Started";
-                                elseif ( $process == 'P' ) {
-                                    echo "In progress";?>
-                                    <?php $percentage = post()->percentage; ?>
-                                    <?php echo " : " .$percentage; ?>% <br/>
-                                    <progress class="progress progress-striped" value="<?php echo $percentage; ?>" max="100"></progress>
-                                    <?php
-                                } elseif ( $process == 'F' ) echo "Finished"; ?>
+            <dd><?php
+                $p = post()->meta( 'process' );
+                echo its::$process[ $p ];
+                if ( $p == 'P' ) {
+                    $percentage = 22;
+                    echo "<progress value='$percentage' max='100'></progress>";
+                }
+                ?>
             </dd>
             <dt>In Charge</dt><dd><?php echo post()->meta( 'incharge' ); ?></dd>
             <dt>Prority</dt><dd><?php echo its::$priority[ post()->priority ]?></dd>
@@ -54,15 +50,13 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
 </article>
 
-<hr>
-<div class="col-lg-12">
-    <a class="btn btn-success" href="<?php forum()->urlEdit( get_the_ID() )?>">EDIT</a>
-    <a class="btn btn-primary" href="<?php forum()->urlList()?>">LIST</a>
+<nav class="buttons">
+    <?php forum()->button_edit()?>
+    <?php forum()->button_delete()?>
+    <?php forum()->button_list()?>
     <?php forum()->list_menu_user()?>
-    <hr>
-    No of views: <?php echo $GLOBALS['post_view_count']?>
-    <hr>
-</div>
+</nav>
+
 
 <?php
 // If comments are open or we have at least one comment, load up the comment template.
