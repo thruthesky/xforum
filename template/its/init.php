@@ -24,7 +24,7 @@ class its {
     public static function isOverdue()
     {
         if ( post()->process == 'A' || post()->process == 'R' ) return false;
-        if ( post()->deadline < date('Y-m-d') ) return false;
+        if ( post()->deadline > date('Y-m-d') ) return false;
         return true;
     }
 }
