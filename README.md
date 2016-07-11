@@ -156,15 +156,6 @@ $ curl "http://work.org/wordpress-4.5.3/?test=Post"
 
 
 
-# Configuration in php.ini format
-
-All the configuration (settings) format are in php INI format.
-
-
-    http://php.net/manual/en/function.parse-ini-string.php
-
-
-
 
 
 # How to run script / How to generate fake data.
@@ -175,13 +166,24 @@ Run script like below;
 $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 
-# How to use/manage
+# How to use/manage on admin
 * when a forum loads category, it loads its meta data and put it all together in $category
-* category must be set in php.ini format.
-    * category can have
-        * name
-        * admins ( each category can have admin. It's different from forum admin )
-        * members ( each category can have members. It's different from forum members )
+
+
+
+## category configuration
+
+* input category on admin configuration page with comma separated.
+
+    forum()->getCategory()->config['category']
+
+## depcreated of category ini format.
+
+    * category must be set in php.ini format.
+        * category can have
+            * name
+            * admins ( each category can have admin. It's different from forum admin )
+            * members ( each category can have members. It's different from forum members )
 
 
 # URLs

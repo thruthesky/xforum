@@ -128,7 +128,7 @@ function forum_edit_line_category( $term_id = 0 ) {
     $category = forum()->meta('category');
     echo <<<EOH
             <fieldset class="form-group">
-                <label for="ForumCategory">Forum Category ( .ini format )</label>
+                <label for="ForumCategory">Forum Category ( separate by comma )</label>
                 <textarea class='form-control' id='ForumCategory' name="category" placeholder="Please input forum category">$category</textarea>
                 <small class="text-muted"><?php _e('Input forum category', 'xforum')?></small>
             </fieldset>

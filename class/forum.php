@@ -1230,7 +1230,8 @@ class forum {
         $this->loadMeta('admins', 'array');
         $this->loadMeta('members', 'array');
         $this->loadMeta('template');
-        $this->loadMetaCategory();
+        $this->loadMeta('category', 'array');
+        //$this->loadMetaCategory();
     }
 
     /**
@@ -1251,6 +1252,12 @@ class forum {
         $this->category->config[$key] = $value;
         return $value;
     }
+
+    /**
+     *
+     * @deprecated
+     *
+     */
     private function loadMetaCategory()
     {
         $value = [];

@@ -4,7 +4,8 @@ include DIR_XFORUM . 'template/its/its.class.php';
 <?php get_header(); ?>
 
 <?php
-//di( forum()->getCategory() );
+
+
 
 wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
@@ -58,8 +59,24 @@ else {
             <input type="hidden" name="on_error" value="alert_and_go_back">
 
             <fieldset class="form-group">
-                <label for="post-title">Issue Title</label>
+                <label for="post-title">Title</label>
                 <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() );?>">
+            </fieldset>
+
+
+
+            <fieldset class="form-group">
+                <div class="caption">Category</div>
+                <?php
+                $cats = forum()->getCategory()->config['category'];
+                foreach( $cats as $cat ) {
+                    ?>
+                    <label class="radio-inline">
+                        <input type="radio" name="category" value="<?php echo $cat?>" <?php if ( $cat == post()->category ) echo 'checked=1'; ?>> <?php echo $cat?>
+                    </label>
+                    <?php
+                }
+                ?>
             </fieldset>
 
             <fieldset class="form-group">
@@ -103,7 +120,9 @@ else {
             <fieldset class="form-group">
                 <div class="caption">Priority</div>
 
-                <?php foreach ( its::$priority as $num => $text ) { ?>
+                <?php foreach ( its::$priority as $num => $text ) {
+                    if ( empty($text) ) continue;
+                    ?>
                 <label class="radio-inline">
                     <input type="radio" name="priority" value="<?php echo $num?>" <?php if ( post()->priority == $num ) echo 'checked=1'; ?>> <?php echo $text?>
                 </label>
