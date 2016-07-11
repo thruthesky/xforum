@@ -133,7 +133,7 @@ get_header();
             </label>
 
             <label for="deadline-begin">Deadline</label>
-            <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
+            <input type="text" data-role="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
             <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
 
 
@@ -181,6 +181,16 @@ get_header();
                 <option value="5" <?php if ( '5' == in('newly_commented') ) echo 'selected=1'?>>Within 5 days</option>
                 <option value="7" <?php if ( '7' == in('newly_commented') ) echo 'selected=1'?>>Within 7 days</option>
                 <option value="30" <?php if ( '30' == in('newly_commented') ) echo 'selected=1'?>>Within 30 days</option>
+            </select>
+
+
+            <label class="caption" for="newly-edited">Edited</label>
+            <select id="newly-edited" name="newly_edited">
+                <option value="0" <?php if ( '0' == in('newly_edited') ) echo 'selected=1'?>>Newly Edited</option>
+                <option value="1" <?php if ( '1' == in('newly_edited') ) echo 'selected=1'?>>Today</option>
+                <option value="2" <?php if ( '2' == in('newly_edited') ) echo 'selected=1'?>>Yesterday</option></option>
+                <option value="7" <?php if ( '7' == in('newly_edited') ) echo 'selected=1'?>>Within 7 days</option>
+                <option value="30" <?php if ( '30' == in('newly_edited') ) echo 'selected=1'?>>Within 30 days</option>
             </select>
 
         </fieldset>
@@ -312,6 +322,28 @@ get_header();
         if ( in('deadline_begin') || in('deadline_end') ) {
             $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'value'=>array( in('deadline_begin' ),in( 'deadline_end') ),'compare'=>'BETWEEN','type'=>'DATE' ];
         }
+
+        if ( in('newly_edited') ) {
+            $today = getdate();
+
+            if ( in('newly_edited') == '1' ){
+                $args[ 'date_query' ][] = [ 'column'=>'post_modified_gmt', 'year'  => $today['year'], 'month' => $today['mon'], 'day'   => $today['mday'] ];
+            }
+
+            elseif ( in('newly_edited') == '2' ){
+                $args[ 'date_query' ][] = [ 'column'=>'post_modified_gmt', 'year'  => $today['year'], 'month' => $today['mon'], 'day'   => $today['mday'] - 1 ];
+            }
+
+            elseif ( in('newly_edited') == '7' ){
+                $args[ 'date_query' ][] = [ 'column'=>'post_modified_gmt', 'year' => date( 'Y' ), 'week' => date( 'W' ) ];
+            }
+
+            elseif ( in('newly_edited') == '30' ){
+                $args[ 'date_query' ][] = [ 'column'=>'post_modified_gmt', 'after'=>'1 month ago' ];
+            }
+
+        }
+
 
 
 
