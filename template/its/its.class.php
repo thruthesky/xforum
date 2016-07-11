@@ -14,10 +14,11 @@ class its {
     ];
     static $process = [
         '' => '',
-        'A' => 'ALL',
         'N' => 'Not started',
         'P' => 'Progress (Started)',
         'F' => 'Finished',
+        'A' => 'Approved',
+        'R' => 'Rejected',
     ];
 }
 

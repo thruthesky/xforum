@@ -19,13 +19,14 @@ get_header();
         }
 
         #deadline-begin,
-        #deadline-end {
-            width: 150px;
+        #deadline-end,
+        #create-begin,
+        #create-end
+        {
+            width: 140px;
         }
 
-        .more {
-            display: none;
-        }
+
 
     </style>
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
@@ -45,9 +46,6 @@ get_header();
                     $("fieldset.order2").show();
                 });
 
-                $('#show-more-options').click(function(){
-                    $('.more').show();
-                });
 
 
                 $("#process").change(function () {
@@ -75,22 +73,34 @@ get_header();
 
 
         <fieldset class="form-group">
-            <div class="caption">Category</div>
-
-            <label class="radio-inline">
-                <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> all
-            </label>
+            <span class="caption">Category : </span>
             <?php
             $cats = forum()->getCategory()->config['category'];
+            $in_category = in('category') ? in('category') : [];
             foreach( $cats as $cat ) {
                 ?>
-                <label class="radio-inline">
-                    <input type="radio" name="category" value="<?php echo $cat?>"<?php if ( in('category') == $cat ) echo ' checked=1'?>> <?php echo $cat?>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
                 </label>
                 <?php
             }
             ?>
         </fieldset>
+
+
+        <fieldset>
+            <span class="caption">Status : </span>
+            <?php
+            $in_process = in('process') ? in('process') : [];
+            foreach( its::$process as $code => $text ) {
+                if ( empty($text) ) continue;
+                ?>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="process[]" value="<?php echo $code?>"<?php if ( in_array( $code, $in_process ) ) echo ' checked=1'?>> <?php echo $text?>
+                </label>
+                <?php
+            }
+            ?>
 
 
         <fieldset>
@@ -122,9 +132,15 @@ get_header();
                 </select>
             </label>
 
-            <label for="created-begin">Deadline</label>
+            <label for="deadline-begin">Deadline</label>
             <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
             <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
+
+
+            <label for="created-begin">Created</label>
+            <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
+            <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
+
 
         </fieldset>
 
@@ -144,14 +160,6 @@ get_header();
 
             </select>
 
-            <label class="caption" for="process">Process</label>
-            <select id="process" name="process">
-                <option value="A" <?php if ( 'A' == in('process') ) echo 'selected=1'?>>ALL</option>
-                <option value="N" <?php if ( 'N' == in('process') ) echo 'selected=1'?>>Not started</option>
-                <option value="S" <?php if ( 'S' == in('process') ) echo 'selected=1'?>>Started</option>
-                <option value="P" <?php if ( 'P' == in('process') ) echo 'selected=1'?>>In progress</option>
-                <option value="F" <?php if ( 'F' == in('process') ) echo 'selected=1'?>>Finished</option>
-            </select>
 
             <span id="percent">
                 <?php
@@ -181,6 +189,13 @@ get_header();
         <fieldset>
             <label class="caption" for="keyword">Search Text</label>
             <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
+
+
+            <label for="created-begin">
+                Works per page:
+                <input type="text" name="works_per_page" size="2" value="<?php echo in('works_per_page')?>">
+            </label>
+
         </fieldset>
 
 
@@ -215,6 +230,7 @@ get_header();
                 <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
                 <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
             </select>
+
             <span id="order2_sort">
                 <label>
                     <input type="radio" name="order2_sort" value="ASC" <?php if ( 'ASC' == in('order2_sort') ) echo 'checked=1'; ?>> Asc,
@@ -223,21 +239,13 @@ get_header();
                     <input type="radio" name="order2_sort" value="DESC" <?php if ( 'DESC' == in('order2_sort') ) echo 'checked=1'; ?>> Desc,
                 </label>
             </span>
-        </fieldset>
-
-
-        <fieldset class="more">
-
-            <label for="created-begin">Created</label>
-            <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
-            <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
 
         </fieldset>
+
 
 
         <input type="submit" value="Search Works">
-        <button type="button" id="show-more-options">Show more options</button>
-        <button type="button">Reset Search</button>
+        <a href="<?php forum()->urlList()?>">Reset Search</a>
 
 
 
@@ -254,9 +262,10 @@ get_header();
     <div class="post-list">
         <?php
         $page = in('page');
+        $works_per_page = in('works_per_page') ? in('works_per_page') : forum()->meta( 'posts_per_page' );
         $args = [
             'cat' => $category->term_id,
-            'posts_per_page' => forum()->meta( 'posts_per_page' ),
+            'posts_per_page' => $works_per_page,
             'paged' => $page,
         ];
 
@@ -266,7 +275,7 @@ get_header();
 
 
         if ( in('category') ) {
-            $args[ 'meta_query' ][] = [ 'key'=>'category', 'value'=>in('category') ];
+            $args[ 'meta_query' ][] = [ 'key'=>'category', 'value'=>in('category'), 'compare' => 'IN' ];
         }
 
 
@@ -287,7 +296,7 @@ get_header();
         }
 
         if ( in('percentage') ) {
-            $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>array( 1,in('percentage') ), 'compare'=>'BETWEEN' ];
+            $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>array( 0,in('percentage') ), 'compare'=>'BETWEEN' ];
         }
 
         if ( in('created_begin') ) {
@@ -377,12 +386,12 @@ get_header();
                 <tr>
                 <th>Title</th>
                     <th>Category</th>
-                    <th>Date</th>
                 <th>Priority</th>
                 <th>Worker</th>
                 <th>Incharge</th>
                 <th>View</th>
-                <th>Date</th>
+                <th>Deadline</th>
+                    <th>Created</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -396,13 +405,25 @@ get_header();
                             <a href="<?php the_permalink()?>">
                                 <?php the_title()?>
                                 <?php forum()->count_comments( get_the_ID() ) ?>
+                                <?php if ( $p = post()->percentage ) {
+                                    if ( $p < 50 ) $effect = "label-info";
+                                    else if ( $p < 70 ) $effect = "label-info";
+                                    else if ( $p < 90 ) $effect = "label-warning";
+                                    else $effect = "label-danger";
+                                    ?>
+                                    <span class="label label-pill <?php echo $effect?>" title="Percentage of work.">P: <?php echo post()->percentage?>%</span>
+                                <?php } ?>
+
+                                <?php if ( post()->process == 'A') { ?>
+                                    <span class="label label-pill label-primary">approved</span>
+                                <?php } else if ( post()->process == 'R') { ?>
+                                    <span class="label label-pill label-danger">rejected</span>
+                                <?php } ?>
+
                             </a>
                         </td>
                         <td>
                             <?php echo post()->category?>
-                        </td>
-                        <td>
-                            <?php echo get_the_date();?>
                         </td>
                         <td>
                             <?php echo post()->priority?>
@@ -417,6 +438,9 @@ get_header();
 
                         <td>
                             <?php e( post()->deadline ) ?>
+                        </td>
+                        <td>
+                            <?php echo get_the_date();?>
                         </td>
                     </tr>
                 <?php } ?>

@@ -35,13 +35,13 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
                 $p = post()->meta( 'process' );
                 echo its::$process[ $p ];
                 if ( $p == 'P' ) {
-                    $percentage = 22;
-                    echo "<progress value='$percentage' max='100'></progress>";
+                    $percentage = post()->percentage;
+                    echo "<progress value='$percentage' max='100'></progress> $percentage%";
                 }
                 ?>
             </dd>
             <dt>In Charge</dt><dd><?php echo post()->meta( 'incharge' ); ?></dd>
-            <dt>Prority</dt><dd><?php echo its::$priority[ post()->priority ]?></dd>
+            <dt>Prority</dt><dd><?php echo @its::$priority[ post()->priority ]?></dd>
         </dl>
     </header>
     <main class="content">

@@ -561,7 +561,19 @@ class forum {
         return true;
     }
 
-
+    /**
+     * Returns true if the logged in user is admin of the forum.
+     *
+     * @return bool
+     */
+    public function admin()
+    {
+        if ( forum()->getCategory() ) {
+            $admins = forum()->getCategory()->config['admins'];
+            if ( is_array( $admins ) ) return in_array( user()->user_login, $admins );
+        }
+        return false;
+    }
 
 
     /**

@@ -33,19 +33,24 @@ else {
         }
     </style>
 
-    <script type="text/javascript">
-        jQuery(document).ready(function(){
 
-            $("#process").change(function() {
-                $("#percent").show();
+<script>
+    window.addEventListener('load', function(){
+        ( function( $ ) {
+            $("input[name='process']").change(function () {
+                if ($(this).val() == "P") {
+                    $("#percent").show();
+                }
+                else {
+                    $("#percent").hide();
+                }
             });
 
-            if($('#process').is(':checked')) {
-                    $("#percent").show();
-            }
+        }) ( jQuery );
+    });
+</script>
 
-        });
-    </script>
+
     <div class="post-edit-box">
 
         <form action="?" method="post">
@@ -136,6 +141,9 @@ else {
                 <div class="caption">Process</div>
                 <?php foreach ( its::$process as $num => $text ) {
                     if ( empty($text) ) continue;
+                    if ( $num == 'A' || $num == 'R' ) {
+                        if ( ! forum()->admin() ) continue;
+                    }
                     ?>
                     <label class="radio-inline">
                         <input type="radio" name="process" value="<?php echo $num?>" <?php if ( post()->process == $num ) echo 'checked=1'; ?>> <?php echo $text?>
@@ -144,9 +152,7 @@ else {
             </fieldset>
 
 
-
-            <b>@TODO :</b> If the work is in progress, let worker select what percentage he is in and how it on the list.
-            <fieldset id="percent" style="display: none;">
+            <fieldset id="percent" style="display:none;">
                 <?php
                 if ( post()->percentage != NULL ) $percent = post()->percentage;
                 else $percent = 0;
@@ -157,17 +163,6 @@ else {
             </fieldset>
 
 
-            <?php if( forum()->isEdit() ) { ?>
-                <fieldset class="form-group">
-                    <div class="caption">Work evaluation</div>
-                    <label class="radio-inline">
-                        <input type="radio" name="evaluation" value="A" <?php if ( post()->evaluation == 'A' ) echo 'checked=1'; ?>> Approved
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="evaluation" value="R" <?php if ( post()->evaluation == 'R' ) echo 'checked=1'; ?>> Rejected
-                    </label>
-                </fieldset>
-            <?php } ?>
 
             <fieldset class="form-group">
                 <?php
