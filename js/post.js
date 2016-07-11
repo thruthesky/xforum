@@ -15,16 +15,21 @@ window.addEventListener("message", receiveMessage, false);
 function receiveMessage( re ) {
     var $upload_form = find_active_comment_file_upload_form();
     var post_ID = $upload_form.attr('post_ID');
-    var url = re.data.url;
-    var filename = re.data.filename;
-    var m = '<img class="file-upload" alt="'+filename+'" src="'+url+'"/>';
-    if ( post_ID > 0 ) {
-        //console.log(re);
-        $upload_form.append( m );
-        update_uploaded_files( $upload_form );
+    if ( re.data.error ) {
+        alert( re.data.error );
     }
     else {
-        tinymce.activeEditor.insertContent(m);
+        var url = re.data.url;
+        var filename = re.data.filename;
+        var m = '<img class="file-upload" alt="'+filename+'" src="'+url+'"/>';
+        if ( post_ID > 0 ) {
+            //console.log(re);
+            $upload_form.append( m );
+            update_uploaded_files( $upload_form );
+        }
+        else {
+            tinymce.activeEditor.insertContent(m);
+        }
     }
 }
 function find_active_comment_file_upload_form() {

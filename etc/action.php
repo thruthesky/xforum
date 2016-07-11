@@ -18,11 +18,56 @@ add_action('init', function() {
     wp_enqueue_script( 'xforum', URL_XFORUM . 'js/forum.js', array(), false, true);
 });
 
+/**
+ *
+ *
+ * @see README.md for OG tags.
+ */
 add_action('wp_head', function() {
     $home_url = home_url();
     $write_url = forum()->getUrlWrite();
 
+
+    $title = null;
+    $permalink = null;
+    $og_image = null;
+    $og_sitename = get_bloginfo('name');
+    if ( is_single() ) {
+        $title = esc_attr(get_the_title());
+        $permalink = get_the_permalink();
+        // @todo get the first image or featured image for the content.
+        $og_image = '';
+        $description = esc_attr( forum()->getCategory()->description) ;
+    }
+    else if ( in('forum') == 'list' ) {
+        $title = esc_attr(forum()->getCategory()->name);
+        $permalink = forum()->getUrlList();
+        $description = esc_attr( forum()->getCategory()->description) ;
+    }
+    else {
+
+    }
+    if ( $title ) {
+        echo <<<EOH
+        <meta property="og:title" content="$title" />
+        <meta property="og:url" content="$permalink" />
+        <meta property="og:type" content="website" />
+        <meta property="og:description" content="$description" />
+        <meta property="og:site_name" content="$og_sitename" />
+EOH;
+        if ( $og_image ) {
+            echo<<<EOH
+        <meta property="og:image" content="$og_image" />
+EOH;
+        }
+    }
+
+
     echo <<<EOH
+
+
+
+
 <script>
 var home_url="$home_url";
 var xforum_write_url="$write_url";
@@ -46,6 +91,8 @@ add_action( 'wp_before_admin_bar_render', function () {
         'href' => forum()->adminURL()
     ) );
 });
+
+
 
 
 add_action('admin_menu', function () {

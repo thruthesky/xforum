@@ -34,8 +34,6 @@ include_once DIR_XFORUM . 'etc/init.php';
 
 
 
-
-
 /**
  * 아래의 filter 는 main query 를 하지 않는다.
  * 단, 글 읽기 페이지에서는 main query 를 한다.

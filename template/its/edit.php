@@ -119,7 +119,6 @@ else {
 
             <fieldset class="form-group">
                 <div class="caption">Priority</div>
-
                 <?php foreach ( its::$priority as $num => $text ) {
                     if ( empty($text) ) continue;
                     ?>
@@ -127,25 +126,20 @@ else {
                     <input type="radio" name="priority" value="<?php echo $num?>" <?php if ( post()->priority == $num ) echo 'checked=1'; ?>> <?php echo $text?>
                 </label>
                 <?php } ?>
-
             </fieldset>
 
 
             <fieldset class="form-group">
-                <div class="caption">Work process</div>
-                <label class="radio-inline">
-                    <input type="radio" name="process" value="N" <?php if ( post()->process == 'N' ) echo 'checked=1'; ?>> Not started
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="process" value="S" <?php if ( post()->process == 'S' ) echo 'checked=1'; ?>> Started
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="process" id="process" value="P" <?php if ( post()->process == 'P' ) echo 'checked=1'; ?>> In Progress
-                </label>
-                <label class="radio-inline">
-                    <input type="radio" name="process" value="F" <?php if ( post()->process == 'F' ) echo 'checked=1'; ?>> Finished
-                </label>
+                <div class="caption">Process</div>
+                <?php foreach ( its::$process as $num => $text ) {
+                    if ( empty($text) ) continue;
+                    ?>
+                    <label class="radio-inline">
+                        <input type="radio" name="process" value="<?php echo $num?>" <?php if ( post()->process == $num ) echo 'checked=1'; ?>> <?php echo $text?>
+                    </label>
+                <?php } ?>
             </fieldset>
+
 
 
             <b>@TODO :</b> If the work is in progress, let worker select what percentage he is in and how it on the list.

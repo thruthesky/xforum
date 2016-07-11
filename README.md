@@ -33,6 +33,9 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 * ITS 서버 백업.
 
+* put OG_ImAGE tag. on ... wp_head. get the first image or featured image for the content.
+    * put default image when there is no image to show.
+
 
 * create ITS and put all the works on it.
 * @done comment CRUD
@@ -506,3 +509,18 @@ When you export, you will get JSON string containg all the posts of the category
 
 
 * WARNING : You need to copy the JSON string from the source view page. or it may causes propblems.
+
+
+
+
+# OG Tags
+
+
+* xforum does OG Tags only for forum list and is_single().
+
+    * which means, you need to do it manually for page specific content.
+    
+    * and Don't let other function (like plugins, themes, etc) do the OG tags for is_single().
+    
+
+

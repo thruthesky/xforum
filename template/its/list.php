@@ -76,7 +76,23 @@ get_header();
     <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
 
 
+    <fieldset class="form-group">
+        <div class="caption">Category</div>
+        <?php
+        $cats = forum()->getCategory()->config['category'];
+        foreach( $cats as $cat ) {
+            ?>
+            <label class="radio-inline">
+                <input type="radio" name="category" value="<?php echo $cat?>"> <?php echo $cat?>
+            </label>
+            <?php
+        }
+        ?>
+    </fieldset>
+
+
     <fieldset>
+
         <span class="caption">Worker :</span>
 
         <label class="radio-inline">
