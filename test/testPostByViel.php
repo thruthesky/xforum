@@ -188,6 +188,7 @@ class testPostByViel extends post
         check( date("Y-m-d", strtotime($post->post_date)) == $date , "$post_ID post date matched the date two days ago.", "$post_ID post date did not match the date two days ago.");
 
         // check the status of the edited post
+        check( $post->post_status == 'publish', "$post_ID status is Publish", "$post_ID status is not publish");
 
         // delete the post
         $post = post()->delete($post_ID);

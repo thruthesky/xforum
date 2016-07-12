@@ -3,6 +3,17 @@ $ex = explode('/', get_category_parents( forum()->getCategory()->term_id, false,
 if ( $ex ) {
 
 ?>
+
+<script>
+    window.addEventListener('load', function(){
+        ( function( $ ) {
+            $("span[name='help_button']").click(function () {
+                    $("#help_content").show();
+            });
+
+        }) ( jQuery );
+    });
+</script>
 <ol class="breadcrumb" style="margin-bottom: 5px;">
     <li><a href="<?php home_url()?>">Home</a></li>
     <?php
@@ -20,7 +31,23 @@ if ( $ex ) {
 
 <div>
     Time: <?php echo date('Y-m-d H:i')?>,
-    No of works: <?php echo $query->found_posts?>
+    No of works: <?php echo $query->found_posts?>,
+
+    <?php
+    $category = forum()->getCategory()->term_id;
+    $posts = get_posts();
+    foreach ( $posts as $post ) {
+        if ( isset($post->parent) ) {
+            $children = $post->parent;
+            $args = [
+                'cat' => $category->term_id,
+                'post__in' => [$children]
+            ];
+            $child[] = get_posts($args);
+        }
+    }
+    ?>
+    No of dependent children: <?php echo count($child);?>
 
     <?php
     $args = [
@@ -60,8 +87,8 @@ if ( $ex ) {
 
     <a href="<?php forum()->urlList()?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-danger">Overdue: <?php echo $found?></span></a>
 
-        <span class="btn btn-primary btn-sm">Help</span>
-        <div>
+        <span class="btn btn-primary btn-sm" name="help_button">Help</span>
+        <div id="help_content" style="display: none;">
             <ul>
                 <li>
                     Overdue:
