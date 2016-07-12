@@ -189,7 +189,7 @@ else {
                 $settings = array(
                     'textarea_name' => 'content',
                     'media_buttons' => false,
-                    'textarea_rows' => 5,
+                    'textarea_rows' => 16,
                     'quicktags' => false
                 );
                 wp_editor( $content, $editor_id, $settings );

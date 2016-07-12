@@ -1,3 +1,23 @@
+<?php
+$ex = explode('/', get_category_parents( forum()->getCategory()->term_id, false, '/', true));
+if ( $ex ) {
+
+?>
+<ol class="breadcrumb" style="margin-bottom: 5px;">
+    <li><a href="<?php home_url()?>">Home</a></li>
+    <?php
+    foreach ( $ex as $slug ) {
+        if ( empty($slug) ) continue;
+        if ( $slug == FORUM_CATEGORY_SLUG ) continue;
+        if ( $slug == forum()->slug ) continue;
+        $url = forum()->getUrlList( $slug );
+        echo "<li><a href='$url'>$slug</a></li>";
+    }
+    ?>
+    <li class="active"><?php echo forum()->slug?></li>
+</ol>
+<?php } ?>
+
 <div>
     Time: <?php echo date('Y-m-d H:i')?>,
     No of works: <?php echo $query->found_posts?>

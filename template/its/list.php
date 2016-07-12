@@ -37,6 +37,10 @@ get_header();
             color: #C80000;
         }
 
+        table progress {
+            width: 60px;
+        }
+
 
     </style>
     <h1><?php echo in('slug') ?> LIST PAGE</h1>
@@ -81,23 +85,42 @@ get_header();
 
 
 
+
         <?php
         $cats = forum()->getCategory()->config['category'];
-        if ( $cats ) {
-        ?>
-        <fieldset class="form-group">
-            <span class="caption">Category : </span>
-            <?php
-            $in_category = in('category') ? in('category') : [];
-            foreach( $cats as $cat ) {
-                ?>
-                <label class="checkbox-inline">
-                    <input type="checkbox" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
-                </label>
-                <?php
-            }
+        $args = array(
+        );
+        $child_categories = get_categories( [
+            'child_of'                 => forum()->getCategory()->term_id,
+            'hide_empty'               => FALSE
+            ] );
+
+
+
+
+        if ( $cats || $child_categories) {
             ?>
-        </fieldset>
+            <fieldset class="form-group">
+                <span class="caption">Category : </span>
+                <?php
+                $in_category = in('category') ? in('category') : [];
+                foreach( $cats as $cat ) {
+                    ?>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
+                    </label>
+                    <?php
+                }
+                ?>
+                <label>
+                    <select onchange="location.href='?forum=list&slug='+$(this).val();">
+                        <option value="">Sub ITS Category</option>
+                        <?php foreach( $child_categories as $cat )  { ?>
+                            <option value="<?php echo $cat->slug?>"> <?php echo $cat->name?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+            </fieldset>
         <?php } ?>
 
 
@@ -115,66 +138,72 @@ get_header();
             }
             ?>
 
+        </fieldset>
+
+
+        <fieldset>
+
+            <?php
+            $members = forum()->getCategory()->config['members'];
+            if ( $members ) {
+            ?>
+
+            <label for="worker">
+                <select name="worker">
+                    <option value="">Worker</option>
+                    <?php
+                    foreach( $members as $member ) {
+                        ?>
+                        <option value="<?php echo $member?>"<?php if ( $member == in('worker') ) echo ' selected=1'; ?>><?php echo $member?></option>
+                        <?php
+                    }
+                    ?>
+                </select>
+            </label>
+
+            <label for="incharge">
+                <select name="incharge">
+                    <option value="">In charge</option>
+                    <?php
+                    foreach( $members as $member ) {
+                        ?>
+                        <option value="<?php echo $member?>"<?php if ( $member == in('incharge') ) echo ' selected=1'; ?>><?php echo $member?></option>
+                        <?php
+                    }
+                    ?>
+                </select>
+            </label>
+            <?php } ?>
+
+
+            <label for="deadline-begin">Deadline</label>
+            <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
+            <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
+
+
+
+            <label for="created-begin">Created</label>
+            <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
+            <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
+
 
         </fieldset>
 
-            <fieldset>
-                <label for="worker">
-                    <select name="worker">
-                        <option value="">Worker</option>
-                        <?php
-                        $members = forum()->getCategory()->config['members'];
-                        foreach( $members as $member ) {
-                            ?>
-                            <option value="<?php echo $member?>"<?php if ( $member == in('worker') ) echo ' selected=1'; ?>><?php echo $member?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </label>
-
-                <label for="incharge">
-                    <select name="incharge">
-                        <option value="">In charge</option>
-                        <?php
-                        $members = forum()->getCategory()->config['members'];
-                        foreach( $members as $member ) {
-                            ?>
-                            <option value="<?php echo $member?>"<?php if ( $member == in('incharge') ) echo ' selected=1'; ?>><?php echo $member?></option>
-                            <?php
-                        }
-                        ?>
-                    </select>
-                </label>
-
-                <label for="deadline-begin">Deadline</label>
-                <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
-                <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
-            
-
-
-                <label for="created-begin">Created</label>
-                <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
-                <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
-
-
-            </fieldset>
 
 
 
 
+        <fieldset>
+            <label class="caption" for="priority">Priority</label>
+            <select id="priority" name="priority">
+                <option value="" <?php if ( ! in('priority') ) echo 'selected=1'?>>ALL</option>
+                <?php foreach ( its::$priority as $num => $text ) {
+                    if ( empty($text) ) continue;
+                    ?>
+                    <option value="<?php echo $num?>" <?php if ( in('priority') == $num ) echo 'selected=1'?>><?php echo $text?></option>
+                <?php } ?>
 
-            <fieldset>
-                <label class="caption" for="priority">Priority</label>
-                <select id="priority" name="priority">
-                    <option value="" <?php if ( ! in('priority') ) echo 'selected=1'?>>ALL</option>
-                    <?php foreach ( its::$priority as $num => $text ) {
-                        if ( empty($text) ) continue;
-                        ?>
-                        <option value="<?php echo $num?>" <?php if ( in('priority') == $num ) echo 'selected=1'?>><?php echo $text?></option>
-                    <?php } ?>
-
-                </select>
+            </select>
 
 
             <span id="percent">
@@ -188,16 +217,16 @@ get_header();
             </span>
 
 
-                <label class="caption" for="newly-commented">Comment</label>
-                <select id="newly-commented" name="newly_commented">
-                    <option value="0" <?php if ( '0' == in('newly_commented') ) echo 'selected=1'?>>Newly commented</option>
-                    <option value="1" <?php if ( '1' == in('newly_commented') ) echo 'selected=1'?>>Today</option>
-                    <option value="2" <?php if ( '2' == in('newly_commented') ) echo 'selected=1'?>>Today + Yesterday</option>
-                    <option value="3" <?php if ( '3' == in('newly_commented') ) echo 'selected=1'?>>Within 3 days</option>
-                    <option value="5" <?php if ( '5' == in('newly_commented') ) echo 'selected=1'?>>Within 5 days</option>
-                    <option value="7" <?php if ( '7' == in('newly_commented') ) echo 'selected=1'?>>Within 7 days</option>
-                    <option value="30" <?php if ( '30' == in('newly_commented') ) echo 'selected=1'?>>Within 30 days</option>
-                </select>
+            <label class="caption" for="newly-commented">Comment</label>
+            <select id="newly-commented" name="newly_commented">
+                <option value="0" <?php if ( '0' == in('newly_commented') ) echo 'selected=1'?>>Newly commented</option>
+                <option value="1" <?php if ( '1' == in('newly_commented') ) echo 'selected=1'?>>Today</option>
+                <option value="2" <?php if ( '2' == in('newly_commented') ) echo 'selected=1'?>>Today + Yesterday</option>
+                <option value="3" <?php if ( '3' == in('newly_commented') ) echo 'selected=1'?>>Within 3 days</option>
+                <option value="5" <?php if ( '5' == in('newly_commented') ) echo 'selected=1'?>>Within 5 days</option>
+                <option value="7" <?php if ( '7' == in('newly_commented') ) echo 'selected=1'?>>Within 7 days</option>
+                <option value="30" <?php if ( '30' == in('newly_commented') ) echo 'selected=1'?>>Within 30 days</option>
+            </select>
 
 
             <label class="caption" for="newly-edited">Edited</label>
@@ -211,29 +240,29 @@ get_header();
 
         </fieldset>
 
-            <fieldset>
-                <label class="caption" for="keyword">Search Text</label>
-                <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
+        <fieldset>
+            <label class="caption" for="keyword">Search Text</label>
+            <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
 
 
-                <label for="created-begin">
-                    Works per page:
-                    <input type="text" name="works_per_page" size="2" value="<?php echo in('works_per_page')?>">
-                </label>
+            <label for="created-begin">
+                Works per page:
+                <input type="text" name="works_per_page" size="2" value="<?php echo in('works_per_page')?>">
+            </label>
 
-            </fieldset>
+        </fieldset>
 
 
-            <fieldset>
-                <label class="caption" for="order1">Order by</label>
-                <select id="order1" name="order1">
-                    <option value="" <?php if ( '' == in('order1') ) echo 'selected=1'?>>Random</option>
-                    <option value="priority" <?php if ( 'priority' == in('order1') ) echo 'selected=1'?>>Priority</option>
-                    <option value="percentage" <?php if ( 'percentage' == in('order1') ) echo 'selected=1'?>>Percentage</option>
-                    <option value="created" <?php if ( 'created' == in('order1') ) echo 'selected=1'?>>Created</option>
-                    <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
-                    <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
-                </select>
+        <fieldset>
+            <label class="caption" for="order1">Order by</label>
+            <select id="order1" name="order1">
+                <option value="" <?php if ( '' == in('order1') ) echo 'selected=1'?>>Random</option>
+                <option value="priority" <?php if ( 'priority' == in('order1') ) echo 'selected=1'?>>Priority</option>
+                <option value="percentage" <?php if ( 'percentage' == in('order1') ) echo 'selected=1'?>>Percentage</option>
+                <option value="created" <?php if ( 'created' == in('order1') ) echo 'selected=1'?>>Created</option>
+                <option value="deadline" <?php if ( 'deadline' == in('order1') ) echo 'selected=1'?>>Deadline</option>
+                <option value="newly_commented" <?php if ( 'newly_commented' == in('order1') ) echo 'selected=1'?>>Newly commented</option>
+            </select>
 
             <span id="order1_sort">
                 <label>
@@ -243,18 +272,18 @@ get_header();
                     <input type="radio" name="order1_sort" value="DESC" <?php if ( 'DESC' == in('order1_sort') ) echo 'checked=1'; ?>> Desc,
                 </label>
             </span>
-            </fieldset>
+        </fieldset>
 
-            <fieldset class="order2" style="display:none;">
-                <label class="caption" for="order2">Order by</label>
-                <select id="order2" name="order2">
-                    <option value="" <?php if ( '' == in('order2') ) echo 'selected=1'?>>Random</option>
-                    <option value="priority" <?php if ( 'priority' == in('order2') ) echo 'selected=1'?>>Priority</option>
-                    <option value="percentage" <?php if ( 'percentage' == in('order2') ) echo 'selected=1'?>>Percentage</option>
-                    <option value="created" <?php if ( 'created' == in('order2') ) echo 'selected=1'?>>Created</option>
-                    <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
-                    <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
-                </select>
+        <fieldset class="order2" style="display:none;">
+            <label class="caption" for="order2">Order by</label>
+            <select id="order2" name="order2">
+                <option value="" <?php if ( '' == in('order2') ) echo 'selected=1'?>>Random</option>
+                <option value="priority" <?php if ( 'priority' == in('order2') ) echo 'selected=1'?>>Priority</option>
+                <option value="percentage" <?php if ( 'percentage' == in('order2') ) echo 'selected=1'?>>Percentage</option>
+                <option value="created" <?php if ( 'created' == in('order2') ) echo 'selected=1'?>>Created</option>
+                <option value="deadline" <?php if ( 'deadline' == in('order2') ) echo 'selected=1'?>>Deadline</option>
+                <option value="newly_commented" <?php if ( 'newly_commented' == in('order2') ) echo 'selected=1'?>>Newly commented</option>
+            </select>
 
             <span id="order2_sort">
                 <label>
@@ -265,12 +294,36 @@ get_header();
                 </label>
             </span>
 
-            </fieldset>
+        </fieldset>
+
+        <fieldset>
+            <span class="caption">Display Columns : </span>
+            <?php
+                $cols = [
+                    'category' => 'Category',
+                    'priority' =>  'Priority',
+                    'process' =>  'Process',
+                    'percentage' =>  'Percentage',
+                    'worker' => 'Worker',
+                    'incharge' => 'In charge',
+                    'view' => 'No. of view',
+                    'deadline' => 'Deadline',
+                    'crated' => 'Created',
+                    'edited' => 'Edited'
+                ];
+            $in_column = in('column') ? in('column') : [];
+            foreach ( $cols as $k => $v ) {
+            ?>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="column[]" value="<?php echo $k?>"<?php if ( in_array( $k, $in_column ) ) echo ' checked=1'?>> <?php echo $v?>
+                </label>
+            <label>
+                <?php } ?>
+        </fieldset>
 
 
-
-            <input type="submit" value="Search Works">
-            <a href="<?php forum()->urlList()?>">Reset Search</a>
+        <input type="submit" value="Search Works">
+        <a href="<?php forum()->urlList()?>">Reset Search</a>
 
 
 
@@ -440,6 +493,7 @@ get_header();
                     <th>Category</th>
                     <th>Priority</th>
                     <th>Process</th>
+                    <th>Percentage</th>
                     <th>Worker</th>
                     <th>Incharge</th>
                     <th>View</th>
@@ -472,7 +526,7 @@ get_header();
                                     else if ( $p < 90 ) $effect = "label-warning";
                                     else $effect = "label-danger";
                                     ?>
-                                    <span class="label label-pill <?php echo $effect?>" title="Percentage of work.">P: <?php echo post()->percentage?>%</span>
+                                    <span class="label label-pill <?php echo $effect?>" title="Percentage of work.">P: <?php echo $p?>%</span>
                                 <?php } ?>
 
                                 <?php if ( post()->process == 'A') { ?>
@@ -483,16 +537,32 @@ get_header();
                                     <span class="label label-pill label-danger">overdue</span>
                                 <?php } ?>
 
+
+                                <?php
+                                /**
+                                 * @todo comparing with numeric index(key) is no good.
+                                 */
+                                if ( post()->priority == 60 ) { ?>
+                                    <span class="label label-pill label-danger">critical</span>
+                                <?php } else if ( post()->priority == 50 ) { ?>
+                                    <span class="label label-pill label-warning">immediate</span>
+                                <?php } ?>
+
+
+
                             </a>
                         </td>
                         <td>
                             <?php echo post()->category?>
                         </td>
                         <td>
-                            <?php echo post()->priority?>
+                            <?php if ( post()->priority ) echo its::$priority[ post()->priority ]; ?>
                         </td>
                         <td>
                             <?php echo post()->process?>
+                        </td>
+                        <td>
+                            <progress value='<?php echo $p?>' max='100'></progress>
                         </td>
                         <td>
                             <?php echo post()->worker?>
