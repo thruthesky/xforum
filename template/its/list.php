@@ -80,10 +80,14 @@ get_header();
         <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
 
 
+
+        <?php
+        $cats = forum()->getCategory()->config['category'];
+        if ( $cats ) {
+        ?>
         <fieldset class="form-group">
             <span class="caption">Category : </span>
             <?php
-            $cats = forum()->getCategory()->config['category'];
             $in_category = in('category') ? in('category') : [];
             foreach( $cats as $cat ) {
                 ?>
@@ -94,6 +98,7 @@ get_header();
             }
             ?>
         </fieldset>
+        <?php } ?>
 
 
         <fieldset>
@@ -110,6 +115,8 @@ get_header();
             }
             ?>
 
+
+        </fieldset>
 
             <fieldset>
                 <label for="worker">
@@ -203,8 +210,6 @@ get_header();
             </select>
 
         </fieldset>
-            </fieldset>
-
 
             <fieldset>
                 <label class="caption" for="keyword">Search Text</label>

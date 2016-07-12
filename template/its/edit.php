@@ -70,13 +70,15 @@ else {
 
 
 
+
+            <?php
+            $cats = forum()->getCategory()->config['category'];
+            if ( $cats ) {
+            ?>
             <fieldset class="form-group">
                 <div class="caption">Category</div>
-
                 <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> none
-
                 <?php
-                $cats = forum()->getCategory()->config['category'];
                 foreach( $cats as $cat ) {
                     ?>
                     <label class="radio-inline">
@@ -86,11 +88,16 @@ else {
                 }
                 ?>
             </fieldset>
+            <?php } ?>
 
+
+            <?php
+            $members = forum()->getCategory()->config['members'];
+            if ( $members ) {
+            ?>
             <fieldset class="form-group">
                 <div class="caption">Worker</div>
                 <?php
-                $members = forum()->getCategory()->config['members'];
                 foreach( $members as $member ) {
                 ?>
                 <label class="radio-inline">
@@ -100,12 +107,16 @@ else {
                 }
                  ?>
             </fieldset>
+            <?php } ?>
 
 
+            <?php
+            $members = forum()->getCategory()->config['members'];
+            if ( $members ) {
+            ?>
             <fieldset class="form-group">
                 <div class="caption">In charge : who is in charge of this work?</div>
                 <?php
-                $members = forum()->getCategory()->config['members'];
                 foreach( $members as $member ) {
                 ?>
                 <label class="radio-inline">
@@ -115,8 +126,7 @@ else {
                 }
                  ?>
             </fieldset>
-
-
+            <?php } ?>
 
             <fieldset class="form-group">
                 <label for="dead-line">Deadline</label>
@@ -144,7 +154,7 @@ else {
                     if ( $code == 'A' || $code == 'R' ) {
                         if ( ! forum()->admin() ) continue;
                     }
-                    
+
                     $p = post()->process;
                     if ( empty($p) ) $p = 'N';
                     ?>
