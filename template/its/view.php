@@ -1,5 +1,5 @@
 <?php
-include DIR_XFORUM . 'template/its/its.class.php';
+include_once DIR_XFORUM . 'template/its/init.php';
 
 
 get_header();
@@ -42,6 +42,28 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             </dd>
             <dt>In Charge</dt><dd><?php echo post()->meta( 'incharge' ); ?></dd>
             <dt>Prority</dt><dd><?php echo @its::$priority[ post()->priority ]?></dd>
+            <dt>Dependency Parent</dt><dd>
+            <?php
+            $parent_ID = post()->parent;
+            if ( $parent_ID ) {
+                $parent = get_post( $parent_ID );
+                if ( $parent ) {
+                    ?>
+            <a href="<?php echo forum()->urlView( $parent_ID)?>"><?php echo $parent->post_title?></a>
+            <?php
+                }
+            }
+            else {
+                ?>
+                <form>
+                <input type="text" name="parent" value="" placeholder="Search dependent parent or input post ID">
+                <input type="submit">
+                </form>
+                <?php
+            }
+            ?>
+            </dd>
+
         </dl>
     </header>
     <main class="content">
@@ -51,6 +73,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 </article>
 
 <nav class="buttons">
+    <?php forum()->button_new(['text'=>'Create Dependent', 'query'=>"parent=".get_the_ID()])?>
     <?php forum()->button_edit()?>
     <?php forum()->button_delete()?>
     <?php forum()->button_list()?>

@@ -525,3 +525,16 @@ When you export, you will get JSON string containg all the posts of the category
     
 
 
+
+
+# AJAX SEARCH
+
+
+## Request Parameters
+forum = ajax_search
+slug = forum slug. if it is empty, then all forum will be searched.
+title_only = 1 or empty. by default, title+content are searched. but title_only=1, then, it will only search title.
+
+return: html.
+
+

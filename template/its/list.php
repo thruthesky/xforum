@@ -1,7 +1,11 @@
 <?php
-include DIR_XFORUM . 'template/its/its.class.php';
+include_once DIR_XFORUM . 'template/its/init.php';
 $category = forum()->getCategory();
 get_header();
+
+
+
+
 ?>
     <style>
 
@@ -26,16 +30,38 @@ get_header();
             width: 140px;
         }
 
+        .overdue {
+            color: #C80000;
+        }
+        .overdue a {
+            color: #C80000;
+        }
+
+        table progress {
+            width: 60px;
+        }
+
+        table.list .category,
+        table.list .priority,
+        table.list .process,
+        table.list .percentage,
+        table.list .worker,
+        table.list .incharge,
+        table.list .view,
+        table.list .deadline,
+        table.list .created {
+            display:none;
+        }
 
 
+
+        .ajax-search {
+            position: absolute;
+            z-index: 1001234;
+            padding: 1em;
+            background-color: white;
+        }
     </style>
-    <h1><?php echo in('slug') ?> LIST PAGE</h1>
-
-
-<?php forum()->button_write()?>
-<?php forum()->button_list(['text'=>'TOP'])?>
-<?php forum()->list_menu_user()?>
-
 
     <script type="text/javascript">
         window.addEventListener('load', function(){
@@ -45,8 +71,6 @@ get_header();
                 $("#order1").change(function() {
                     $("fieldset.order2").show();
                 });
-
-
 
                 $("#process").change(function () {
                     if ($(this).val() == "P") {
@@ -62,34 +86,126 @@ get_header();
                     }
                 }
 
+                $('.display-column').click( function() {
+                    var $checkbox = $(this);
+                    var column = $checkbox.val();
+                    var checked = $checkbox.prop('checked');
+                    if ( checked ) $('table.list .' + column).show();
+                    else $('table.list .' + column).hide();
+
+                    Cookies.set( 'its_column_' + column, checked );
+
+                });
+
+
+                var cooks = Cookies.get();
+                if ( cooks ) {
+                    for ( var c in cooks ) {
+                        if ( ! cooks.hasOwnProperty ( c ) ) continue;
+                        if ( c.indexOf('its_column_') != -1 ) {
+                            var column = c.replace('its_column_', '');
+                            var checked = Cookies.get( c );
+                            if ( checked == 'true' ) {
+                                $('.display-column[value="'+column+'"]').prop('checked', true);
+                                $('table.list .' + column).show();
+                            }
+                        }
+                    }
+                }
+
+
+
+
+                var autocomplete_ajax_progress = false;
+                $('[name="keyword"]').keyup(function( e ){
+
+                    if ( e.keyCode == 27 ) {
+                        $('.ajax-search').remove();
+                        return;
+                    }
+
+                    var $this = $(this);
+                    var keyword = $this.val();
+                    if ( keyword.length > 2 ) {
+                        if ( autocomplete_ajax_progress ) return false;
+                        autocomplete_ajax_progress = true;
+                        var url = '<?php echo home_url("?forum=ajax_search&slug=" . forum()->slug)?>&keyword=' + keyword;
+                        console.log ( url );
+                        $.get( url, function( re ) {
+                            autocomplete_ajax_progress = false;
+                            $('.ajax-search').remove();
+                            $this.after(re.data);
+                        });
+                    }
+                    else {
+                        $('.ajax-search').remove();
+                    }
+                });
+                $(document).click(function(e) {
+                    $('.ajax-search').remove();
+                });
+
             })( jQuery );
         });
 
     </script>
+
+    <h1><?php echo in('slug') ?> LIST PAGE</h1>
+
+
+<?php forum()->button_write()?>
+<?php forum()->button_list(['text'=>'TOP'])?>
+<?php forum()->list_menu_user()?>
+
+
 
     <form action="?">
         <input type="hidden" name="forum" value="list">
         <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
 
 
-        <fieldset class="form-group">
-            <span class="caption">Category : </span>
-            <?php
-            $cats = forum()->getCategory()->config['category'];
-            $in_category = in('category') ? in('category') : [];
-            foreach( $cats as $cat ) {
-                ?>
-                <label class="checkbox-inline">
-                    <input type="checkbox" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
-                </label>
-                <?php
-            }
+
+
+        <?php
+        $cats = forum()->getCategory()->config['category'];
+        $args = array(
+        );
+        $child_categories = get_categories( [
+            'child_of'                 => forum()->getCategory()->term_id,
+            'hide_empty'               => FALSE
+            ] );
+
+
+
+
+        if ( $cats || $child_categories) {
             ?>
-        </fieldset>
+            <fieldset class="form-group">
+                <span class="caption">Category : </span>
+                <?php
+                $in_category = in('category') ? in('category') : [];
+                foreach( $cats as $cat ) {
+                    ?>
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
+                    </label>
+                    <?php
+                }
+                ?>
+                <label>
+                    <select onchange="location.href='?forum=list&slug='+$(this).val();">
+                        <option value="">Sub ITS Category</option>
+                        <?php foreach( $child_categories as $cat )  { ?>
+                            <option value="<?php echo $cat->slug?>"> <?php echo $cat->name?></option>
+                        <?php } ?>
+                    </select>
+                </label>
+            </fieldset>
+        <?php } ?>
 
 
         <fieldset>
-            <span class="caption">Status : </span>
+            <span class="caption">Process : </span>
             <?php
             $in_process = in('process') ? in('process') : [];
             foreach( its::$process as $code => $text ) {
@@ -102,13 +218,20 @@ get_header();
             }
             ?>
 
+        </fieldset>
+
 
         <fieldset>
+
+            <?php
+            $members = forum()->getCategory()->config['members'];
+            if ( $members ) {
+            ?>
+
             <label for="worker">
                 <select name="worker">
                     <option value="">Worker</option>
                     <?php
-                    $members = forum()->getCategory()->config['members'];
                     foreach( $members as $member ) {
                         ?>
                         <option value="<?php echo $member?>"<?php if ( $member == in('worker') ) echo ' selected=1'; ?>><?php echo $member?></option>
@@ -122,7 +245,6 @@ get_header();
                 <select name="incharge">
                     <option value="">In charge</option>
                     <?php
-                    $members = forum()->getCategory()->config['members'];
                     foreach( $members as $member ) {
                         ?>
                         <option value="<?php echo $member?>"<?php if ( $member == in('incharge') ) echo ' selected=1'; ?>><?php echo $member?></option>
@@ -131,10 +253,13 @@ get_header();
                     ?>
                 </select>
             </label>
+            <?php } ?>
+
 
             <label for="deadline-begin">Deadline</label>
-            <input type="text" data-role="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
+            <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
             <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
+
 
 
             <label for="created-begin">Created</label>
@@ -195,7 +320,6 @@ get_header();
 
         </fieldset>
 
-
         <fieldset>
             <label class="caption" for="keyword">Search Text</label>
             <input id="keyword" type="text" name="keyword" value="<?php echo in('keyword') ?>"/>
@@ -252,6 +376,29 @@ get_header();
 
         </fieldset>
 
+        <fieldset>
+            <span class="caption">Display Columns : </span>
+            <?php
+                $cols = [
+                    'category' => 'Category',
+                    'priority' =>  'Priority',
+                    'process' =>  'Process',
+                    'percentage' =>  'Percentage',
+                    'worker' => 'Worker',
+                    'incharge' => 'In charge',
+                    'view' => 'No. of view',
+                    'deadline' => 'Deadline',
+                    'created' => 'Created',
+                    'edited' => 'Edited'
+                ];
+            $in_column = in('column') ? in('column') : [];
+            foreach ( $cols as $k => $v ) {
+            ?>
+                <label class="checkbox-inline">
+                    <input class="display-column" type="checkbox" name="column[]" value="<?php echo $k?>"<?php if ( in_array( $k, $in_column ) ) echo ' checked=1'?>> <?php echo $v?>
+                </label>
+                <?php } ?>
+        </fieldset>
 
 
         <input type="submit" value="Search Works">
@@ -347,6 +494,7 @@ get_header();
 
 
 
+        /*
         if ( in('order1') ) {
             if ( in('order1') == 'priority' ) {
                 $sort_what = 'priority';
@@ -401,29 +549,35 @@ get_header();
             }
 
         }
+        */
 
 
 //                di($args);
         //        $posts = get_posts( $args );
 
+
+
         $query = new WP_Query( $args );
+
 
 
         if ( $query->have_posts() ) { ?>
 
             <?php include forum()->locateTemplate( forum()->slug, 'list-meta-top') ?>
 
-            <table class="table">
+            <table class="table list">
                 <thead>
                 <tr>
-                <th>Title</th>
-                    <th>Category</th>
-                <th>Priority</th>
-                <th>Worker</th>
-                <th>Incharge</th>
-                <th>View</th>
-                <th>Deadline</th>
-                    <th>Created</th>
+                    <th>Title</th>
+                    <th class="category">Category</th>
+                    <th class="priority">Priority</th>
+                    <th class="process">Process</th>
+                    <th class="percentage">Percentage</th>
+                    <th class="worker">Worker</th>
+                    <th class="incharge">Incharge</th>
+                    <th class="view">View</th>
+                    <th class="deadline">Deadline</th>
+                    <th class="created">Created</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -434,7 +588,24 @@ get_header();
                     ?>
                     <tr>
                         <td>
-                            <a href="<?php the_permalink()?>">
+
+
+                            <?php
+                            if ( post()->parent ) {
+                                ?>
+                                <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
+                                <?php
+                            }
+                            ?>
+                            <?php
+                            if ( its::isOverdue() ) {
+                                $class = 'overdue';
+                            }
+                            else {
+                                $class = '';
+                            }
+                            ?>
+                            <a class="<?php echo $class?>" href="<?php the_permalink()?>">
                                 <?php the_title()?>
                                 <?php forum()->count_comments( get_the_ID() ) ?>
                                 <?php if ( $p = post()->percentage ) {
@@ -443,37 +614,39 @@ get_header();
                                     else if ( $p < 90 ) $effect = "label-warning";
                                     else $effect = "label-danger";
                                     ?>
-                                    <span class="label label-pill <?php echo $effect?>" title="Percentage of work.">P: <?php echo post()->percentage?>%</span>
+                                    <span class="label label-pill <?php echo $effect?>" title="Percentage of work.">P: <?php echo $p?>%</span>
                                 <?php } ?>
 
                                 <?php if ( post()->process == 'A') { ?>
                                     <span class="label label-pill label-primary">approved</span>
                                 <?php } else if ( post()->process == 'R') { ?>
-                                    <span class="label label-pill label-danger">rejected</span>
+                                    <span class="label label-pill label-warning">rejected</span>
+                                <?php } else if ( its::isOverdue() )  { ?>
+                                    <span class="label label-pill label-danger">overdue</span>
+                                <?php } ?>
+
+
+                                <?php
+                                /**
+                                 * @todo comparing with numeric index(key) is no good.
+                                 */
+                                if ( post()->priority == 60 ) { ?>
+                                    <span class="label label-pill label-danger">critical</span>
+                                <?php } else if ( post()->priority == 50 ) { ?>
+                                    <span class="label label-pill label-warning">immediate</span>
                                 <?php } ?>
 
                             </a>
                         </td>
-                        <td>
-                            <?php echo post()->category?>
-                        </td>
-                        <td>
-                            <?php echo post()->priority?>
-                        </td>
-                        <td>
-                            <?php echo post()->worker?>
-                        </td>
-                        <td>
-                            <?php echo post()->incharge?>
-                        </td>
-                        <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
-
-                        <td>
-                            <?php e( post()->deadline ) ?>
-                        </td>
-                        <td>
-                            <?php echo get_the_date();?>
-                        </td>
+                        <td class="category"><?php echo post()->category?></td>
+                        <td class="priority"><?php if ( post()->priority ) echo its::$priority[ post()->priority ]; ?></td>
+                        <td class="process"><?php echo post()->process?></td>
+                        <td class="percentage"><progress value='<?php echo $p?>' max='100'></progress></td>
+                        <td class="worker"><?php echo post()->worker?></td>
+                        <td class="incharge"><?php echo post()->incharge?></td>
+                        <td class="view"><?php echo post()->getNoOfView( get_the_ID() )?></td>
+                        <td class="deadline"><?php e( post()->deadline ) ?></td>
+                        <td class="created"><?php echo get_the_date();?></td>
                     </tr>
                 <?php } ?>
                 </tbody>

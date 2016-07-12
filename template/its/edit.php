@@ -1,5 +1,5 @@
 <?php
-include DIR_XFORUM . 'template/its/its.class.php';
+include_once DIR_XFORUM . 'template/its/init.php';
 ?>
 <?php get_header(); ?>
 
@@ -7,7 +7,7 @@ include DIR_XFORUM . 'template/its/its.class.php';
 
 
 
-wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
+wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js', ['jquery']);
 
 if ( in('post_ID') ) {
     forum()->setCategoryByPostID( in('post_ID') );
@@ -16,6 +16,8 @@ if ( in('post_ID') ) {
 else {
     $post = post();
 }
+
+
 
 
 ?>
@@ -27,8 +29,13 @@ else {
         .post-edit-box .buttons {
             text-align:right;
         }
+
+        form .buttons {
+            float: right;
+        }
         .file-upload-form {
-            position: absolute;
+            width: 240px;
+            float: left;
             bottom: 0;
         }
     </style>
@@ -38,11 +45,15 @@ else {
     window.addEventListener('load', function(){
         ( function( $ ) {
             $("input[name='process']").change(function () {
+
+                $("#percent").hide();
+                $("#evaluate").hide();
+
                 if ($(this).val() == "P") {
                     $("#percent").show();
                 }
-                else {
-                    $("#percent").hide();
+                else if ($(this).val() == "A") {
+                    $("#evaluate").show();
                 }
             });
 
@@ -56,27 +67,41 @@ else {
         <form action="?" method="post">
             <input type="hidden" name="forum" value="edit_submit">
             <input type="hidden" name="response" value="view">
+            <input type="hidden" name="parent" value="<?php echo in('parent')?>">
             <?php if ( in('slug') ) { ?>
                 <input type="hidden" name="slug" value="<?php echo in('slug')?>">
             <?php } else { ?>
                 <input type="hidden" name="post_ID" value="<?php echo in('post_ID')?>">
             <?php } ?>
-            <input type="hidden" name="on_error" value="alert_and_go_back">
+
+
+            <?php if ( in('parent') ) { ?>
+                <div class="its-parent">
+                    <?php
+                    $parent = post()->get( in('parent') );
+                    if ( $parent ) {
+                        echo $parent->post_title;
+                    }
+                    ?>
+                </div>
+            <?php } ?>
 
             <fieldset class="form-group">
                 <label for="post-title">Title</label>
-                <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() );?>">
+                <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( post()->title() );?>">
             </fieldset>
 
 
 
+
+            <?php
+            $cats = forum()->getCategory()->config['category'];
+            if ( $cats ) {
+            ?>
             <fieldset class="form-group">
                 <div class="caption">Category</div>
-
                 <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> none
-
                 <?php
-                $cats = forum()->getCategory()->config['category'];
                 foreach( $cats as $cat ) {
                     ?>
                     <label class="radio-inline">
@@ -86,11 +111,16 @@ else {
                 }
                 ?>
             </fieldset>
+            <?php } ?>
 
+
+            <?php
+            $members = forum()->getCategory()->config['members'];
+            if ( $members ) {
+            ?>
             <fieldset class="form-group">
                 <div class="caption">Worker</div>
                 <?php
-                $members = forum()->getCategory()->config['members'];
                 foreach( $members as $member ) {
                 ?>
                 <label class="radio-inline">
@@ -100,12 +130,16 @@ else {
                 }
                  ?>
             </fieldset>
+            <?php } ?>
 
 
+            <?php
+            $members = forum()->getCategory()->config['members'];
+            if ( $members ) {
+            ?>
             <fieldset class="form-group">
                 <div class="caption">In charge : who is in charge of this work?</div>
                 <?php
-                $members = forum()->getCategory()->config['members'];
                 foreach( $members as $member ) {
                 ?>
                 <label class="radio-inline">
@@ -115,8 +149,7 @@ else {
                 }
                  ?>
             </fieldset>
-
-
+            <?php } ?>
 
             <fieldset class="form-group">
                 <label for="dead-line">Deadline</label>
@@ -139,14 +172,17 @@ else {
 
             <fieldset class="form-group">
                 <div class="caption">Process</div>
-                <?php foreach ( its::$process as $num => $text ) {
+                <?php foreach ( its::$process as $code => $text ) {
                     if ( empty($text) ) continue;
-                    if ( $num == 'A' || $num == 'R' ) {
+                    if ( $code == 'A' || $code == 'R' ) {
                         if ( ! forum()->admin() ) continue;
                     }
+
+                    $p = post()->process;
+                    if ( empty($p) ) $p = 'N';
                     ?>
                     <label class="radio-inline">
-                        <input type="radio" name="process" value="<?php echo $num?>" <?php if ( post()->process == $num ) echo 'checked=1'; ?>> <?php echo $text?>
+                        <input type="radio" name="process" value="<?php echo $code?>" <?php if ( $code == $p ) echo 'checked=1'; ?>> <?php echo $text?>
                     </label>
                 <?php } ?>
             </fieldset>
@@ -163,11 +199,26 @@ else {
             </fieldset>
 
 
+            <fieldset id="evaluate" style="display:none;">
+                <?php
+                if ( post()->evaluate != NULL ) $evaluate = post()->evaluate;
+                else $evaluate = 0;
+                ?>
+                <label class="caption" for="evaluate">Evaluation : </label>
+                <input id="evaluate" name="evaluate" type="range" min="0" max="10" step="1" value="<?php echo $evaluate; ?>" oninput="evaluate_value.value=evaluate.value"/>
+                <output name="evaluate_value"><?php echo $evaluate; ?></output>
+
+                <label class="caption" for="evaluate-comment">Comment : </label>
+                <input id="evaluate-comment" name="evaluate_comment" type="text" value="<?php echo post()->evaluate_comment; ?>"/>
+            </fieldset>
+
+
+
 
             <fieldset class="form-group">
                 <?php
                 if ( $post ) {
-                    $content = $post->content();
+                    $content = post()->content();
                 }
                 else {
                     $content = '';
@@ -176,7 +227,7 @@ else {
                 $settings = array(
                     'textarea_name' => 'content',
                     'media_buttons' => false,
-                    'textarea_rows' => 5,
+                    'textarea_rows' => 16,
                     'quicktags' => false
                 );
                 wp_editor( $content, $editor_id, $settings );
@@ -191,7 +242,7 @@ else {
     </div>
 <?php file_upload();?>
 
-    </div>
+
 
 <?php get_footer(); ?>
 

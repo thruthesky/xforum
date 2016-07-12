@@ -7,16 +7,30 @@
  */
 add_action('init', function() {
     if ( in('do') || in('forum') ) forum()->submit();
-//    wp_enqueue_script( 'wp-util' );
-    wp_enqueue_script('jquery3', URL_XFORUM . 'js/jquery-2.2.4.min.js', array(), false, true );
-    wp_enqueue_script('underscore', URL_XFORUM . 'js/underscore-1.8.3.min.js', array('jquery3'), false, true);
-    wp_enqueue_script('underscore-string', URL_XFORUM . 'js/underscore.string.min.js', array('jquery3', 'underscore'), false, true);
+});
+
+add_action('wp_enqueue_scripts', function() {
+
+    wp_deregister_script('jquery');
+    wp_register_script('jquery', URL_XFORUM . 'js/jquery-2.2.4.min.js', [], false, true );
+    wp_enqueue_script('jquery');
+
+    wp_deregister_script('underscore');
+    wp_register_script('underscore', URL_XFORUM . 'js/underscore-1.8.3.min.js', ['jquery'], false, true);
+    wp_enqueue_script('underscore');
+
+    wp_enqueue_script('underscore-string', URL_XFORUM . 'js/underscore.string.min.js', ['jquery', 'underscore'], false, true);
+
+    wp_enqueue_script('js.cookie', URL_XFORUM . 'js/js.cookie.js', ['jquery'], false, true );
+
     wp_enqueue_style( 'font-awesome', URL_XFORUM . 'css/font-awesome/css/font-awesome.min.css' );
     wp_enqueue_style( 'bootstrap', URL_XFORUM . 'css/bootstrap/css/bootstrap.min.css');
-    wp_enqueue_script( 'tether', URL_XFORUM . 'css/bootstrap/js/tether.min.js', array(), false, true );
-    wp_enqueue_script( 'bootstrap', URL_XFORUM . 'css/bootstrap/js/bootstrap.min.js', array('jquery3'), false, true );
-    wp_enqueue_script( 'xforum', URL_XFORUM . 'js/forum.js', array(), false, true);
+    wp_enqueue_script( 'tether', URL_XFORUM . 'css/bootstrap/js/tether.min.js', ['jquery'], false, true );
+    wp_enqueue_script( 'bootstrap', URL_XFORUM . 'css/bootstrap/js/bootstrap.min.js', ['jquery', 'tether'], false, true );
+    wp_enqueue_script( 'xforum', URL_XFORUM . 'js/forum.js', ['jquery', 'bootstrap'], false, true);
+
 });
+
 
 
 
@@ -25,7 +39,7 @@ add_action('init', function() {
  *
  *
  * 아래의 filter 는 main query 를 하지 않는다.
- * 단, 글 읽기 페이지에서는 main query 를 한다.
+ * 단, 글 읽기 페이지와 관리자 페이지에서는 main query 를 한다.
  */
 function xforum_remove_main_query( $sql, WP_Query &$wpQuery ) {
     if ( ! is_admin() && ! is_single() && $wpQuery->is_main_query() ) {
@@ -95,7 +109,7 @@ EOH;
 
 <script>
 var home_url="$home_url";
-var xforum_write_url="$write_url";
+// var xforum_write_url="$write_url"; // @depcreated.
 </script>
 EOH;
 });

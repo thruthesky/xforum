@@ -34,6 +34,7 @@ class forum {
 
 
 
+
     /**
      *
      * This method is called by 'http://abc.com/forum/submit' with $_REQUEST['do']
@@ -80,6 +81,7 @@ class forum {
             'logout',
             'export',
             'import_submit',
+            'ajax_search',
         ];
         if ( in_array( $what, $forum_do_list ) ) {
             $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
@@ -203,15 +205,20 @@ class forum {
      */
     public function getUrlWrite( $slug = null )
     {
-        if ( in('forum') ) {
+
+        if ( $slug ) {
+            return home_url("?forum=edit&slug=$slug");
+        }
+        else if ( in('forum') ) {
             if ( empty($slug) ) {
                 if ( forum()->getCategory() ) {
                     $slug = forum()->getCategory()->slug;
-                    return "?forum=edit&slug=$slug";
+                    return home_url("?forum=edit&slug=$slug");
                 }
             }
         }
         return null;
+
     }
 
 
@@ -391,11 +398,13 @@ class forum {
      *
      * @attention 입력 값에 따라서 여러가지 동작이 가능하다.
      *
-     * @param array $o
+     * @param mixed $o
      *      $slug - in('response') == 'list' 인 경우, 게시판 목록을 할 때 사용된다.
      *      $post_ID - in('response') == 'view' 인 경우,글쓰기에서 글을 보여준다.
      *      $comment_ID - in('response') == 'view' 인 경우,코멘트 쓰기에서 코멘트를 보여준다.
      *      $data - 만약 위 3개의 값이 null 이고, data 에 값이 있으면 그 값을 wp_send_json_success() 로 출력한다.
+     *
+     *      If $o is not an array, then it is considered as markup.
      *
      * @todo add unit test code
      */
@@ -405,6 +414,7 @@ class forum {
         $post_ID = isset($o['post_ID']) ? $o['post_ID'] : null;
         $comment_ID = isset($o['comment_ID']) ? $o['comment_ID'] : null;
         $data = isset($o['data']) ? $o['data'] : null;
+        if ( ! is_array( $o ) ) $data = $o;
 
         $url = in('return_url');
         if ( $url ) {
@@ -574,6 +584,7 @@ class forum {
         }
         return false;
     }
+
 
 
     /**
@@ -1383,22 +1394,65 @@ EOH;
     }
 
 
-    public function button_write() {
+    /**
+     *
+     * @param array $o
+     *
+     * @code
+     *      forum()->button_edit(['text'=>'Create Dependent', 'query'=>"parent=".get_the_ID()])
+     * @endcode
+     *
+     */
+    public function button_edit( array $o = [] ) {
+        $defaults = [
+            'text' => 'EDIT',
+            'query' => '',
+        ];
+        $o = array_merge( $defaults, $o );
+
+        $url = forum()->getUrlEdit( get_the_ID() );
         echo <<<EOH
-        <button class="btn btn-secondary xforum-edit-button">Write</button>
+<a class="btn btn-secondary" href="$url&$o[query]">$o[text]</a>
 EOH;
+    }
+
+
+
+    public function button_write() {
+        $this->button_new();
     }
 
     /**
+     * @param array $o
+     *
+     * @attention it has write link on BUTTON attribute 'href'.
+     *      It does not move (redirect) the page to write page since it does not have A tag.
+     *      So you need to provide javascript to move it.
+     *
+     * @see forum.js for a clear example.
+     *
+     * @code
+     *      $this->button_new();
+     *      <?php forum()->button_new(['text'=>'Create Dependent', 'query'=>"parent=".get_the_ID()])?>
+     * @endcode
+     *
      *
      */
-    public function button_edit() {
-        $url = forum()->getUrlEdit( get_the_ID() );
-        echo <<<EOH
-<a class="btn btn-secondary" href="$url">EDIT</a>
-EOH;
+    public function button_new( array $o = [] )
+    {
 
+        $defaults = [
+            'text' => 'Write',
+            'query' => '',
+            'slug' => forum()->getCategory()->slug,
+        ];
+        $o = array_merge( $defaults, $o );
+        $href = forum()->getUrlWrite( $o['slug'] );
+        echo <<<EOH
+        <button class="btn btn-secondary xforum-edit-button" href="$href&$o[query]">$o[text]</button>
+EOH;
     }
+
     public function button_delete() {
         $url = forum()->getUrlDelete( get_the_ID() );
         echo <<<EOH
@@ -1416,6 +1470,34 @@ EOH;
         echo <<<EOH
         <a class="btn btn-secondary" href="$url">$o[text]</a>
 EOH;
+    }
+
+
+
+
+    function ajax_search() {
+
+        $q = new WP_Query(
+            [
+                's' => in('keyword'),
+                'posts_per_page' => 15,
+            ]
+        );
+
+        $html = null;
+        if ( $q->have_posts() ) {
+            $html .= "<div class='no-of-posts'>No. of search result : " . $q->found_posts . "</div>";
+            while ( $q->have_posts() ) {
+                post()->setup( $q );
+                $m = get_the_title();
+                $url = get_the_permalink();
+                $html .= <<<EOH
+<div class="post"><a href="$url">$m</a></div>
+EOH;
+            }
+        }
+        $html = "<div class='ajax-search'>$html</div>";
+        $this->response( $html );
     }
 
 
