@@ -33,21 +33,8 @@ if ( $ex ) {
     Time: <?php echo date('Y-m-d H:i')?>,
     No of works: <?php echo $query->found_posts?>,
 
-    <?php
-    $category = forum()->getCategory()->term_id;
-    $posts = get_posts();
-    foreach ( $posts as $post ) {
-        if ( isset($post->parent) ) {
-            $children = $post->parent;
-            $args = [
-                'cat' => $category->term_id,
-                'post__in' => [$children]
-            ];
-            $child[] = get_posts($args);
-        }
-    }
-    ?>
-    No of dependent children: <?php echo count($child);?>
+
+    
 
     <?php
     $args = [

@@ -1,0 +1,3 @@
+[submodule "tmp/xapp"]
+	path = tmp/xapp
+	url = https://github.com/thruthesky/xapp
