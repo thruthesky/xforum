@@ -210,7 +210,6 @@ get_header();
             $in_process = in('process') ? in('process') : [];
             foreach( its::$process as $code => $text ) {
                 if ( empty($text) ) continue;
-                var_dump($code);
                 ?>
                 <label class="checkbox-inline">
                     <input type="checkbox" name="process[]" value="<?php echo $code?>"<?php if ( in_array( $code, $in_process ) ) echo ' checked=1'?>> <?php echo $text?>

@@ -100,7 +100,6 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
 
 <form action="?" method="post">
-    <?php //var_dump(get_the_title()); ?>
     <input type="hidden" name="forum" value="edit_submit">
     <input type="hidden" name="response" value="view">
     <?php if ( in('slug') ) { ?>
