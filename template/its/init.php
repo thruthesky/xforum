@@ -21,11 +21,20 @@ class its {
         'R' => 'Rejected',
     ];
 
+    /**
+     *
+     * Returns true if the Deadline is set and it is past.
+     *
+     * @return bool
+     */
     public static function isOverdue()
     {
         if ( post()->process == 'A' || post()->process == 'R' ) return false;
-        if ( post()->deadline > date('Y-m-d') ) return false;
-        return true;
+
+        $d = post()->deadline;
+        if ( empty($d) ) return false;
+        else if ( strtotime($d) < strtotime(date('Y-m-d')) ) return true;
+        return false;
     }
 }
 

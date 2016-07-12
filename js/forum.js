@@ -1,6 +1,8 @@
 ( function ( $ ) {
 
     var bEditClicked = false;
+    var xforum_write_href = '';
+
 
     var e = {
         'loginModal': function () {
@@ -19,6 +21,7 @@
 
     function xForumEditButton() {
         var $button = $(this);
+        xforum_write_href = $button.attr('href');
         if ( e.loginButton().length ) {
             bEditClicked = true;
             openLoginBox();
@@ -40,7 +43,7 @@
      *
      */
     function moveToWritePage() {
-        location.href = xforum_write_url;
+        location.href = xforum_write_href;
     }
 
 
@@ -63,7 +66,10 @@
         var m = html_bootstrap_login_popup();
         $body.append( m );
         var $loginModal = e.loginModal();
+
+
         $loginModal.modal();
+
         /**
          * @todo you need to do 'off' on each 'on'.
          */

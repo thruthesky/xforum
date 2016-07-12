@@ -41,15 +41,27 @@ get_header();
             width: 60px;
         }
 
+        table.list .category,
+        table.list .priority,
+        table.list .process,
+        table.list .percentage,
+        table.list .worker,
+        table.list .incharge,
+        table.list .view,
+        table.list .deadline,
+        table.list .created {
+            display:none;
+        }
 
+
+
+        .ajax-search {
+            position: absolute;
+            z-index: 1001234;
+            padding: 1em;
+            background-color: white;
+        }
     </style>
-    <h1><?php echo in('slug') ?> LIST PAGE</h1>
-
-
-<?php forum()->button_write()?>
-<?php forum()->button_list(['text'=>'TOP'])?>
-<?php forum()->list_menu_user()?>
-
 
     <script type="text/javascript">
         window.addEventListener('load', function(){
@@ -74,10 +86,78 @@ get_header();
                     }
                 }
 
+                $('.display-column').click( function() {
+                    var $checkbox = $(this);
+                    var column = $checkbox.val();
+                    var checked = $checkbox.prop('checked');
+                    if ( checked ) $('table.list .' + column).show();
+                    else $('table.list .' + column).hide();
+
+                    Cookies.set( 'its_column_' + column, checked );
+
+                });
+
+
+                var cooks = Cookies.get();
+                if ( cooks ) {
+                    for ( var c in cooks ) {
+                        if ( ! cooks.hasOwnProperty ( c ) ) continue;
+                        if ( c.indexOf('its_column_') != -1 ) {
+                            var column = c.replace('its_column_', '');
+                            var checked = Cookies.get( c );
+                            if ( checked == 'true' ) {
+                                $('.display-column[value="'+column+'"]').prop('checked', true);
+                                $('table.list .' + column).show();
+                            }
+                        }
+                    }
+                }
+
+
+
+
+                var autocomplete_ajax_progress = false;
+                $('[name="keyword"]').keyup(function( e ){
+
+                    if ( e.keyCode == 27 ) {
+                        $('.ajax-search').remove();
+                        return;
+                    }
+
+                    var $this = $(this);
+                    var keyword = $this.val();
+                    if ( keyword.length > 2 ) {
+                        if ( autocomplete_ajax_progress ) return false;
+                        autocomplete_ajax_progress = true;
+                        var url = '<?php echo home_url("?forum=ajax_search&slug=" . forum()->slug)?>&keyword=' + keyword;
+                        console.log ( url );
+                        $.get( url, function( re ) {
+                            autocomplete_ajax_progress = false;
+                            $('.ajax-search').remove();
+                            $this.after(re.data);
+                        });
+                    }
+                    else {
+                        $('.ajax-search').remove();
+                    }
+                });
+                $(document).click(function(e) {
+                    $('.ajax-search').remove();
+                });
+
             })( jQuery );
         });
 
     </script>
+
+    <h1><?php echo in('slug') ?> LIST PAGE</h1>
+
+
+<?php forum()->button_write()?>
+<?php forum()->button_list(['text'=>'TOP'])?>
+<?php forum()->list_menu_user()?>
+
+
 
     <form action="?">
         <input type="hidden" name="forum" value="list">
@@ -308,16 +388,15 @@ get_header();
                     'incharge' => 'In charge',
                     'view' => 'No. of view',
                     'deadline' => 'Deadline',
-                    'crated' => 'Created',
+                    'created' => 'Created',
                     'edited' => 'Edited'
                 ];
             $in_column = in('column') ? in('column') : [];
             foreach ( $cols as $k => $v ) {
             ?>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="column[]" value="<?php echo $k?>"<?php if ( in_array( $k, $in_column ) ) echo ' checked=1'?>> <?php echo $v?>
+                    <input class="display-column" type="checkbox" name="column[]" value="<?php echo $k?>"<?php if ( in_array( $k, $in_column ) ) echo ' checked=1'?>> <?php echo $v?>
                 </label>
-            <label>
                 <?php } ?>
         </fieldset>
 
@@ -486,19 +565,19 @@ get_header();
 
             <?php include forum()->locateTemplate( forum()->slug, 'list-meta-top') ?>
 
-            <table class="table">
+            <table class="table list">
                 <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Category</th>
-                    <th>Priority</th>
-                    <th>Process</th>
-                    <th>Percentage</th>
-                    <th>Worker</th>
-                    <th>Incharge</th>
-                    <th>View</th>
-                    <th>Deadline</th>
-                    <th>Created</th>
+                    <th class="category">Category</th>
+                    <th class="priority">Priority</th>
+                    <th class="process">Process</th>
+                    <th class="percentage">Percentage</th>
+                    <th class="worker">Worker</th>
+                    <th class="incharge">Incharge</th>
+                    <th class="view">View</th>
+                    <th class="deadline">Deadline</th>
+                    <th class="created">Created</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -509,6 +588,15 @@ get_header();
                     ?>
                     <tr>
                         <td>
+
+
+                            <?php
+                            if ( post()->parent ) {
+                                ?>
+                                <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
+                                <?php
+                            }
+                            ?>
                             <?php
                             if ( its::isOverdue() ) {
                                 $class = 'overdue';
@@ -548,36 +636,17 @@ get_header();
                                     <span class="label label-pill label-warning">immediate</span>
                                 <?php } ?>
 
-
-
                             </a>
                         </td>
-                        <td>
-                            <?php echo post()->category?>
-                        </td>
-                        <td>
-                            <?php if ( post()->priority ) echo its::$priority[ post()->priority ]; ?>
-                        </td>
-                        <td>
-                            <?php echo post()->process?>
-                        </td>
-                        <td>
-                            <progress value='<?php echo $p?>' max='100'></progress>
-                        </td>
-                        <td>
-                            <?php echo post()->worker?>
-                        </td>
-                        <td>
-                            <?php echo post()->incharge?>
-                        </td>
-                        <td><?php echo post()->getNoOfView( get_the_ID() )?></td>
-
-                        <td>
-                            <?php e( post()->deadline ) ?>
-                        </td>
-                        <td>
-                            <?php echo get_the_date();?>
-                        </td>
+                        <td class="category"><?php echo post()->category?></td>
+                        <td class="priority"><?php if ( post()->priority ) echo its::$priority[ post()->priority ]; ?></td>
+                        <td class="process"><?php echo post()->process?></td>
+                        <td class="percentage"><progress value='<?php echo $p?>' max='100'></progress></td>
+                        <td class="worker"><?php echo post()->worker?></td>
+                        <td class="incharge"><?php echo post()->incharge?></td>
+                        <td class="view"><?php echo post()->getNoOfView( get_the_ID() )?></td>
+                        <td class="deadline"><?php e( post()->deadline ) ?></td>
+                        <td class="created"><?php echo get_the_date();?></td>
                     </tr>
                 <?php } ?>
                 </tbody>

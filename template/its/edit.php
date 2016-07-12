@@ -7,7 +7,7 @@ include_once DIR_XFORUM . 'template/its/init.php';
 
 
 
-wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
+wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js', ['jquery']);
 
 if ( in('post_ID') ) {
     forum()->setCategoryByPostID( in('post_ID') );
@@ -16,6 +16,8 @@ if ( in('post_ID') ) {
 else {
     $post = post();
 }
+
+
 
 
 ?>
@@ -27,8 +29,13 @@ else {
         .post-edit-box .buttons {
             text-align:right;
         }
+
+        form .buttons {
+            float: right;
+        }
         .file-upload-form {
-            position: absolute;
+            width: 240px;
+            float: left;
             bottom: 0;
         }
     </style>
@@ -38,11 +45,15 @@ else {
     window.addEventListener('load', function(){
         ( function( $ ) {
             $("input[name='process']").change(function () {
+
+                $("#percent").hide();
+                $("#evaluate").hide();
+
                 if ($(this).val() == "P") {
                     $("#percent").show();
                 }
-                else {
-                    $("#percent").hide();
+                else if ($(this).val() == "A") {
+                    $("#evaluate").show();
                 }
             });
 
@@ -56,16 +67,28 @@ else {
         <form action="?" method="post">
             <input type="hidden" name="forum" value="edit_submit">
             <input type="hidden" name="response" value="view">
+            <input type="hidden" name="parent" value="<?php echo in('parent')?>">
             <?php if ( in('slug') ) { ?>
                 <input type="hidden" name="slug" value="<?php echo in('slug')?>">
             <?php } else { ?>
                 <input type="hidden" name="post_ID" value="<?php echo in('post_ID')?>">
             <?php } ?>
-            <input type="hidden" name="on_error" value="alert_and_go_back">
+
+
+            <?php if ( in('parent') ) { ?>
+                <div class="its-parent">
+                    <?php
+                    $parent = post()->get( in('parent') );
+                    if ( $parent ) {
+                        echo $parent->post_title;
+                    }
+                    ?>
+                </div>
+            <?php } ?>
 
             <fieldset class="form-group">
                 <label for="post-title">Title</label>
-                <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() );?>">
+                <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( post()->title() );?>">
             </fieldset>
 
 
@@ -176,11 +199,26 @@ else {
             </fieldset>
 
 
+            <fieldset id="evaluate" style="display:none;">
+                <?php
+                if ( post()->evaluate != NULL ) $evaluate = post()->evaluate;
+                else $evaluate = 0;
+                ?>
+                <label class="caption" for="evaluate">Evaluation : </label>
+                <input id="evaluate" name="evaluate" type="range" min="0" max="10" step="1" value="<?php echo $evaluate; ?>" oninput="evaluate_value.value=evaluate.value"/>
+                <output name="evaluate_value"><?php echo $evaluate; ?></output>
+
+                <label class="caption" for="evaluate-comment">Comment : </label>
+                <input id="evaluate-comment" name="evaluate_comment" type="text" value="<?php echo post()->evaluate_comment; ?>"/>
+            </fieldset>
+
+
+
 
             <fieldset class="form-group">
                 <?php
                 if ( $post ) {
-                    $content = $post->content();
+                    $content = post()->content();
                 }
                 else {
                     $content = '';
@@ -204,7 +242,7 @@ else {
     </div>
 <?php file_upload();?>
 
-    </div>
+
 
 <?php get_footer(); ?>
 

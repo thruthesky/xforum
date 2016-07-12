@@ -22,6 +22,7 @@
  */
 class post {
 
+    public $version = "0.1";
     static $cu_data = []; // create / update data.
     static $post = []; // WP_Post object for loading a post.
     static $fields = [
@@ -50,14 +51,20 @@ class post {
         'comment_count'
     ];
 
+
+    /**
+     * post constructor.
+     *
+     * @warning clarify the use of get_post()
+     */
     public function __construct()
     {
-
         self::$cu_data = [];
         $post_ID = get_the_ID();
         if ( $post_ID ) {
             self::$post = get_post();
         }
+
     }
 
 
@@ -166,15 +173,68 @@ class post {
      *
      * @param $post_ID
      * @return post|null - if there is error, it returns null.
+     *
+     * @todo add test code. load()
+     *
+     * @todo @warning loading a post in the middle of 'main query' or when post has setup, is a bad choice.
+     *
+     *      WordPress prepares the main post on view ( or edit ) page.
+     *
+     *      When the post is already loaded, what is the use of loading the same post again?
+     *
+     *          And you are doing it in wrong way.
+     *
+     *          All the dependent codes already got wrong direction.
+     *
+     * @todo you need to fix it. remove post::load() first.
+     *
+     * @deprecated don't use this method.
      */
     public function load( $post_ID )
     {
-        self::$post = get_post( $post_ID );
-        if ( self::$post ) return $this;
+        $post = get_post( $post_ID );
+        if ( $post ) {
+            self::$post = $post;
+            setup_postdata( $post );
+            return $this;
+        }
         else return null;
     }
 
 
+    /**
+     * Returns the post of the input post ID.
+     *
+     *
+     *
+     * @param $post_ID - post ID
+     * @return WP_Post
+     */
+    public function get( $post_ID ) {
+
+        return get_post( $post_ID );
+
+        /**
+        return current (
+            get_posts( [
+                'post__in' => [ $post_ID ]
+            ] )
+        );
+         * */
+
+        /*
+        global $wpdb;
+        $_post = $wpdb->get_row( "SELECT * FROM $wpdb->posts WHERE ID = $post_ID LIMIT 1" );
+        return $_post;
+        */
+    }
+
+
+    /**
+     *
+     * @attention post::$post is an instance of WP_Post. It is prepared by post() or post( $post_ID )
+     * @return null|string
+     */
     public function title()
     {
         if ( self::$post ) {
@@ -182,6 +242,10 @@ class post {
         }
         else return null;
     }
+
+    /**
+     * @return null|string
+     */
     public function content()
     {
         if ( self::$post ) {
@@ -364,14 +428,21 @@ class post {
 
 /**
  *
- * @param null $post_ID
+ * @param null $deprecated
  * @return post
  * @todo add test code.
+ *
+ * @todo @WARNING It is a big mistake that post::load() methods was created in a wrong way.
+ *
+ *      all the dependent code which uses post::load() got wrong direction.
+ *
+ * @see post:load()
+ *
  */
-function post( $post_ID = null ) {
-    if ( $post_ID ) {
+function post( $deprecated = null ) {
+    if ( $deprecated ) {
         $post = new post();
-        return $post->load( $post_ID );
+        return $post->load( $deprecated );
     }
-    return new post();
+    else return new post();
 }
