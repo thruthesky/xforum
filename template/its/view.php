@@ -13,6 +13,24 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 // di( post()->meta( get_the_ID(), 'files' ) );
 
 ?>
+
+<script>
+    window.addEventListener('load', function(){
+        ( function( $ ) {
+            $("input[name='process']").change(function () {
+
+                $("#percent").hide();
+                $("#evaluate").hide();
+
+                if ($(this).val() == "P") {
+                    $("#percent").show();
+                }
+            });
+
+        }) ( jQuery );
+    });
+</script>
+
 <article class="forum its">
     <header>
         <h1><?php the_title()?></h1>
@@ -80,6 +98,46 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
     <?php forum()->list_menu_user()?>
 </nav>
 
+
+<form action="?" method="post">
+    <?php //var_dump(get_the_title()); ?>
+    <input type="hidden" name="forum" value="edit_submit">
+    <input type="hidden" name="response" value="view">
+    <?php if ( in('slug') ) { ?>
+        <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
+    <?php } else { ?>
+        <input type="hidden" name="post_ID" value="<?php echo get_the_ID()?>">
+    <?php } ?>
+    <input type="hidden" name="title" value="<?php echo get_the_title() ?>">
+    <input type="hidden" name="content" value="<?php echo get_the_content() ?>">
+    <fieldset class="form-group">
+        <div class="caption">Work Progress</div>
+        <?php foreach ( its::$process as $code => $text ) {
+            if ( empty($text) ) continue;
+            if ( $code == 'A' || $code == 'R' ) {
+                if ( ! forum()->admin() ) continue;
+            }
+            $p = post()->process;
+            if ( empty($p) ) $p = 'N';
+            ?>
+            <label class="radio-inline">
+                <input type="radio" name="process" value="<?php echo $code?>" <?php if ( $code == $p ) echo 'checked=1'; ?>> <?php echo $text?>
+            </label>
+        <?php } ?>
+    </fieldset>
+
+    <fieldset id="percent" style="display:none;">
+        <?php
+        if ( post()->percentage != NULL ) $percent = post()->percentage;
+        else $percent = 0;
+        ?>
+        <label class="caption" for="percentage">Percentage</label>
+        <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
+        <output name="percentage_value"><?php echo $percent; ?></output>
+    </fieldset>
+
+    <input type="submit" value="Submit">
+</form>
 
 <?php
 // If comments are open or we have at least one comment, load up the comment template.
