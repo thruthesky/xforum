@@ -17,6 +17,7 @@ class testPostByViel extends post
         $this->testInstance();
         $this->testProperty();
         $this->post_crud();
+        $this->testPostDate();
     }
 
     public function testInstance()
@@ -141,6 +142,61 @@ class testPostByViel extends post
 
     }
 
+    public function testPostDate() {
+
+        if ( ! function_exists('get_user_by') ) require_once ABSPATH . 'wp-includes/pluggable.php';
+        $author = get_user_by('id', 1); // admin
+
+        $forum_category = get_category_by_slug(FORUM_CATEGORY_SLUG);
+        $test_slug = "test-slug" . uniqid();
+
+        // create a forum
+        $cat_ID = forum()->create()
+            ->set('cat_name', 'test-name')
+            ->set('category_nicename', $test_slug)
+            ->set('category_parent', $forum_category->term_id)
+            ->set('category_description', 'test-description')
+            ->save();
+        check( is_integer($cat_ID), "$test_slug forum has been created", "failed on forum()->create()->save() : $cat_ID");
+
+        // create a post under the forum with the post_date of 2 days ago
+        $date = date("Y-m-d", strtotime("now") - 172800);
+        $post_ID = post()
+            ->set('post_category', [$cat_ID])
+            ->set('post_title', "This is the title")
+            ->set('post_content', "This is post content")
+            ->set('post_status', 'publish')
+            ->set('post_author', $author->ID)
+            ->set('post_date', $date)
+            ->create();
+        check( is_integer($post_ID), "$post_ID post has been created dated: $date", "failed on post()->create() : $post_ID");
+
+        // edit the post & see if the post_modified date is the day you edited
+        $post_ID = post()
+            ->set('ID', $post_ID)
+            ->set('post_category', [$cat_ID])
+            ->set('post_title', "This is the title - Edited")
+            ->set('post_content', "This is post content - Edited")
+            ->set('post_status', 'publish')
+            ->set('post_author', $author->ID)
+            ->update();
+        check( is_integer($post_ID), "$post_ID post has been edited.", "failed on post()->update() : $post_ID");
+
+        // check the post_modified date and post_date of edited post
+        $post = get_post($post_ID);
+        check( date("Y-m-d", strtotime($post->post_modified)) == date("Y-m-d", strtotime("now") ), "$post_ID post has been edited with the date today.", "post_modified date did not match the date today.");
+        check( date("Y-m-d", strtotime($post->post_date)) == $date , "$post_ID post date matched the date two days ago.", "$post_ID post date did not match the date two days ago.");
+
+        // check the status of the edited post
+
+        // delete the post
+        $post = post()->delete($post_ID);
+        check( $post, "$post_ID post has been deleted.", "failed on post()->delete( $post_ID )");
+
+        // delete forum
+        $re = forum()->delete($cat_ID);
+        check( !$re,  "$cat_ID forum has been deleted.", "failed on forum()->delete($cat_ID) : $re");
+    }
 
 
 }

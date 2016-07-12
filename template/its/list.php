@@ -359,7 +359,7 @@ get_header();
 
             elseif ( in('order1') == 'deadline' ) {
                 $sort_what = 'deadline';
-                $args[ 'meta_query' ]['deadline'] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
+                $args[ 'meta_query' ][] = [ 'key'=>'deadline', 'orderby'=>'meta_value date' ];
             }
 
             elseif ( in('order1') == 'percentage' ) {
@@ -403,7 +403,7 @@ get_header();
         }
 
 
-        //        di($args);
+//                di($args);
         //        $posts = get_posts( $args );
 
         $query = new WP_Query( $args );
