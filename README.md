@@ -570,12 +570,36 @@ return: html.
 
 ## PROTOCOLS
 
-* ?forum=api&controller=user_login
-* ?forum=api&controller=post_list&...[search options]...
+* ?forum=api&action=user_login&id=....&password=....&rememberme=.....
+* ?forum=api&action=post_list&...[search options]...
+* ?forum=api&action=post_get&post_ID=....
+* ?forum=api&action=post_write&slug=....
+* ?forum=api&action=post_edit&post_ID=....
+* ?forum=api&action=post_delete&post_ID=....
+* ?forum=api&action=post_vote&post_ID=....&mode=[good|bad]
+* ?forum=api&action=post_report&post_ID=....&reason=....
+* ?forum=api&action=post_comment_write&parent_ID=....
+* ?forum=api&action=post_comment_edit&comment_ID=....
+* ?forum=api&action=post_comment_delete&comment_ID=....
+* ?forum=api&action=post_comment_vote&post_ID=....&mode=[good|bad]
+* ?forum=api&action=post_comment_report&post_ID=....&reason=....
+* FILE UPLOAD PROTOCOL : must follow the way how file server works.
+
+
+### TEST FOR PROTOCOLS
+
+* Crate test codes
+
+
+
 
 ### Search Options
 
-You can input all the search options of WP_Query
+You can input all the search options of WP_Query.
+
+By query directly to WP_Query with full support WP_Query arguments, you can get what ever posts. like posts which have file uploads by searching meta 'files'
+
+
 
 * slug - is the slug of the forum
 * posts_per_page - is the number of posts
