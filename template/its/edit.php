@@ -1,5 +1,5 @@
 <?php
-include_once DIR_XFORUM . 'template/its/init.php';
+//include_once DIR_XFORUM . 'template/its/init.php'; // this is done by core.
 ?>
 <?php get_header(); ?>
 

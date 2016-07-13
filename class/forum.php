@@ -83,6 +83,7 @@ class forum {
             'import_submit',
             'ajax_search',
         ];
+
         if ( in_array( $what, $forum_do_list ) ) {
             $this->$what();     /// @Attention all the function here must end with wp_send_json_success/error()
             exit; // no effect...
@@ -93,6 +94,7 @@ class forum {
         ferror( -4444, $error );
         }
          */
+
 
     }
 
@@ -248,6 +250,11 @@ class forum {
             forum()->endIfNotMyPost( $post_ID );
             $this->setCategoryByPostID( $post_ID );
         }
+
+
+        
+        
+
         $post = post()
             ->set('post_category', [ forum()->getCategory()->term_id ])
             ->set('post_title', $title)
@@ -304,10 +311,11 @@ class forum {
 
     public function comment_delete_submit() {
 
-
         $comment_ID = in('comment_ID');
         $comment = get_comment( $comment_ID );
         $post_ID = $comment->comment_post_ID;
+
+        $this->setCategoryByPostID( $post_ID );
 
 
         $this->endIfNotMyComment( $comment_ID );
@@ -591,15 +599,28 @@ class forum {
      * Creates / Updates a comment.
      *
      *
+     * @note it loads 'init.php' of the template.
      *
      */
     private function comment_edit_submit( ) {
 
-        //
-        if ( $comment_ID = in( 'comment_ID' ) ) { // update
-            $this->endIfNotMyComment( $comment_ID );
+        $comment_ID = in( 'comment_ID' );
+        $update = $comment_ID ? true : false;
+        if ( $update ) {
             $comment = get_comment( $comment_ID );
             $post_ID = $comment->comment_post_ID;
+        }
+        else {
+            $post_ID = in('post_ID');
+        }
+        forum()->setCategoryByPostID($post_ID);
+
+
+
+
+        //
+        if ( $update ) { // update
+            $this->endIfNotMyComment( $comment_ID );
             $re = wp_update_comment([
                 'comment_ID' => $comment_ID,
                 'comment_content' => in('comment_content')
@@ -610,7 +631,6 @@ class forum {
             }
         }
         else { // new
-            $post_ID = in('post_ID');
             $comment_ID = wp_insert_comment([
                 'comment_post_ID' => $post_ID,
                 'comment_parent' => in('comment_parent'),
@@ -1112,10 +1132,20 @@ class forum {
      * @return string
      *
      * @warning before
+     *
+     * @code
+     *      return forum()->locateTemplate( forum()->getCategory()->slug, 'comment');
+     *      <?php include forum()->locateTemplate( forum()->slug, 'pagination') ?>
+     * @endcode
      */
-    public function locateTemplate( $slug, $page )
+    public function locateTemplate( $slug, $page = null )
     {
-        if ( empty($page) ) ferror(-50051, "page shouldn't be empty on locateTemplate()");
+        if ( empty($slug) ) ferror(-50051, "slug or page shouldn't be empty on locateTemplate()");
+
+        if ( empty( $page ) ) {
+            $page = $slug;
+            $slug = $this->getCategory()->slug;
+        }
 
         $page = "{$page}.php";
         $template_name = 'default';
@@ -1154,9 +1184,14 @@ class forum {
      *      This is called on add_filter('template_include', ...);
      *
      * @param $category_slug - category slug.
+     *
+     *
+     * @Attention 2016-07-13 It just returns if $this->category is not empty. which MEANS, you can call this function( or $this->setCategory() ) only once.
+     *
      */
     public function setCategory($category_slug)
     {
+        if ( $this->category ) return;
         $this->category = get_category_by_slug( $category_slug );
         if ( empty($this->category) ) {
             wp_die("Error: Category(slug) - $category_slug - does not exists.");
@@ -1169,6 +1204,8 @@ class forum {
      *
      * Sets forum category information to $this->category.
      *
+     * @Attention 2016-07-13 It just returns if $this->category is not empty. which MEANS, you can call this function( or $this->setCategory() ) only once.
+     *
      * @note it does what setCategory() does.
      *
      * @param $id - POST ID
@@ -1178,6 +1215,7 @@ class forum {
      */
     public function setCategoryByPostID($id)
     {
+        if ( $this->category ) return;
         $categories = get_the_category( $id );
         $this->category = current( $categories ); // @todo Warning: what if the post has more than 1 categories?
         if ( empty($this->category) ) {
@@ -1255,7 +1293,21 @@ class forum {
         $this->loadMeta('template');
         $this->loadMeta('category', 'array');
         //$this->loadMetaCategory();
+        $this->loadInitScript();
     }
+
+    /**
+     *
+     * It loads 'init.php' on the template ( as in the template hierarchy )
+     *
+     * @Warning be careful that is called(loaded) only once.
+     */
+    public function loadInitScript() {
+        //di(forum()->getCategory());
+        include_once forum()->locateTemplate('init');
+        //exit;
+    }
+
 
     /**
      * It saves the meta value of the forum config and returns it.

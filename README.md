@@ -14,6 +14,15 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
     * 모든 문서를 다 찾아서 하나 하나 재 검토하고 옮긴다.
 
   
+
+  
+## CHANGES
+  
+* 2016-07-13 Now, all pages ( list, view, edit, edit_submit, comment_edit_submit, post_delete_submit, comment_delete_submit and all)
+
+        are loading 'init.php' of the template.
+        
+        
   
 # Work Environment
 

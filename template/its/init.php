@@ -2,6 +2,19 @@
 $old_timezone = date_default_timezone_get();
 date_default_timezone_set( 'Asia/Manila' );
 
+
+add_action( 'wp_insert_comment', function( $comment_ID, $comment ) {
+    //di( in() );
+    //di( $comment_ID );
+    //di( $comment );
+
+    $post_ID = in('post_ID');
+    post()->meta( $post_ID, 'process', in('process') );
+    post()->meta( $post_ID, 'percentage', in('percentage') );
+
+}, 10, 2);
+
+
 class its {
     static $priority = [
         0 => 'None',
@@ -13,13 +26,12 @@ class its {
         60 => 'Critical',
     ];
     static $process = [
-        '' => '',
         'N' => 'Not started',
         'P' => 'Progress (Started)',
         'F' => 'Finished',
         'A' => 'Approved',
         'R' => 'Rejected',
-        'V' => 'Failed/Voided',
+        'V' => 'Failed',
     ];
 
     /**

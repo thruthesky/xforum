@@ -19,14 +19,22 @@ if ( post_password_required() ) {
 
 wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
 //wp_enqueue_style( 'forum-comments-basic', FORUM_URL . 'css/forum-comments-basic.css' );
+
+
+
+
 ?>
-
-
 <style>
     .file-upload-form .file-upload {
         max-width: 160px;
     }
 </style>
+<script>
+    ///
+    var post_process = "<?php echo post()->process?>";
+    var post_percentage = "<?php echo post()->percentage?>";
+</script>
+
 
 
 
@@ -76,6 +84,25 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
     } /** EO comments_basic callback */
     ?>
 
+
+
+    <script>
+        window.addEventListener('load', function(){
+            ( function( $ ) {
+
+
+                $("body").on('change', "input[name='process']", function () {
+                    $("#percent").hide();
+                    if ($(this).val() == "P") {
+                        $("#percent").show();
+                    }
+                });
+
+            }) ( jQuery );
+        });
+    </script>
+
+
     <script type="text/template" id="comment-form-template">
         <%
         if ( typeof comment_ID == 'undefined' ) comment_ID = 0;
@@ -85,7 +112,6 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         <section class="comment-form" parent_ID="<%=parent_ID%>" comment_ID="<%=comment_ID%>">
 
 
-
             <form action="<?php echo home_url('index.php')?>" method="post" name="comment" id="comment">
                 <input type="hidden" name="forum" value="comment_edit_submit">
                 <input type="hidden" name="post_ID" value="<?php the_ID()?>">
@@ -93,6 +119,49 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <input type="hidden" name="comment_parent" value="<%=parent_ID%>">
                 <input type="hidden" name="response" value="view">
                 <input type="hidden" name="files" value="">
+
+
+
+
+                <fieldset class="form-group">
+
+
+
+                    <% if ( typeof process != 'undefined' ) { %>
+                    <div class="caption">Process</div>
+                    <label class="radio-inline">
+                        <input type="radio" name="process" value="N"<%= process == 'N' ? ' checked=1' : '' %>> Not started.
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="process" value="P"<%= process == 'P' ? ' checked=1' : '' %>> Progress (Started).
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="process" value="F"<%= process == 'F' ? ' checked=1' : '' %>> Finished.
+                    </label>
+
+
+                    <% if ( process == 'P' ) { %>
+                    <fieldset id="percent">
+                        <% } else { %>
+                    <fieldset id="percent" style="display:none;">
+
+                        <% } %>
+                        <%
+                        if ( typeof percentage == 'undefined' || percentage == '' ) percentage = 0;
+                        %>
+                        <label class="caption" for="percentage">Percentage</label>
+                        <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<%=percentage%>" oninput="percentage_value.value=percentage.value"/>
+                        <output name="percentage_value"><%=percentage%></output>
+                    </fieldset>
+
+
+
+
+                    <% } %>
+
+
+
+
 
 
                 <div class="line comment-content">
@@ -129,7 +198,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
             window.addEventListener( 'load', function() {
                 jQuery( function( $ ) {
                     var t = _.template($('#comment-form-template').html());
-                    $('.comments-area').prepend(t({ parent_ID : 0 }));
+                    $('.comments-area').prepend(t({ parent_ID : 0, process: post_process, percentage: post_percentage }));
                 });
             });
         </script>

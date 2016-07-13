@@ -21,6 +21,7 @@ add_filter( 'template_include', function ( $template ) {
     else if ( $forum == 'list' ) {
         $category_slug = in('slug');
         forum()->setCategory( $category_slug );
+        
         return forum()->locateTemplate( $category_slug, 'list');
     }
     else if ( $forum == 'edit' ) {
@@ -32,6 +33,7 @@ add_filter( 'template_include', function ( $template ) {
             forum()->endIfNotMyPost( in('post_ID') );
             forum()->setCategoryByPostID( in('post_ID') );
         }
+
         return forum()->locateTemplate( forum()->getCategory()->slug, 'edit');
     }
     else if ( is_single() ) {

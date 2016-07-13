@@ -112,17 +112,6 @@ class post {
 
 
 
-    /**
-     * @param $key
-     * @param $value
-     * @return post
-     *
-     *
-     */
-    public function set( $key, $value ) {
-        self::$cu_data[ $key ] = $value;
-        return $this;
-    }
 
     /**
      * @deprecated use create()
@@ -202,6 +191,7 @@ class post {
     }
 
 
+
     /**
      * Returns the post of the input post ID.
      *
@@ -267,9 +257,12 @@ class post {
      * @todo add unit tet test. add a test on property_exists or not. by viel.
      *
      * @code The two codes below are the same.
+            post()->setup( $post ); // OR   post()->setup( $wp_query )
             post()->meta('worker')
             post()->worker
      * @endcode
+     *
+     *
      */
     public function __get( $property ) {
 
@@ -283,6 +276,16 @@ class post {
         }
 
     }
+
+
+    /**
+     * @WARNING to do __set() magic, you need to make things clear between WP_Post properties and post_meta().
+     */
+    /*
+    public function __set( $name, $value ) {
+        //
+    }
+    */
 
 
     /**
@@ -320,9 +323,16 @@ class post {
      *
      * @param $post_ID
      * @param $key
-     * @param null $value
+     * @param null $value - If it is not null, then it updates meta data.
      *
      * @return mixed|null
+     *
+     * @code
+     *          post()->meta( $post_ID, 'files', $files );          /// SAVE
+     *          $this->meta( self::$post->ID, $property );          /// GET meta of post->ID
+     *          $p = post()->meta( 'process' );                     /// GET meta of self::$post->ID
+     * @endcode
+     *
      */
     public function meta($post_ID, $key = null, $value = null)
     {
@@ -386,12 +396,14 @@ class post {
     }
 
     /**
-     * This method gets a WP_Query Object
-     *  and do 'the_post()' and sets into current post Object's 'self::$post'
+     * This method gets a WP_Query Object or WP_Post Object.
+     *
+     *  and do 'the_post()' or 'setup_postdata()' to do the post template tags like 'the_ID()' and sets into current post Object's 'self::$post'
+     *
      * @USE when you need to get a 'post' Object and to 'setup_posts()' at the same time.
      *
      *
-     * @param WP_Query $query
+     * @param WP_Post|WP_Query $query
      *
      *
      * @code example of best use
@@ -400,14 +412,40 @@ class post {
      *      post()->setup($q);
      *
      * @endcode
+     *
+     * @todo add test code on setup( WP_Query ) and setup( WP_Post )
      */
-    public function setup(WP_Query $query)
+    public function setup($query)
     {
-        $query->the_post();
-        self::$post = get_post();
+        if ( $query instanceof WP_Post ) {
+            self::$post = $query;
+            setup_postdata( $query );
+        }
+        else if ( $query instanceof WP_Query ) {
+            $query->the_post();
+            self::$post = get_post();
+        }
 //        self::$post = $post;
 //        setup_postdata( $post );
     }
+
+    /**
+     *
+     * @param $key
+     * @param $value
+     * @return post
+     *
+     * @code
+     *      post()->set('a','b');
+     * @endcode
+     *
+     */
+    public function set( $key, $value ) {
+        self::$cu_data[ $key ] = $value;
+        return $this;
+    }
+
+
 
 
     public function count_comments( $post_ID ) {
