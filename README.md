@@ -531,10 +531,58 @@ When you export, you will get JSON string containg all the posts of the category
 
 
 ## Request Parameters
+
+
 forum = ajax_search
+
+@todo change method of ajax_search to proper REST API. 
+
+
 slug = forum slug. if it is empty, then all forum will be searched.
 title_only = 1 or empty. by default, title+content are searched. but title_only=1, then, it will only search title.
 
 return: html.
+
+
+
+
+
+# REST API - Ajax with JSON data.
+
+* refer for idea : http://v2.wp-api.org/
+
+## IMPORTANT THINGS TO CONSIDER
+
+### ONE PAGE APP
+
+* If you are going to build one page app
+
+    * Be sure you add all <a> tags on link to do SEO work.
+    
+    * Be sure when a new content is loaded, change the link of the browser with hash tag (#)
+    
+        * So, people can copy the URL and paste it in their website.
+    
+    * OR BE sure you provide proper sitemap.xml and submit it to search engine.
+    
+
+
+
+## PROTOCOLS
+
+* ?forum=api&controller=user_login
+* ?forum=api&controller=post_list&...[search options]...
+
+### Search Options
+
+You can input all the search options of WP_Query
+
+* slug - is the slug of the forum
+* posts_per_page - is the number of posts
+* s - is the search keyword
+
+
+
+
 
 
