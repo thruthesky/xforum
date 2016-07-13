@@ -595,7 +595,7 @@ get_header();
                                 ?>
                                 <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
                                 <?php
-                            }
+                            } 
                             ?>
                             <?php
                             if ( its::isOverdue() ) {
