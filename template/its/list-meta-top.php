@@ -7,9 +7,18 @@ if ( $ex ) {
 <script>
     window.addEventListener('load', function(){
         ( function( $ ) {
+            var $toggle = 0;
             $("span[name='help_button']").click(function () {
+                if ( $toggle == 0 ) {
+                    $toggle = 1;
                     $("#help_content").show();
+                }
+                else {
+                    $toggle = 0;
+                    $("#help_content").hide();
+                }
             });
+
 
         }) ( jQuery );
     });

@@ -75,6 +75,8 @@ get_header();
                 $("#process").change(function () {
                     if ($(this).val() == "P") {
                         $("#percent").show();
+                    } else if ($(this).val() == "A") {
+                        $("#evaluate").show();
                     }
                 });
 
@@ -85,6 +87,17 @@ get_header();
                         $("#percent").hide();
                     }
                 }
+
+
+                $('.search').click( function() {
+                    var $search = $(this);
+                    var column = $search.val();
+                    var checked = $search.prop('checked');
+
+                    Cookies.set( 'save_search_' + column, checked );
+
+                });
+
 
                 $('.display-column').click( function() {
                     var $checkbox = $(this);
@@ -163,9 +176,6 @@ get_header();
         <input type="hidden" name="forum" value="list">
         <input type="hidden" name="slug" value="<?php echo forum()->getCategory()->slug?>">
 
-
-
-
         <?php
         $cats = forum()->getCategory()->config['category'];
         $args = array(
@@ -187,7 +197,7 @@ get_header();
                 foreach( $cats as $cat ) {
                     ?>
                     <label class="checkbox-inline">
-                        <input type="checkbox" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
+                        <input type="checkbox" class="search" name="category[]" value="<?php echo $cat?>"<?php if ( in_array( $cat, $in_category ) ) echo ' checked=1'?>> <?php echo $cat?>
                     </label>
                     <?php
                 }
@@ -212,13 +222,15 @@ get_header();
                 if ( empty($text) ) continue;
                 ?>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="process[]" value="<?php echo $code?>"<?php if ( in_array( $code, $in_process ) ) echo ' checked=1'?>> <?php echo $text?>
+                    <input type="checkbox" class="search" name="process[]" value="<?php echo $code?>"<?php if ( in_array( $code, $in_process ) ) echo ' checked=1'?>> <?php echo $text?>
                 </label>
                 <?php
             }
             ?>
 
         </fieldset>
+
+
 
 
         <fieldset>
@@ -291,9 +303,19 @@ get_header();
                 if ( in('percentage') ) $percent = in('percentage');
                 else $percent = 0;
                 ?>
-                <label class="caption" for="percentage">Percentage</label>
+                <label class="caption" for="percentage">Percentage: </label>
                 <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
                 <output name="percentage_value"><?php echo $percent; ?></output>
+            </span>
+
+            <span id="evaluate">
+                <?php
+                if ( in('evaluate') ) $evaluate = in('evaluate');
+                else $evaluate = 0;
+                ?>
+                <label class="caption" for="evaluate">Evaluation Rate: </label>
+                <input id="evaluate" name="evaluate" type="range" min="0" max="100" step="1" value="<?php echo $evaluate; ?>" oninput="evaluate_value.value=evaluate.value"/>
+                <output name="evaluate_value"><?php echo $evaluate; ?></output>
             </span>
 
 
@@ -454,6 +476,10 @@ get_header();
 
         if ( in('percentage') ) {
             $args[ 'meta_query' ][] = [ 'key'=>'percentage', 'value'=>array( 0,in('percentage') ), 'compare'=>'BETWEEN' ];
+        }
+
+        if ( in('evaluate') ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'evaluate', 'value'=>array( 0,in('evaluate') ), 'compare'=>'BETWEEN' ];
         }
 
         if ( in('created_begin') ) {

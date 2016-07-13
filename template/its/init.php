@@ -19,6 +19,7 @@ class its {
         'F' => 'Finished',
         'A' => 'Approved',
         'R' => 'Rejected',
+        'V' => 'Failed/Voided',
     ];
 
     /**
