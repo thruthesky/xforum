@@ -40,6 +40,11 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
                 if ( $p == 'P' ) {
                     $percentage = post()->percentage;
                     echo "<progress value='$percentage' max='100'></progress> $percentage%";
+                } else if ( $p == 'A' ) {
+                    $evaluation = post()->evaluate;
+                    $comment = post()->evaluate_comment;
+                    echo "<progress value='$evaluation' max='100'></progress> $evaluation%";
+                    echo "<br/><b>Comment:</b> $comment";
                 }
                 ?>
             </dd>

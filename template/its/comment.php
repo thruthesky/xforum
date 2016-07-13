@@ -32,18 +32,31 @@ wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
     window.addEventListener('load', function(){
         ( function( $ ) {
 
-            $('body').on('click', "input[name='process']", function () {
+            $('body').on('change', "input[name='process']", function () {
                 $("#percent").hide();
+                $("#evaluate").hide();
 
                 if ( $(this).val() == "P" ) {
                     $("#percent").show();
+                } else if ($(this).val() == "A") {
+                    $("#evaluate").show();
                 }
 
             });
+
         }) ( jQuery );
+
     });
 </script>
+<script>
 
+    function formSubmit(){
+
+        document.edit.submit();
+        document.comment.submit();
+    }
+
+</script>
 
 <?php
 function comments_basic($comment, $args, $depth) {
@@ -98,14 +111,8 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         else text = s(text).trim().value();
         %>
         <section class="comment-form" parent_ID="<%=parent_ID%>" comment_ID="<%=comment_ID%>">
-            <form action="<?php echo home_url('index.php')?>" method="post">
-                <input type="hidden" name="forum" value="comment_edit_submit">
-                <input type="hidden" name="post_ID" value="<?php the_ID()?>">
-                <input type="hidden" name="comment_ID" value="<%=comment_ID%>">
-                <input type="hidden" name="comment_parent" value="<%=parent_ID%>">
-                <input type="hidden" name="response" value="view">
-                <input type="hidden" name="files" value="">
 
+            <form action="?" name="edit" method="post" id="edit">
                 <!--  Work Progress  -->
                 <input type="hidden" name="forum" value="edit_submit">
                 <?php if ( in('slug') ) { ?>
@@ -115,6 +122,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <?php } ?>
                 <input type="hidden" name="title" value="<?php echo get_the_title() ?>">
                 <input type="hidden" name="content" value="<?php echo get_the_content() ?>">
+                <input type="hidden" name="response" value="view">
 
                 <fieldset class="form-group">
                     <div class="caption">Work Progress</div>
@@ -141,7 +149,30 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                     <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
                     <output name="percentage_value"><?php echo $percent; ?></output>
                 </fieldset>
+
+                <fieldset id="evaluate" style="display:none;">
+                    <?php
+                    if ( post()->evaluate != NULL ) $evaluate = post()->evaluate;
+                    else $evaluate = 0;
+                    ?>
+                    <label class="caption" for="evaluate">Evaluation : </label>
+                    <input id="evaluate" name="evaluate" type="range" min="0" max="10" step="1" value="<?php echo $evaluate; ?>" oninput="evaluate_value.value=evaluate.value"/>
+                    <output name="evaluate_value"><?php echo $evaluate; ?></output>
+
+                    <label class="caption" for="evaluate-comment">Comment : </label>
+                    <input id="evaluate-comment" name="evaluate_comment" type="text" value="<?php echo post()->evaluate_comment; ?>"/>
+                </fieldset>
                 <!--  End of Work Progress  -->
+            </form>
+
+
+            <form action="<?php echo home_url('index.php')?>" method="post" name="comment" id="comment">
+                <input type="hidden" name="forum" value="comment_edit_submit">
+                <input type="hidden" name="post_ID" value="<?php the_ID()?>">
+                <input type="hidden" name="comment_ID" value="<%=comment_ID%>">
+                <input type="hidden" name="comment_parent" value="<%=parent_ID%>">
+                <input type="hidden" name="response" value="view">
+                <input type="hidden" name="files" value="">
 
 
                 <div class="line comment-content">
@@ -152,15 +183,20 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 </div>
                 <div class="photos"></div>
                 <div class="files"></div>
-                <div class="line buttons">
-                    <div class="submit">
-                        <input class="comment-submit-button" type="submit" value="Submit">
-                        <% if ( comment_ID ) { %>
-                        <button class="comment-cancel-button" type="button">Cancel</button>
-                        <% } %>
-                    </div>
-                </div>
+
             </form>
+
+            <div class="line buttons">
+                <div class="submit">
+                    <input class="comment-submit-button" type="submit" value="Submit" name="submit" onclick="formSubmit();">
+                    <% if ( comment_ID ) { %>
+                    <button class="comment-cancel-button" type="button">Cancel</button>
+                    <% } %>
+                </div>
+            </div>
+
+
+
             <?php file_upload('comment')?>
         </section>
     </script>
