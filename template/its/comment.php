@@ -104,16 +104,18 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <div class="photos"></div>
                 <div class="files"></div>
 
+
+                <div class="line buttons">
+                    <div class="submit">
+                        <input class="comment-submit-button" type="submit" value="Submit" name="submit">
+                        <% if ( comment_ID ) { %>
+                        <button class="comment-cancel-button" type="button">Cancel</button>
+                        <% } %>
+                    </div>
+                </div>
+
             </form>
 
-            <div class="line buttons">
-                <div class="submit">
-                    <input class="comment-submit-button" type="submit" value="Submit" name="submit" onclick="formSubmit();">
-                    <% if ( comment_ID ) { %>
-                    <button class="comment-cancel-button" type="button">Cancel</button>
-                    <% } %>
-                </div>
-            </div>
 
 
 
