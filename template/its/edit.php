@@ -85,6 +85,7 @@ else {
         <?php } else { ?>
             <input type="hidden" name="post_ID" value="<?php echo in('post_ID')?>">
         <?php } ?>
+        <input type="hidden" name="response" value="view">
 
 
         <?php if ( in('parent') ) { ?>
