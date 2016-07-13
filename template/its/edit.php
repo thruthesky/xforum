@@ -66,7 +66,6 @@ else {
 
         <form action="?" method="post">
             <input type="hidden" name="forum" value="edit_submit">
-            <input type="hidden" name="response" value="view">
             <input type="hidden" name="parent" value="<?php echo in('parent')?>">
             <?php if ( in('slug') ) { ?>
                 <input type="hidden" name="slug" value="<?php echo in('slug')?>">
@@ -233,15 +232,15 @@ else {
                 wp_editor( $content, $editor_id, $settings );
                 ?>
             </fieldset>
+
             <div class="buttons">
-                <input type="submit" value="Issue a task">
-                <button type="button">Cancel</button>
+                <input type="submit" value="Issue a task" class="btn btn-secondary">
+                <a class="btn btn-secondary" href="<?php echo forum()->urlView( in('post_ID'));?>">Cancel</a>
             </div>
         </form>
 
     </div>
 <?php file_upload();?>
-
 
 
 <?php get_footer(); ?>
