@@ -64,18 +64,18 @@ else {
                 $("#evaluate").show();
             }
 
-            
+
             $("input[name='process']").change(function () {
 
                 $("#percent").hide();
-                $("#evaluate").hide();
+//                $("#evaluate").hide();
 
                 if ($(this).val() == "P") {
                     $("#percent").show();
                 }
-                else if ($(this).val() == "A") {
-                    $("#evaluate").show();
-                }
+//                else if ($(this).val() == "A") {
+//                    $("#evaluate").show();
+//                }
             });
 
         }) ( jQuery );
@@ -222,14 +222,14 @@ else {
         </fieldset>
 
 
-        <fieldset id="evaluate" style="display:none;">
+        <fieldset id="evaluate">
             <?php
             if ( post()->evaluate != NULL ) $evaluate = post()->evaluate;
             else $evaluate = 0;
             ?>
             <label class="caption" for="evaluate">Evaluation : </label>
             <input id="evaluate" name="evaluate" type="range" min="0" max="10" step="1" value="<?php echo $evaluate; ?>" oninput="evaluate_value.value=evaluate.value"/>
-            <output name="evaluate_value"><?php echo $evaluate; ?></output>
+            <output name="evaluate_value"><?php echo $evaluate; ?>% </output>
 
             <label class="caption" for="evaluate-comment">Comment : </label>
             <input id="evaluate-comment" name="evaluate_comment" type="text" value="<?php echo post()->evaluate_comment; ?>"/>

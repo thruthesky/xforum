@@ -1,7 +1,6 @@
 <?php
 //include_once DIR_XFORUM . 'template/its/init.php'; // this is done by core.
 
-
 get_header();
 wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 ?>
@@ -40,12 +39,23 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
                 if ( $p == 'P' ) {
                     $percentage = post()->percentage;
                     echo "<progress value='$percentage' max='100'></progress> $percentage%";
-                } else if ( $p == 'A' ) {
-                    $evaluation = post()->evaluate;
-                    $comment = post()->evaluate_comment;
-                    echo "<progress value='$evaluation' max='100'></progress> $evaluation%";
-                    echo "<br/><b>Comment:</b> $comment";
                 }
+
+                ?>
+
+                <?php
+                $evaluation = post()->evaluate;
+                $comment = post()->evaluate_comment;
+                if ( $evaluation ) {
+                    ?>
+                    <dt>Work Evaluation</dt>
+                    <?php
+                    echo "<progress value='$evaluation' max='100'></progress> $evaluation%";
+                }
+                if ( $comment ) {
+                    echo "<br/><b>Evaluation Comment:</b> $comment";
+                }
+
                 ?>
             </dd>
             <dt>In Charge</dt><dd><?php echo post()->meta( 'incharge' ); ?></dd>
@@ -71,7 +81,6 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             }
             ?>
             </dd>
-
         </dl>
     </header>
     <main class="content">
@@ -86,6 +95,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
     <?php forum()->button_delete()?>
     <?php forum()->button_list()?>
     <?php forum()->list_menu_user()?>
+
 </nav>
 
 
