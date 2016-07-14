@@ -23,6 +23,7 @@ include_once DIR_CLASS . 'url_comment.php';
 include_once DIR_CLASS . 'url_forum.php';
 include_once DIR_CLASS . 'url_post.php';
 include_once DIR_CLASS . 'url.php';
+include_once DIR_CLASS . 'api.php';
 include_once DIR_CLASS . 'forum.php';
 include_once DIR_CLASS . 'post.php';
 include_once DIR_CLASS . 'comment.php';

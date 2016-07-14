@@ -66,6 +66,7 @@ class forum {
 
         $forum_do_list = [
             'ping',
+            'api',
             'forum_create',
             'forum_edit',
             'forum_delete',
@@ -102,6 +103,13 @@ class forum {
     public function ping() {
         $this->response( ['data' => ['pong'=>time()] ] );
     }
+    public function api() {
+        $action = in('action');
+        if ( empty( $action ) ) ferror(-500500, 'Please, input action. No action provided.');
+        api()->$action();
+        exit;
+    }
+
 
 
 
