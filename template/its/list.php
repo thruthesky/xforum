@@ -611,17 +611,21 @@ get_header();
                 <?php
                 while ( $query->have_posts() ) {
                     post()->setup( $query );
+
+
                     ?>
                     <tr>
                         <td>
 
 
                             <?php
+
                             if ( post()->parent ) {
                                 ?>
                                 <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
                                 <?php
                             }
+
                             ?>
                             <?php
                             if ( its::isOverdue() ) {

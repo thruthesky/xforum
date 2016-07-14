@@ -15,6 +15,7 @@ class testForumByViel extends forum
         $this->crud();
         $this->testCount();
         $this->testTemplate();
+
     }
 
     private function testInstance()
@@ -279,6 +280,8 @@ class testForumByViel extends forum
         @unlink($theme_custom_temp);
         @unlink($plugin_custom_temp);
     }
+
+
 
 }
 

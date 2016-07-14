@@ -57,6 +57,14 @@ else {
 
             });
 
+
+            if( $("input[name='process']:checked").val() == 'P' ) {
+                $("#percent").show();
+            } else if( $("input[name='process']:checked").val() == 'A' ) {
+                $("#evaluate").show();
+            }
+
+            
             $("input[name='process']").change(function () {
 
                 $("#percent").hide();
