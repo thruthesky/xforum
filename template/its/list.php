@@ -139,7 +139,7 @@ get_header();
 
                     var $this = $(this);
                     var keyword = $this.val();
-                    if ( keyword.length > 2 ) {
+                    if ( keyword.length >= 2 ) {
                         if ( autocomplete_ajax_progress ) return false;
                         autocomplete_ajax_progress = true;
                         var url = '<?php echo home_url("?forum=ajax_search&slug=" . forum()->slug)?>&keyword=' + keyword;

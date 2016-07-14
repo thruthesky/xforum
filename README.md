@@ -579,7 +579,10 @@ return: html.
 
 ## PROTOCOLS
 
+
+* ?forum=api&action=ping
 * ?forum=api&action=user_login&id=....&password=....&rememberme=.....
+* ?forum=api&action=get_categories
 * ?forum=api&action=post_list&...[search options]...
 * ?forum=api&action=post_get&post_ID=....
 * ?forum=api&action=post_write&slug=....
@@ -593,6 +596,12 @@ return: html.
 * ?forum=api&action=post_comment_vote&post_ID=....&mode=[good|bad]
 * ?forum=api&action=post_comment_report&post_ID=....&reason=....
 * FILE UPLOAD PROTOCOL : must follow the way how file server works.
+
+### EXAMPLES OF PROTOCOLS
+
+Query: http://wordpress46b1.org/?forum=api&action=ping
+Result: {"success":true,"data":{"data":{"pong":1468473654}}} 
+
 
 
 ### TEST FOR PROTOCOLS
