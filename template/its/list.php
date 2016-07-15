@@ -620,9 +620,8 @@ get_header();
                 while ( $query->have_posts() ) {
                     post()->setup( $query );
 
-                    $parent =  post()->meta( get_the_ID(), 'parent' );
+                    $parent =  post()->meta( 'parent' );
                     if ( isset($parent) && !empty($parent) ) $parents[] = $parent;
-
                     ?>
                     <tr>
                         <td>
@@ -633,7 +632,9 @@ get_header();
                                 ?>
                                 <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
                                 <?php
-                            } else if ( isset($parents) && !empty($parents) ) {
+                            }
+
+                            if ( isset($parents) && !empty($parents) ) {
                                 $unique = array_unique($parents);
 
                                 if ( in_array( post()->ID, $unique) ) {
