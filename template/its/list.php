@@ -634,7 +634,9 @@ get_header();
                                 <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
                                 <?php
                             } else if ( isset($parents) && !empty($parents) ) {
-                                if ( in_array( post()->ID, $parents) ) {
+                                $unique = array_unique($parents);
+
+                                if ( in_array( post()->ID, $unique) ) {
                                     $count = array_count_values($parents);
                                     ?>
                                     <span class="label label-pill label-default">children: <?php echo $count[post()->ID];  ?></span>
