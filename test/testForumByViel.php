@@ -15,6 +15,7 @@ class testForumByViel extends forum
         $this->crud();
         $this->testCount();
         $this->testTemplate();
+        $this->testResponse();
     }
 
     private function testInstance()
@@ -99,6 +100,7 @@ class testForumByViel extends forum
         $param['slug'] = $slug;
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
+        $param['response'] = 'ajax';
         $re = forum()->http_query( $param );
         success( $re, "$slug has been created", "failed on do=forum_create.", true);
 
@@ -120,6 +122,7 @@ class testForumByViel extends forum
         $param_edit['slug'] = $param['slug'];
         $param_edit['category_parent'] = $param['category_parent'];
         $param_edit['category_description'] = "This is a category created by unit test - Edited";
+        $param_edit['response'] = 'ajax';
         $re = forum()->http_query( $param_edit );
         success( $re, "forum has been edited", "failed on do=forum_edit.", true);
 
@@ -137,7 +140,7 @@ class testForumByViel extends forum
 
         $category = get_category_by_slug( $param_edit['slug'] );
         success(
-            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ),
+            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id]),
             "Forum - $slug - has been deleted.",
             "failed on forum_delete ", true
         );
@@ -278,6 +281,25 @@ class testForumByViel extends forum
         @unlink($plugin_default_temp);
         @unlink($theme_custom_temp);
         @unlink($plugin_custom_temp);
+    }
+
+    public function testResponse() {
+
+        // create the forum - test on response AJAX
+        $slug = 'cat-count-test' . uniqid();
+        $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
+        $param = [];
+        $param['forum'] = 'forum_create';
+        $param['cat_name'] = 'Test Forum on count()';
+        $param['slug'] = $slug;
+        $param['category_parent'] = $parent->term_id;
+        $param['category_description'] = "This is a category created by unit test";
+        $param['response'] = 'ajax';
+        $re = forum()->http_query( $param );
+        success( $re, "$slug has been created", "failed on do=forum_create.", true );
+
+
+
     }
 
 }

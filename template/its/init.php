@@ -15,6 +15,26 @@ add_action( 'wp_insert_comment', function( $comment_ID, $comment ) {
 }, 10, 2);
 
 
+
+add_action('content_save_pre', function ( $where ) {
+    $title = in('title');
+    $content = in('content');
+//    $reg_exUrl = "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/";
+    $reg_exUrl = "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i";
+    if ( preg_match_all($reg_exUrl, $content, $matches) ) {
+        foreach ( $matches[0] as $i => $match ) {
+            $content = str_replace( $match, '<a href="'.$matches[0][$i].'">'.$matches[0][$i].'</a>', $content );
+        }
+     }
+
+    return $content;
+
+} );
+
+
+
+
+
 class its {
     static $priority = [
         0 => 'None',
@@ -49,5 +69,10 @@ class its {
         else if ( strtotime($d) < strtotime(date('Y-m-d')) ) return true;
         return false;
     }
+
+
+
 }
+
+
 
