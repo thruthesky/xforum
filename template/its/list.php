@@ -425,7 +425,7 @@ get_header();
 
         <input type="submit" value="Search Works">
         <a href="<?php forum()->urlList()?>">Reset Search</a>
-
+        <input type="submit" value="Show Parents" name="parent">
 
 
 
@@ -578,10 +578,18 @@ get_header();
         */
 
 
-//                di($args);
-        //        $posts = get_posts( $args );
+        if( $_REQUEST['parent'] ) {
+            $arguments = array( 'posts_per_page' => -1, 'meta_key'=>'parent' );
+            $posts = get_posts( $arguments );
 
+            foreach( $posts as $post ) {
+                $parent = post()->meta( $post->ID, 'parent' );
+                if ( $parent != 0 ) $parents[] = $parent;
+            }
 
+            $unique = array_unique($parents);
+            $args += array( 'post__in' => $unique );
+        }
 
         $query = new WP_Query( $args );
 

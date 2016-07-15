@@ -111,7 +111,6 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         %>
         <section class="comment-form" parent_ID="<%=parent_ID%>" comment_ID="<%=comment_ID%>">
 
-
             <form action="<?php echo home_url('index.php')?>" method="post" name="comment" id="comment">
                 <input type="hidden" name="forum" value="comment_edit_submit">
                 <input type="hidden" name="post_ID" value="<?php the_ID()?>">
@@ -173,8 +172,10 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <div class="photos"></div>
                 <div class="files"></div>
 
+                <?php file_upload('comment')?>
 
-                <div class="line buttons">
+
+                        <div class="line buttons">
                     <div class="submit">
                         <input class="comment-submit-button" type="submit" value="Submit" name="submit">
                         <% if ( comment_ID ) { %>
@@ -188,7 +189,6 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
 
 
 
-            <?php file_upload('comment')?>
         </section>
     </script>
 
