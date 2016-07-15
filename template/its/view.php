@@ -64,7 +64,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             else {
                 ?>
                 <form>
-                <input type="text" name="parent" value="" placeholder="Search dependent parent or input post ID">
+                <input type="text" name="parent" value="" placeholder="Search a post and put it as dependency parent">
                 <input type="submit">
                 </form>
                 <?php
