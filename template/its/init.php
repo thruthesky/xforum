@@ -21,18 +21,25 @@ add_action('content_save_pre', function ( $where ) {
     $content = in('content');
 //    $reg_exUrl = "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/";
     $reg_exUrl = "/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i";
+
     if ( preg_match_all($reg_exUrl, $content, $matches) ) {
+
         foreach ( $matches[0] as $i => $match ) {
-            $content = str_replace( $match, '<a href="'.$matches[0][$i].'">'.$matches[0][$i].'</a>', $content );
+
+            if ( strlen($matches[0][$i]) > 45  ) {
+                // too long url
+                $short_url = substr($matches[0][$i], 0, 30)."[...]".substr($matches[0][$i], -15);
+                $content = str_replace( $match, '<a href="'.$matches[0][$i].'">'.$short_url.'</a>', $content );
+            } else {
+                $content = str_replace( $match, '<a href="'.$matches[0][$i].'">'.$matches[0][$i].'</a>', $content );
+            }
         }
+//        di($short_url); exit;
      }
 
     return $content;
 
 } );
-
-
-
 
 
 class its {
