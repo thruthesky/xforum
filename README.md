@@ -582,6 +582,7 @@ return: html.
 
 * ?forum=api&action=ping
 * ?forum=api&action=user_login&id=....&password=....&rememberme=.....
+* ?forum=api&action=user_register&.....
 * ?forum=api&action=get_categories
 * ?forum=api&action=post_list&...[search options]...
 * ?forum=api&action=post_get&post_ID=....
@@ -599,8 +600,20 @@ return: html.
 
 ### EXAMPLES OF PROTOCOLS
 
+#### Ex 1)
+
 Query: http://wordpress46b1.org/?forum=api&action=ping
 Result: {"success":true,"data":{"data":{"pong":1468473654}}} 
+
+
+#### Ex 2)
+
+
+    $.get("http://dev.withcenter.com/wordpress/?forum=api&action=get_categories", function(re){
+console.log(re);
+    });
+
+
 
 
 
