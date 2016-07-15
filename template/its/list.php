@@ -612,19 +612,25 @@ get_header();
                 while ( $query->have_posts() ) {
                     post()->setup( $query );
 
-
+                    $parent =  post()->meta( 'parent' );
+                    if ( $parent != 0 ) $parents[] = $parent;
                     ?>
                     <tr>
                         <td>
 
 
                             <?php
-
                             if ( post()->parent ) {
                                 ?>
                                 <span class="label label-pill label-default">p: <?php echo post()->parent ?></span>
                                 <?php
+                            } else if ( in_array( post()->ID, $parents ) ) {
+                                $count = array_count_values($parents);
+                                ?>
+                                <span class="label label-pill label-default">children: <?php echo $count[post()->ID];  ?></span>
+                                <?php
                             }
+
 
                             ?>
                             <?php
