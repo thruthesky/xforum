@@ -15,13 +15,23 @@ class api {
     }
 
     public function post_list() {
+        forum()->setCategory( in('slug') );
         $args = [
-            'slug' => in('forum'),
+            'cat' => forum()->term_id,
             'posts_per_page' => 10,
             'paged' => 5,
         ];
-        $q = get_posts($args);
-        wp_send_json_success( $q );
+
+        $ars = $args;
+        $in = in();
+        $category = forum()->getCategory();
+        $posts = get_posts($args);
+        wp_send_json_success( [
+            'in' => $in,
+            'category' => $category,
+            'args' => $args,
+            'posts' => $posts
+        ] );
     }
 }
 
