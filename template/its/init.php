@@ -15,10 +15,17 @@ add_action( 'wp_insert_comment', function( $comment_ID, $comment ) {
 }, 10, 2);
 
 
-/*
+/**
+ *
+ * @WARNING This is a big problem it already ruined the dev site.
+ *
+ *      - Before you commit, be sure the code are okay. OR do unit test.
+ *
+ *
  * Will convert URLs into clickable link.
  * This action will be used before saving to database (post publish etc.)
  */
+/*
 add_action('content_save_pre', function ( $where ) {
     $title = in('title');
     $content = in('content');
@@ -42,6 +49,7 @@ add_action('content_save_pre', function ( $where ) {
     return $content;
 
 } );
+*/
 
 
 class its {
