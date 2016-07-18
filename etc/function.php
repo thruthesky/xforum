@@ -156,3 +156,14 @@ function file_upload($type='post') {
 function e( $string ) {
     echo esc_html( $string );
 }
+
+
+
+function _text( $str, $args = null ) {
+    if ( $args ) {
+        $str = sprintf( $str, $args);
+    }
+    echo $str;
+
+
+}
