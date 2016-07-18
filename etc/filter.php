@@ -103,8 +103,19 @@ add_filter( 'the_content', function( $content ) {
     //$content = preg_replace("/([^\"='])(https?:\/\/[^ <>'\"\\n]*)/", "$1<a href='$2' target='_blank'>$2</a>", $content);
     //$content = make_clickable( $content );
     $url_pattern = "@(https?://([-\w\.]+)+(/([\w/_\.]*(\?\S+)?(#\S+)?)?)?)@";
+
+    /*
     $url_pattern = "/([^\"='])(https?:\/\/[^ <>'\"\\n]*)(&#[0-9]+;)/";
     $replace = '$1<a href="$2" target="_blank">$2</a>$3';
     $content = preg_replace( $url_pattern, $replace, $content);
+    */
+
+    $content = html_entity_decode( $content ); // to remove things like  "&#1234;"
+
+    $url_pattern = "/([^\"='])(https?:\/\/[a-zA-Z0-9\~\!@#\$%^&\*\(\)\-\+\\_=\|\[\]\{\};:,\.\?\/]+)/";
+    $replace = '$1<a href="$2" target="_blank">$2</a>';
+    $content = preg_replace( $url_pattern, $replace, $content);
+
+
     return $content;
 });
