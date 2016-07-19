@@ -38,7 +38,9 @@ include_once DIR_XFORUM . 'etc/init.php';
 
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');
 xlog( in() );
-if ( in('test') ) {
+$seg0 = seg(0);
+
+if ( in('test') &&  $seg0 != 'wp-admin' ) {
     add_action('wp_loaded', function() {
         include DIR_XFORUM . 'test/main.php';
     });
