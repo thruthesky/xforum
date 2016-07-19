@@ -408,8 +408,13 @@ class post {
      *
      * @code example of best use
      *
-     *      $q = new WP_Query
-     *      post()->setup($q);
+            $mq = new WP_Query( $args );
+            if ( $mq->have_posts() ) {
+                while ( $mq->have_posts() ) {
+                    post()->setup( $mq );
+                    post()->worker;
+                }
+            }
      *
      * @endcode
      *

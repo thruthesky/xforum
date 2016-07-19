@@ -121,14 +121,15 @@ else {
             ?>
             <fieldset class="form-group">
                 <div class="caption">Category</div>
-                <label class="radio-inline" for="category">
+                <label class="radio-inline">
                     <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> none
                 </label>
                 <?php
                 foreach( $cats as $cat ) {
                     ?>
-                    <label class="radio-inline" for="category">
-                        <input type="radio" name="category" value="<?php echo $cat?>" <?php if ( $cat == post()->category ) echo 'checked=1'; ?>> <?php echo $cat?>
+                    <label class="radio-inline">
+                        <input type="radio" name="category" value="<?php echo $cat?>" <?php if ( $cat == post()->category ) echo 'checked=1'; ?>>
+                        <?php echo $cat?>
                     </label>
                     <?php
                 }
@@ -147,7 +148,8 @@ else {
                 foreach( $members as $member ) {
                     ?>
                     <label class="radio-inline">
-                        <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>> <?php echo $member?>
+                        <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>>
+                        <?php echo $member?>
                     </label>
                     <?php
                 }

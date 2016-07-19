@@ -9,6 +9,7 @@ add_action('init', function() {
     if ( in('do') || in('forum') ) forum()->submit();
 });
 
+
 add_action('wp_enqueue_scripts', function() {
 
     wp_deregister_script('jquery');
