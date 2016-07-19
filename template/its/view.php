@@ -19,20 +19,20 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
     <header>
         <h1><?php the_title()?></h1>
         <dl class="meta">
-            <dt>Author:</dt>
+            <dt><?php _text('Author') ?>:</dt>
             <dd><address rel="author"><?php the_author()?></address></dd>
-            <dt>Date:</dt>
+            <dt><?php _text('Date') ?>:</dt>
             <dd><time pubdate datetime="<?php echo get_the_date("Y-m-d")?>" title="<?php echo get_the_date("h:i a on F dS, Y")?>"><?php echo get_the_date("h:i a - F dS, Y")?></time></dd>
-            <dt>No of views:</dt>
-            <dd>No of views: <?php echo $GLOBALS['post_view_count']?></dd>
-            <dt>All posts by author:</dt>
-            <dd><a href="http://www.blog.net/authors/remy-schrader/">Link</a></dd>
-            <dt>Contact:</dt>
-            <dd><a href="javascript:alert('Message is not yet, implemented');">Send Message & SMS Text Message</a></dd>
+            <dt><?php _text('No of views') ?>:</dt>
+            <dd><?php _text('No of views') ?>: <?php echo $GLOBALS['post_view_count']?></dd>
+            <dt><?php _text('All posts by author') ?>:</dt>
+            <dd><a href="http://www.blog.net/authors/remy-schrader/"><?php _text('Link') ?></a></dd>
+            <dt><?php _text('Contact') ?>:</dt>
+            <dd><a href="javascript:alert('Message is not yet, implemented');"><?php _text('Send Message & SMS Text Message') ?></a></dd>
 
-            <dt>Worker</dt><dd><?php echo post()->worker; ?></dd>
-            <dt>Deadline</dt><dd><?php echo date( 'M d, Y', strtotime( post()->deadline) );?></dd>
-            <dt>Work Status</dt>
+            <dt><?php _text('Worker') ?></dt><dd><?php echo post()->worker; ?></dd>
+            <dt><?php _text('Deadline') ?></dt><dd><?php echo date( 'M d, Y', strtotime( post()->deadline) );?></dd>
+            <dt><?php _text('Work Status') ?></dt>
             <dd><?php
                 $p = post()->meta( 'process' );
                 echo its::$process[ $p ];
@@ -48,19 +48,19 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
                 $comment = post()->evaluate_comment;
                 if ( $evaluation ) {
                     ?>
-                    <dt>Work Evaluation</dt>
+                    <dt><?php _text('Work Evaluation') ?></dt>
                     <?php
                     echo "<progress value='$evaluation' max='100'></progress> $evaluation%";
                 }
                 if ( $comment ) {
-                    echo "<br/><b>Evaluation Comment:</b> $comment";
+                    echo "<br/><b><?php _text('valuation Comment') ?>E:</b> $comment";
                 }
 
                 ?>
             </dd>
-            <dt>In Charge</dt><dd><?php echo post()->meta( 'incharge' ); ?></dd>
-            <dt>Prority</dt><dd><?php echo @its::$priority[ post()->priority ]?></dd>
-            <dt>Dependency Parent</dt><dd>
+            <dt><?php _text('In Charge') ?></dt><dd><?php echo post()->meta( 'incharge' ); ?></dd>
+            <dt><?php _text('Prority') ?></dt><dd><?php echo @its::$priority[ post()->priority ]?></dd>
+            <dt><?php _text('Dependency Parent') ?></dt><dd>
             <?php
             $parent_ID = post()->parent;
             if ( $parent_ID ) {
@@ -74,7 +74,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             else {
                 ?>
                 <form>
-                <input type="text" name="parent" value="" placeholder="Search a post and put it as dependency parent">
+                <input type="text" name="parent" value="" placeholder="<?php _text('Search a post and put it as dependency parent') ?>">
                 <input type="submit">
                 </form>
                 <?php

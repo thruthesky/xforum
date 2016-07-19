@@ -54,7 +54,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
             <?php endif; ?>
             <?php printf( __('%1$s at %2$s'), get_comment_date(),  get_comment_time() ); ?>
             <div>
-                Comment No.: <?php echo $comment->comment_ID?>
+                <?php _text('Comment No.') ?>: <?php echo $comment->comment_ID?>
             </div>
         </div>
 
@@ -72,11 +72,11 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         </div>
 
         <div class="buttons">
-            <span class="reply">Reply</span>
-            <span class="edit">Edit</span>
-            <span class="delete"><a href="<?php comment()->urlDelete()?>">Delete</a></span>
-            <span class="report" title="This function is not working, yet.">Report</span>
-            <span class="like" title="This function is not working, yet.">Like</span>
+            <span class="reply"><?php _text('Reply') ?></span>
+            <span class="edit"><?php _text('Edit') ?></span>
+            <span class="delete"><a href="<?php comment()->urlDelete()?>"><?php _text('Delete') ?></a></span>
+            <span class="report" title="This function is not working, yet."><?php _text('Report') ?></span>
+            <span class="like" title="This function is not working, yet."><?php _text('Like') ?></span>
         </div>
     </div>
     <hr>
@@ -129,13 +129,13 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                     <% if ( typeof process != 'undefined' ) { %>
                     <div class="caption">Process</div>
                     <label class="radio-inline">
-                        <input type="radio" name="process" value="N"<%= process == 'N' ? ' checked=1' : '' %>> Not started.
+                        <input type="radio" name="process" value="N"<%= process == 'N' ? ' checked=1' : '' %>> <?php _text('Not started.') ?>
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="process" value="P"<%= process == 'P' ? ' checked=1' : '' %>> Progress (Started).
+                        <input type="radio" name="process" value="P"<%= process == 'P' ? ' checked=1' : '' %>> <?php _text('Progress (Started).') ?>
                     </label>
                     <label class="radio-inline">
-                        <input type="radio" name="process" value="F"<%= process == 'F' ? ' checked=1' : '' %>> Finished.
+                        <input type="radio" name="process" value="F"<%= process == 'F' ? ' checked=1' : '' %>> <?php _text('Finished.') ?>
                     </label>
 
 
@@ -148,7 +148,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                         <%
                         if ( typeof percentage == 'undefined' || percentage == '' ) percentage = 0;
                         %>
-                        <label class="caption" for="percentage">Percentage</label>
+                        <label class="caption" for="percentage"><?php _text('Percentage') ?></label>
                         <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<%=percentage%>" oninput="percentage_value.value=percentage.value"/>
                         <output name="percentage_value"><%=percentage%></output>
                     </fieldset>
@@ -165,9 +165,9 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
 
                 <div class="line comment-content">
                     <label for="comment-content" style="display:none;">
-                        Comment Content
+                        <?php _text('Comment Content') ?>
                     </label>
-                    <textarea id="comment-content" name="comment_content" placeholder="<?php _e('Please input comment', 'xforum')?>"><%=text%></textarea>
+                    <textarea id="comment-content" name="comment_content" placeholder="<?php _text('Please input comment')?>"><%=text%></textarea>
                 </div>
                 <div class="photos"></div>
                 <div class="files"></div>
@@ -179,7 +179,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                     <div class="submit">
                         <input class="comment-submit-button" type="submit" value="Submit" name="submit">
                         <% if ( comment_ID ) { %>
-                        <button class="comment-cancel-button" type="button">Cancel</button>
+                        <button class="comment-cancel-button" type="button"><?php _text('Cancel') ?></button>
                         <% } %>
                     </div>
                 </div>

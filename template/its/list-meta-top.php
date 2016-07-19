@@ -39,8 +39,8 @@ if ( $ex ) {
 <?php } ?>
 
 <div>
-    Time: <?php echo date('Y-m-d H:i')?>,
-    No of works: <?php echo $query->found_posts?>,
+    <?php _text('Time') ?>: <?php echo date('Y-m-d H:i')?>,
+    <?php _text('No of works') ?>: <?php echo $query->found_posts?>,
 
 
     
@@ -81,16 +81,16 @@ if ( $ex ) {
     ?>
 
 
-    <a href="<?php forum()->urlList()?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-danger">Overdue: <?php echo $found?></span></a>
+    <a href="<?php forum()->urlList()?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-danger"><?php _text('Overdue') ?>: <?php echo $found?></span></a>
 
-        <span class="btn btn-primary btn-sm" name="help_button">Help</span>
+        <span class="btn btn-primary btn-sm" name="help_button"><?php _text('Help') ?></span>
         <div id="help_content" style="display: none;">
             <ul>
                 <li>
-                    Overdue:
+                    <?php _text('Overdue') ?>:
                     <ul>
-                        <li>Overdue icon appears on the top and if clicked, overdue posts will be shown.</li>
-                        <li>Title color is red.</li>
+                        <li><?php _text('Overdue icon appears on the top and if clicked, overdue posts will be shown.') ?></li>
+                        <li><?php _text('Title color is red.') ?></li>
                     </ul>
                 </li>
             </ul>

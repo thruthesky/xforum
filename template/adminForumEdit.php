@@ -11,7 +11,7 @@ forum()->setCategory( $category->slug );
 
 <div class="wrap xforum">
 
-    <h2>X Forum - EDIT</h2>
+    <h2><?php _text('X Forum - EDIT') ?></h2>
 
     <div class="forum-create">
         <form action="?" method="post">
@@ -37,7 +37,7 @@ forum()->setCategory( $category->slug );
             <?php forum_edit_line_list( ) ?>
 
             <input type="submit" class="btn btn-primary" value="Edit Forum">
-            <a href="<?php echo forum()->urlAdminPage()?>" type="button" class="btn btn-secondary forum-create-cancel-button">Cancel</a>
+            <a href="<?php echo forum()->urlAdminPage()?>" type="button" class="btn btn-secondary forum-create-cancel-button"><?php _text('Cancel') ?></a>
         </form>
     </div>
 

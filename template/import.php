@@ -2,13 +2,13 @@
 
 ?>
 <div class="wrap xforum setting">
-    <h2>XForum Settings</h2>
+    <h2><?php _text('XForum Settings') ?></h2>
     <div class="forum-create">
         <?php if ( in('success') ) { ?>
-            SUCCESS
+            <?php _text('SUCCESS') ?>
         <?php } ?>
         <?php if ( in('error_code') ) { ?>
-            ERROR (<?php echo in('error_code')?>) : <?php echo in('error_message'); ?>
+            <?php _text('ERROR') ?> (<?php echo in('error_code')?>) : <?php echo in('error_message'); ?>
         <?php } ?>
         <form action="?" method="post">
             <input type="hidden" name="forum" value="import_submit">
@@ -17,14 +17,14 @@
 
 
             <fieldset class="form-group">
-                <label for="xforum_slug">Category slug to save</label>
-                <input id='xforum_slug' class='form-control' type="text" name="slug" placeholder="Input forum slug">
+                <label for="xforum_slug"><?php _text('Category slug to save') ?></label>
+                <input id='xforum_slug' class='form-control' type="text" name="slug" placeholder="<?php _text('Input forum slug') ?>">
             </fieldset>
 
             <fieldset class="form-group">
-                <label for="forum-data">FORUM DATA ( JSON string )</label>
+                <label for="forum-data"><?php _text('FORUM DATA ( JSON string )') ?></label>
                 <textarea id='forum-data' class='form-control' type="text" name="data"></textarea>
-                <small class="text-muted">Input JSON string.</small>
+                <small class="text-muted"><?php _text('Input JSON string.') ?></small>
             </fieldset>
 
             <input type="submit" class="btn btn-primary" value="Import forum data">

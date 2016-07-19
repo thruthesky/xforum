@@ -16,7 +16,7 @@ else {
 
 ?>
 
-    <h1><?php echo in('slug') ?> EDIT PAGE</h1>
+    <h1><?php echo in('slug') ?> <?php _text('EDIT PAGE') ?></h1>
 
 <style>
     .post-edit-box {
@@ -42,12 +42,12 @@ else {
     <?php } ?>
     <input type="hidden" name="on_error" value="alert_and_go_back">
     <fieldset class="form-group">
-        <label for="post-title">Title</label>
-        <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( $post->title() )?>">
-        <small class="text-muted">Please, input post title.</small>
+        <label for="post-title"><?php _text('Title') ?></label>
+        <input type="text" class="form-control" id="post-title" name="title" placeholder="<?php _text('Input title...') ?>" value="<?php echo esc_html( $post->title() )?>">
+        <small class="text-muted"><?php _text('Please, input post title.') ?></small>
     </fieldset>
     <fieldset class="form-group">
-        <label for="post-content">Content</label>
+        <label for="post-content"><?php _text('Content') ?></label>
         <?php
         if ( $post ) {
             $content = $post->content();
