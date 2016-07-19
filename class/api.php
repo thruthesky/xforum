@@ -18,11 +18,11 @@ class api {
         forum()->setCategory( in('slug') );
         $args = [
             'cat' => forum()->term_id,
-            'posts_per_page' => 10,
-            'paged' => 5,
+            'posts_per_page' => in('posts_per_page', 10),
+            'paged' => in('page'),
         ];
 
-        $ars = $args;
+
         $in = in();
         $category = forum()->getCategory();
         $posts = get_posts($args);
