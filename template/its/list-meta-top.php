@@ -87,9 +87,6 @@ if ( $ex ) {
     <?php
     if ( $found ) {
     ?>
-
-
-
         <a href="<?php forum()->urlList()?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-danger">Overdue: <?php echo $found?></span></a>
 
         <?php

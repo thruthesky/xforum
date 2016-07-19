@@ -159,10 +159,8 @@ function e( $string ) {
 
 
 
-function _text( $str, $args = null ) {
-    if ( $args ) {
-        $str = sprintf( $str, $args);
-    }
+function _text( $str ) {
+    
     echo $str;
 
 
