@@ -9,6 +9,7 @@ add_action('init', function() {
     if ( in('do') || in('forum') ) forum()->submit();
 });
 
+
 add_action('wp_enqueue_scripts', function() {
 
     wp_deregister_script('jquery');
@@ -159,7 +160,7 @@ add_action('admin_menu', function () {
         __('Text Translation', 'xforum'),
         __('Text Translation', 'xforum'),
         'manage_options',
-        'xforum/template/text-translation.php',
+        'xforum/template/admin-text-translation.php',
         ''
     );
 

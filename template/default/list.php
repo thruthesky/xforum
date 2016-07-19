@@ -7,7 +7,9 @@ get_header();
         margin: 1em 0;
     }
 </style>
-    <h1><?php echo in('slug') ?> <?php _text('LIST PAGE') ?></h1>
+    <h1>
+        <?php _text("Forum Name")?>: <?php echo forum()->getCategory()->name?>
+    </h1>
 
 
 

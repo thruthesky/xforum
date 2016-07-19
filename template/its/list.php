@@ -402,6 +402,7 @@ get_header();
             <span class="caption"><?php _text('Display Columns') ?> : </span>
             <?php
                 $cols = [
+                    'ID' => 'No.',
                     'category' => 'Category',
                     'priority' =>  'Priority',
                     'process' =>  'Process',
@@ -470,7 +471,13 @@ get_header();
             $args[ 'meta_query' ][] = [ 'key'=>'incharge', 'value'=>in('incharge') ];
         }
 
+        /*
         if ( in('process') && in('process') != 'A' ) {
+            $args[ 'meta_query' ][] = [ 'key'=>'process', 'value'=>in('process') ];
+        }
+        */
+
+        if ( in('process') ) {
             $args[ 'meta_query' ][] = [ 'key'=>'process', 'value'=>in('process') ];
         }
 
@@ -578,7 +585,10 @@ get_header();
         */
 
 
-        if( $_REQUEST['parent'] ) {
+        /***
+         * @todo what is this?
+         */
+        if( in('parent') ) {
             $arguments = array( 'posts_per_page' => -1, 'meta_key'=>'parent' );
             $posts = get_posts( $arguments );
 
@@ -602,6 +612,7 @@ get_header();
             <table class="table list">
                 <thead>
                 <tr>
+                    <th class="ID">No.</th>
                     <th>Title</th>
                     <th class="category"><?php _text('Category') ?></th>
                     <th class="priority"><?php _text('Priority') ?></th>
@@ -624,6 +635,8 @@ get_header();
                     if ( isset($parent) && !empty($parent) ) $parents[] = $parent;
                     ?>
                     <tr>
+
+                        <td class="ID"><?php the_ID()?></td>
                         <td>
 
 
@@ -656,6 +669,7 @@ get_header();
                             }
                             ?>
                             <a class="<?php echo $class?>" href="<?php the_permalink()?>">
+
                                 <?php the_title()?>
                                 <?php forum()->count_comments( get_the_ID() ) ?>
                                 <?php if ( $p = post()->percentage ) {

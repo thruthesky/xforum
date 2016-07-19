@@ -60,7 +60,7 @@ if ( $ex ) {
         'relation' => 'OR',
         [
             'key'       => 'process',
-            'value'     => ['A', 'R'],
+            'value'     => ['A'],
             'type'      => 'CHAR',
             'compare'   => 'NOT IN',
         ],
@@ -69,17 +69,36 @@ if ( $ex ) {
             'compare'   => 'NOT EXISTS',
         ],
     ];
-    $q = new WP_Query( $args );
 
-
-
-    $found = $q->found_posts;
-
-
-    if ( $found ) {
-
+    $found = 0;
+    $due = [];
+    $mq = new WP_Query( $args );
+    if ( $mq->have_posts() ) {
+        $found = $mq->found_posts;
+        while ( $mq->have_posts() ) {
+            post()->setup( $mq );
+            $worker = post()->worker;
+            if ( isset( $due[$worker] ) ) $due[$worker] ++;
+            else $due[$worker] = 1;
+        }
+    }
     ?>
 
+    <?php
+    if ( $found ) {
+    ?>
+        <a href="<?php forum()->urlList()?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-danger">Overdue: <?php echo $found?></span></a>
+
+        <?php
+
+        foreach( $due as $worker => $count ) {
+            ?>
+            <a href="<?php forum()->urlList()?>&worker=<?php echo $worker?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-warning"><?php echo $worker?>: <?php echo $count?></span></a>
+            <?php
+        }
+
+
+        ?>
 
     <a href="<?php forum()->urlList()?>&deadline_end=<?php echo date('Y-m-d')?>&process[]=N&process[]=P&process[]=F"><span class="label label-pill label-danger"><?php _text('Overdue') ?>: <?php echo $found?></span></a>
 
