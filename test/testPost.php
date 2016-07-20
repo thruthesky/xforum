@@ -102,14 +102,21 @@ class testPost extends post {
 
     }
 
+
+    /**
+     *
+     * @todo add more test code
+     */
     public function remoteCRUD()
     {
         // create the forum again
         $param = [];
         $param['do'] = 'post_edit_submit';
-        $param['slug'] = 'qna';
+        $param['response'] = 'ajax';
+        $param['slug'] = 'qna'; // @todo @warning what if 'qna' slug does not exists? you have to crate a new forum and delete it after test.
         $param['title'] = 'this is title of remote crud()';
         $param['content'] = 'content...<br>..<p>test</p>';
+
         $re = forum()->http_query( $param );
         print_r($re);
         check( $re['success'], null, "failed on do=post_edit_submit");

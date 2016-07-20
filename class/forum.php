@@ -22,6 +22,8 @@ class forum {
     public function __construct()
     {
 
+        header('Access-Control-Allow-Origin: *');
+
     }
 
     public function __get( $field ) {

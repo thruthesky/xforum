@@ -35,10 +35,15 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             <dt><?php _text('Work Status') ?></dt>
             <dd><?php
                 $p = post()->meta( 'process' );
-                echo its::$process[ $p ];
-                if ( $p == 'P' ) {
-                    $percentage = post()->percentage;
-                    echo "<progress value='$percentage' max='100'></progress> $percentage%";
+                if ( $p ) {
+                    echo its::$process[ $p ];
+                    if ( $p == 'P' ) {
+                        $percentage = post()->percentage;
+                        echo "<progress value='$percentage' max='100'></progress> $percentage%";
+                    }
+                }
+                else {
+                    echo "No process code";
                 }
 
                 ?>
