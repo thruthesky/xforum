@@ -22,16 +22,16 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
     <header>
         <h1><?php the_title()?></h1>
         <dl class="meta">
-            <dt>Author:</dt>
+            <dt><?php _text('Author') ?>:</dt>
             <dd><address rel="author"><?php the_author()?></address></dd>
-            <dt>Date:</dt>
+            <dt><?php _text('Date') ?>:</dt>
             <dd><time pubdate datetime="<?php echo get_the_date("Y-m-d")?>" title="<?php echo get_the_date("h:i a on F dS, Y")?>"><?php echo get_the_date()?></time></dd>
-            <dt>No of views:</dt>
-            <dd>No of views: <?php echo $GLOBALS['post_view_count']?></dd>
-            <dt>All posts by author:</dt>
-            <dd><a href="http://www.blog.net/authors/remy-schrader/">Link</a></dd>
-            <dt>Contact:</dt>
-            <dd><a href="javascript:alert('Message is not yet, implemented');">Send Message & SMS Text Message</a></dd>
+            <dt><?php _text('No of views') ?>:</dt>
+            <dd><?php _text('No of views') ?>: <?php echo $GLOBALS['post_view_count']?></dd>
+            <dt><?php _text('All posts by author') ?>:</dt>
+            <dd><a href="http://www.blog.net/authors/remy-schrader/"><?php _text('Link') ?></a></dd>
+            <dt><?php _text('Contact') ?>:</dt>
+            <dd><a href="javascript:alert('Message is not yet, implemented');"><?php _text('Send Message & SMS Text Message') ?></a></dd>
         </dl>
     </header>
 <?php

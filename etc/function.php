@@ -151,8 +151,113 @@ function file_upload($type='post') {
     include_once DIR_XFORUM . 'template/file-upload.php';
 }
 
-
-
 function e( $string ) {
     echo esc_html( $string );
+}
+
+
+function _getUserLanguage() {
+
+    /**
+     * @todo check if the user chosen a language.
+     */
+
+
+    return get_browser_language();
+}
+
+
+/**
+ *
+ * Returns the language code of browser in two letter. ie) 'en', 'ko', 'jp', 'cn', etc...
+ *
+ */
+function get_browser_language()
+{
+    return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+}
+
+
+
+
+/**
+ * Admin can only edit the text. so it lets the admin to use css and javascript.
+ * @param $str
+ * @param null $language - language to get from database.
+ */
+function _text($str, $language = null) {
+    $org = esc_html($str);
+    if ( empty($language) ) $language = _getUserLanguage();
+    $option_name = _getLanguageCode($language, $str);
+
+
+    if ( user()->admin() && isset($_COOKIE['site-edit']) && $_COOKIE['site-edit'] == 'Y' ) {
+        $str = _getText($str, $language);
+        echo "
+<div class='translate-text' original-text='$org' code='$option_name'><span class='dashicons dashicons-welcome-write-blog'></span>
+<div class='html-content'>$str</div>
+</div>
+";
+    }
+    else {
+        $str = _getText($str, $option_name);
+        echo $str;
+    }
+
+
+}
+
+/**
+ * @param $dir
+ * @param bool $re
+ * @param null $pattern
+ * @return array
+ */
+function getFiles($dir, $re=true, $pattern=null)
+{
+    $tmp = array();
+    if ($handle = opendir($dir)) {
+        while (false !== ($file = readdir($handle))) {
+            if ($file != "." && $file != "..") {
+                $file_path = $dir . DIRECTORY_SEPARATOR . $file;
+                if ( is_dir($file_path) ) {
+                    if ( $re ) {
+                        $tmp2 = getFiles($file_path, $re, $pattern);
+                        if ( $tmp2 ) $tmp = array_merge($tmp, $tmp2);
+                    }
+                }
+                else {
+                    if ( $pattern ) {
+                        if ( preg_match($pattern, $file) ) {
+                        }
+                        else continue;
+                    }
+                    array_push($tmp, $dir . DIRECTORY_SEPARATOR . $file);
+                }
+            }
+        }
+        closedir($handle);
+        return $tmp;
+    }
+    return $tmp;
+}
+
+
+function _getText($str, $option_name) {
+    $data = get_option( $option_name );
+    $org = esc_html($str);
+    if ( empty($data) ) $str = $org;
+    else {
+        $content = null;
+        if ( isset($data['content']) ) $content = trim($data['content']);
+        if ( empty($content) ) $str = $org;
+        else $str = $data['content'];
+    }
+    return $str;
+}
+
+
+
+function _getLanguageCode( $language, $str ) {
+    return $language . '-' . md5($str);
 }

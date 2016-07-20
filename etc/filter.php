@@ -110,6 +110,9 @@ add_filter( 'the_content', function( $content ) {
     $content = preg_replace( $url_pattern, $replace, $content);
     */
 
+    /**
+     * @todo @warning enabling entity code may cause secrious security problems.
+     */
     $content = html_entity_decode( $content ); // to remove things like  "&#1234;"
 
     $url_pattern = "/([^\"='])(https?:\/\/[a-zA-Z0-9\~\!@#\$%^&\*\(\)\-\+\\_=\|\[\]\{\};:,\.\?\/]+)/";

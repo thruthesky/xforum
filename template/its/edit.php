@@ -108,8 +108,8 @@ else {
         <?php } ?>
 
         <fieldset class="form-group">
-            <label for="post-title">Title</label>
-            <input type="text" class="form-control" id="post-title" name="title" placeholder="Input title..." value="<?php echo esc_html( post()->title() );?>">
+            <label for="post-title"><?php _text('Title') ?></label>
+            <input type="text" class="form-control" id="post-title" name="title" placeholder="<?php _text('Input title...') ?>" value="<?php echo esc_html( post()->title() );?>">
         </fieldset>
 
 
@@ -120,15 +120,16 @@ else {
         if ( $cats ) {
             ?>
             <fieldset class="form-group">
-                <div class="caption">Category</div>
+                <div class="caption"><?php _text('Category') ?></div>
                 <label class="radio-inline" for="category">
-                    <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> none
+                    <input type="radio" name="category" value=""<?php if ( ! in('category') ) echo ' checked=1'?>> <?php _text('none') ?>
                 </label>
                 <?php
                 foreach( $cats as $cat ) {
                     ?>
-                    <label class="radio-inline" for="category">
-                        <input type="radio" name="category" value="<?php echo $cat?>" <?php if ( $cat == post()->category ) echo 'checked=1'; ?>> <?php echo $cat?>
+                    <label class="radio-inline">
+                        <input type="radio" name="category" value="<?php echo $cat?>" <?php if ( $cat == post()->category ) echo 'checked=1'; ?>>
+                        <?php echo $cat?>
                     </label>
                     <?php
                 }
@@ -142,12 +143,13 @@ else {
         if ( $members ) {
             ?>
             <fieldset class="form-group">
-                <div class="caption">Worker</div>
+                <div class="caption"><?php _text('Worker') ?></div>
                 <?php
                 foreach( $members as $member ) {
                     ?>
                     <label class="radio-inline">
-                        <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>> <?php echo $member?>
+                        <input type="radio" name="worker" value="<?php echo $member?>" <?php if ( $member == post()->worker ) echo 'checked=1'; ?>>
+                        <?php echo $member?>
                     </label>
                     <?php
                 }
@@ -161,7 +163,7 @@ else {
         if ( $members ) {
             ?>
             <fieldset class="form-group">
-                <div class="caption">In charge : who is in charge of this work?</div>
+                <div class="caption"><?php _text('In charge : who is in charge of this work?') ?></div>
                 <?php
                 foreach( $members as $member ) {
                     ?>
@@ -175,14 +177,14 @@ else {
         <?php } ?>
 
         <fieldset class="form-group">
-            <label for="dead-line">Deadline</label>
-            <input type="date" class="form-control" id="dead-line" name="deadline" placeholder="Input who is in charge" value="<?php e( post()->deadline ); ?>">
+            <label for="dead-line"><?php _text('Deadline') ?></label>
+            <input type="date" class="form-control" id="dead-line" name="deadline" placeholder="<?php _text('Input who is in charge') ?>" value="<?php e( post()->deadline ); ?>">
         </fieldset>
 
 
 
         <fieldset class="form-group">
-            <div class="caption">Priority</div>
+            <div class="caption"><?php _text('Priority') ?></div>
             <?php foreach ( its::$priority as $num => $text ) {
                 if ( empty($text) ) continue;
                 ?>
@@ -194,7 +196,7 @@ else {
 
 
         <fieldset class="form-group">
-            <div class="caption">Process</div>
+            <div class="caption"><?php _text('Process') ?></div>
             <?php foreach ( its::$process as $code => $text ) {
                 if ( empty($text) ) continue;
                 if ( $code == 'A' || $code == 'R' ) {
@@ -216,7 +218,7 @@ else {
             if ( post()->percentage != NULL ) $percent = post()->percentage;
             else $percent = 0;
             ?>
-            <label class="caption" for="percentage">Percentage</label>
+            <label class="caption" for="percentage"><?php _text('Percentage') ?></label>
             <input id="percentage" name="percentage" type="range" min="0" max="100" step="1" value="<?php echo $percent; ?>" oninput="percentage_value.value=percentage.value"/>
             <output name="percentage_value"><?php echo $percent; ?></output>
         </fieldset>
@@ -227,11 +229,11 @@ else {
             if ( post()->evaluate != NULL ) $evaluate = post()->evaluate;
             else $evaluate = 0;
             ?>
-            <label class="caption" for="evaluate">Evaluation : </label>
+            <label class="caption" for="evaluate"><?php _text('Evaluation') ?> : </label>
             <input id="evaluate" name="evaluate" type="range" min="0" max="10" step="1" value="<?php echo $evaluate; ?>" oninput="evaluate_value.value=evaluate.value"/>
             <output name="evaluate_value"><?php echo $evaluate; ?>% </output>
 
-            <label class="caption" for="evaluate-comment">Comment : </label>
+            <label class="caption" for="evaluate-comment"><?php _text('Comment') ?> : </label>
             <input id="evaluate-comment" name="evaluate_comment" type="text" value="<?php echo post()->evaluate_comment; ?>"/>
         </fieldset>
 
@@ -264,7 +266,7 @@ else {
 
         <div class="buttons">
             <input type="submit" value="Issue a task" class="btn btn-secondary">
-            <a class="btn btn-secondary" href="<?php echo forum()->urlView( in('post_ID'));?>">Cancel</a>
+            <a class="btn btn-secondary" href="<?php echo forum()->urlView( in('post_ID'));?>"><?php _text('Cancel') ?></a>
         </div>
     </form>
 

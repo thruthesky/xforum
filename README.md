@@ -39,7 +39,7 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 # TODO
 
 * MOVE ALL Work DATA to ITS
-
+* language translation : see its.
 * ITS 서버 백업.
 
 * put OG_ImAGE tag. on ... wp_head. get the first image or featured image for the content.

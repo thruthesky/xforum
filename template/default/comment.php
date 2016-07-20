@@ -63,11 +63,11 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
         </div>
 
         <div class="buttons">
-            <span class="reply">Reply</span>
-            <span class="edit">Edit</span>
-            <span class="delete"><a href="<?php comment()->urlDelete()?>">Delete</a></span>
-            <span class="report" title="This function is not working, yet.">Report</span>
-            <span class="like" title="This function is not working, yet.">Like</span>
+            <span class="reply"><?php _text('Reply') ?></span>
+            <span class="edit"><?php _text('Edit') ?></span>
+            <span class="delete"><a href="<?php comment()->urlDelete()?>"><?php _text('Delete') ?></a></span>
+            <span class="report" title="This function is not working, yet."><?php _text('Report') ?></span>
+            <span class="like" title="This function is not working, yet."><?php _text('Like') ?></span>
         </div>
     </div>
     <hr>
@@ -91,9 +91,9 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                 <input type="hidden" name="files" value="">
                 <div class="line comment-content">
                     <label for="comment-content" style="display:none;">
-                        Comment Content
+                        <?php _text('Comment Content') ?>
                     </label>
-                    <textarea id="comment-content" name="comment_content" placeholder="<?php _e('Please input comment', 'xforum')?>"><%=text%></textarea>
+                    <textarea id="comment-content" name="comment_content" placeholder="<?php _text('Please input comment')?>"><%=text%></textarea>
                 </div>
                 <div class="photos"></div>
                 <div class="files"></div>
@@ -101,7 +101,7 @@ if ( $comment->comment_parent ) $parent_comment = get_comment($comment->comment_
                     <div class="submit">
                         <input class="comment-submit-button" type="submit" value="Submit">
                         <% if ( comment_ID ) { %>
-                        <button class="comment-cancel-button" type="button">Cancel</button>
+                        <button class="comment-cancel-button" type="button"><?php _text('Cancel') ?></button>
                         <% } %>
                     </div>
                 </div>
