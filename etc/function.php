@@ -192,9 +192,9 @@ function _text($str, $language = null) {
 
 
     if ( user()->admin() && isset($_COOKIE['site-edit']) && $_COOKIE['site-edit'] == 'Y' ) {
-        $str = _getText($str, $language);
+        $str = _getText($str, $option_name);
         echo "
-<div class='translate-text' original-text='$org' code='$option_name'><span class='dashicons dashicons-welcome-write-blog'></span>
+<div class='translate-text' original-text='$org' code='$option_name'><i class='fa fa-pencil-square-o' aria-hidden='true'></i>
 <div class='html-content'>$str</div>
 </div>
 ";
@@ -261,3 +261,5 @@ function _getText($str, $option_name) {
 function _getLanguageCode( $language, $str ) {
     return $language . '-' . md5($str);
 }
+
+    
