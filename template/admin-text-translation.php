@@ -8,19 +8,7 @@ if ( ! isset( $_REQUEST['settings-updated'] ) )
         <div class="updated fade"><p><strong><?php _text( 'Settings saved' ); ?></strong></p></div>
     <?php endif; ?>
     <h2>Settings</h2>
-    <form method="post" action="options.php">
-        <?php settings_fields( 'xforum' ); ?>
-        <table class="form-table">
-            <tr valign="top">
-                <th scope="row">
-                    xForum Domain
-                </th>
-                <td>
-                    <input type='text' name="xforum[domain]" value='<?php opt('xforum[domain]') ?>' /><input type="submit">
-                </td>
-            </tr>
-        </table>
-    </form>
+
 
 
 
@@ -39,8 +27,9 @@ if ( ! isset( $_REQUEST['settings-updated'] ) )
     }
 
     $files = getFiles( DIR_XFORUM , true, '/php/' );
-    //$files2 = getFiles( get_stylesheet_directory(), true, '/php/' );
-    //$files = array_merge( $files2, $files );
+    $files2 = getFiles( get_stylesheet_directory(), true, '/php/' );
+    $files = array_merge( $files2, $files );
+
 
 
     foreach( $files as $file ) {
@@ -52,12 +41,12 @@ if ( ! isset( $_REQUEST['settings-updated'] ) )
         if ( $count ) {
             $patterns = $matches[0];
             $codes = $matches[1];
+            echo "file: $file<br>";
             for( $i = 0; $i < count($patterns); $i ++ ) {
                 $pattern = $patterns[$i];
                 $code = $str = $codes[$i];
-                $md5 = md5($str);
-                $option_name = get_text_translation_option_name( $md5 );
-                di($option_name);
+                $option_name = md5($str);
+
                 $org = esc_html($str);
                 $str = _getText($str);
                 ?>

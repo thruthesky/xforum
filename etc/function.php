@@ -151,11 +151,10 @@ function file_upload($type='post') {
     include_once DIR_XFORUM . 'template/file-upload.php';
 }
 
-
-
 function e( $string ) {
     echo esc_html( $string );
 }
+
 
 
 
@@ -165,8 +164,7 @@ function e( $string ) {
  * @return void
  */
 function _text($str) {
-    $md5 = md5($str);
-    $option_name = get_text_translation_option_name( $md5 );
+    $option_name = md5($str);
     $org = esc_html($str);
 
     if ( !isset($_COOKIE['site-edit']) || $_COOKIE['site-edit'] != 'Y' || ! user()->admin() ) {
@@ -176,13 +174,20 @@ function _text($str) {
     else {
         $str = _getText($str);
         echo "
-<div class='translate-text' md5='$md5' original-text='$org' code='$option_name'><span class='dashicons dashicons-welcome-write-blog'></span>
+<div class='translate-text' original-text='$org' code='$option_name'><span class='dashicons dashicons-welcome-write-blog'></span>
 <div class='html-content'>$str</div>
 </div>
 ";
     }
 
 }
+
+/**
+ * @param $dir
+ * @param bool $re
+ * @param null $pattern
+ * @return array
+ */
 function getFiles($dir, $re=true, $pattern=null)
 {
     $tmp = array();
@@ -209,19 +214,12 @@ function getFiles($dir, $re=true, $pattern=null)
         closedir($handle);
         return $tmp;
     }
-}
-function get_text_translation_option_name($md5) {
-    return get_text_translation_option_name_prefix() . $md5;
+    return $tmp;
 }
 
-function get_text_translation_option_name_prefix() {
-    $domain = get_opt('xforum[domain]', 'default');
-    return 'translation-' . $domain . '-';
-}
 
-function _getText($str, $convert=false) {
-    $md5 = md5($str);
-    $option_name = get_text_translation_option_name( $md5 );
+function _getText($str) {
+    $option_name = md5($str);
     $data = get_option( $option_name );
     $org = esc_html($str);
     if ( empty($data) ) $str = $org;
@@ -231,77 +229,7 @@ function _getText($str, $convert=false) {
         if ( empty($content) ) $str = $org;
         else $str = $data['content'];
     }
-
-    if ( $convert ) {
-        $str = convert_text_var( 'company name', 'company_name', $str );
-        $str = convert_text_var( 'company address', 'company_address', $str );
-        $str = convert_text_var( 'phone number', 'phone_number', $str );
-        $str = convert_text_var( 'manager name', 'manager_name', $str );
-        $str = convert_text_var( 'email', 'email', $str );
-        $str = convert_text_var( 'skype', 'skype', $str );
-        $str = convert_text_var( 'kakaotalk', 'kakaotalk', $str );
-        $str = convert_text_var( 'bank', 'bank', $str );
-    }
-
-
     return $str;
 }
 
-/**
- * Echoes the return value of 'get_opt'
- * @param $name
- * @param null $default
- * @param bool $escape
- * @code
- * <?php opt('lms[logo]', 'img/logo.jpg')?>
- * @endcode
- */
-function opt($name, $default=null, $escape = true) {
-    echo get_opt($name, $default, $escape);
-}
-/**
- *
- * Returns option value
- *
- * @param $name - is option name. It can be an element of array. like "abc[def]"
- * @param null $default - is the default value which will be returned if the value of the option name is empty.
- * @param bool $escape
- * @return mixed|null|void
- * @code
- *  echo opt('abc', 'def');
- *  echo opt('lms[logo]', 'img/logo.jpg');
- * @endcode
- *
- * @code
- *      "option('lms', 'company_name')" can be converted into "opt('lms[company_name]')"
- *      "get_option( 'lms' );" can be converted into "get_opt('lms')"
- * @endcode
- */
-function get_opt($name, $default=null, $escape = true) {
 
-
-    $value = null;
-    if ( strpos( $name, '[' ) ) {
-        list( $name, $rest ) = explode( '[', $name );
-        $element = trim($rest, ']');
-        $arr = get_option( $name );
-        if ( isset( $arr[$element] ) ) $value = $arr[$element];
-    }
-    else {
-        $value = get_option( $name );
-    }
-
-
-    if ( empty($value) ) $value = $default;
-
-    if ( $escape ) $value = esc_attr( $value );
-
-    return $value;
-}
-function convert_text_var($text_var, $option_name, $str) {
-    if ( stripos( $str, "($text_var)") !== false ) {
-        $v = get_opt("xforum[$option_name]");
-        $str = str_ireplace("($text_var)", $v, $str);
-    }
-    return $str;
-}
