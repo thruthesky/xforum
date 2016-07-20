@@ -10,6 +10,7 @@ class testPost extends post {
     public function runTest() {
         $this->testInstance();
         $this->crud();
+        $this->remoteCRUD();
     }
 
 
@@ -99,6 +100,19 @@ class testPost extends post {
         $re = forum()->delete($cat_ID);
         check( !$re, "$cat_ID forum has been deleted.", "failed on forum()->delete($cat_ID) : $re");
 
+    }
+
+    public function remoteCRUD()
+    {
+        // create the forum again
+        $param = [];
+        $param['do'] = 'post_edit_submit';
+        $param['slug'] = 'qna';
+        $param['title'] = 'this is title of remote crud()';
+        $param['content'] = 'content...<br>..<p>test</p>';
+        $re = forum()->http_query( $param );
+        print_r($re);
+        check( $re['success'], null, "failed on do=post_edit_submit");
     }
 
 

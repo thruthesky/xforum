@@ -72,6 +72,7 @@ class forum {
             'forum_delete',
             'setting_submit',
             'edit_submit',
+            'post_edit_submit',
             'post_delete_submit', // @todo implement ajax call.
             'comment_edit_submit', // @todo implement ajax call.
             'comment_delete_submit', // @todo implement ajax call.
@@ -231,16 +232,13 @@ class forum {
 
     }
 
-
-
-
     /**
      *
-     * Creates / Updates a post
      *
-     * @todo add test code. This assigned to viel.
+     * @todo add test code.
      */
-    public function edit_submit() {
+    public function post_edit_submit() {
+
         $slug = in('slug'); // forum id ( slug ). It is only available on creating a new post.
         $post_ID = in('post_ID'); // post id. it is only available on updating a post.
         $title = in('title');
@@ -258,11 +256,6 @@ class forum {
             forum()->endIfNotMyPost( $post_ID );
             $this->setCategoryByPostID( $post_ID );
         }
-
-
-        
-        
-
         $post = post()
             ->set('post_category', [ forum()->getCategory()->term_id ])
             ->set('post_title', $title)
@@ -288,7 +281,19 @@ class forum {
         // Save All extra input into post meta.
         post()->saveAllMeta( $post_ID );
 
-        $this->response( [ 'post_ID' => $post_ID  ] );
+        $this->response( [ 'slug' => forum()->getCategory()->slug, 'post_ID' => $post_ID  ] );
+    }
+
+
+
+    /**
+     *
+     * @deprecated
+     * Creates / Updates a post
+     *
+     */
+    public function edit_submit() {
+        $this->post_edit_submit();
     }
 
 
@@ -903,7 +908,7 @@ class forum {
     {
         $url = home_url( '?' . http_build_query( $param ) );
         xlog( $url );
-        //echo "url: $url<hr>";
+        echo "url: $url<hr>";
         $res = wp_remote_get( $url, ['timeout'=>20,  'httpversion'=>'1.1'] );
         $body = wp_remote_retrieve_body( $res );
         $re = json_decode( $body, true);
