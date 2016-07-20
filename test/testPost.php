@@ -112,7 +112,7 @@ class testPost extends post {
         $param['content'] = 'content...<br>..<p>test</p>';
         $re = forum()->http_query( $param );
         print_r($re);
-        check( $re['success'], null, "failed on do=forum_create");
+        check( $re['success'], null, "failed on do=post_edit_submit");
     }
 
 

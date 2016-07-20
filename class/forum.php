@@ -281,7 +281,7 @@ class forum {
         // Save All extra input into post meta.
         post()->saveAllMeta( $post_ID );
 
-        $this->response( [ 'post_ID' => $post_ID  ] );
+        $this->response( [ 'slug' => forum()->getCategory()->slug, 'post_ID' => $post_ID  ] );
     }
 
 
@@ -908,7 +908,7 @@ class forum {
     {
         $url = home_url( '?' . http_build_query( $param ) );
         xlog( $url );
-        //echo "url: $url<hr>";
+        echo "url: $url<hr>";
         $res = wp_remote_get( $url, ['timeout'=>20,  'httpversion'=>'1.1'] );
         $body = wp_remote_retrieve_body( $res );
         $re = json_decode( $body, true);
