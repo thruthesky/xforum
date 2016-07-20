@@ -8,7 +8,7 @@
             <?php _text('SUCCESS') ?>
         <?php } ?>
         <?php if ( in('error_code') ) { ?>
-            <?php _text('ERROR') ?> (<?php echo in('error_code')?>) : <?php echo in('error_message'); ?>
+            ERROR (<?php echo in('error_code')?>) : <?php echo in('error_message'); ?>
         <?php } ?>
         <form action="?" method="post">
             <input type="hidden" name="forum" value="import_submit">

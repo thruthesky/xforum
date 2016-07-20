@@ -29,7 +29,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             <dt><?php _text('No of views') ?>:</dt>
             <dd><?php _text('No of views') ?>: <?php echo $GLOBALS['post_view_count']?></dd>
             <dt><?php _text('All posts by author') ?>:</dt>
-            <dd><a href="http://www.blog.net/authors/remy-schrader/"><?php _text('') ?>Link</a></dd>
+            <dd><a href="http://www.blog.net/authors/remy-schrader/"><?php _text('Link') ?></a></dd>
             <dt><?php _text('Contact') ?>:</dt>
             <dd><a href="javascript:alert('Message is not yet, implemented');"><?php _text('Send Message & SMS Text Message') ?></a></dd>
         </dl>

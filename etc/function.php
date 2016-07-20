@@ -159,9 +159,149 @@ function e( $string ) {
 
 
 
-function _text( $str ) {
-    
-    echo $str;
+/**
+ * Admin can only edit the text. so it lets the admin to use css and javascript.
+ * @param $str
+ * @return void
+ */
+function _text($str) {
+    $md5 = md5($str);
+    $option_name = get_text_translation_option_name( $md5 );
+    $org = esc_html($str);
+
+    if ( !isset($_COOKIE['site-edit']) || $_COOKIE['site-edit'] != 'Y' || ! user()->admin() ) {
+        $str = _getText($str, true);
+        echo $str;
+    }
+    else {
+        $str = _getText($str);
+        echo "
+<div class='translate-text' md5='$md5' original-text='$org' code='$option_name'><span class='dashicons dashicons-welcome-write-blog'></span>
+<div class='html-content'>$str</div>
+</div>
+";
+    }
+
+}
+function getFiles($dir, $re=true, $pattern=null)
+{
+    $tmp = array();
+    if ($handle = opendir($dir)) {
+        while (false !== ($file = readdir($handle))) {
+            if ($file != "." && $file != "..") {
+                $file_path = $dir . DIRECTORY_SEPARATOR . $file;
+                if ( is_dir($file_path) ) {
+                    if ( $re ) {
+                        $tmp2 = getFiles($file_path, $re, $pattern);
+                        if ( $tmp2 ) $tmp = array_merge($tmp, $tmp2);
+                    }
+                }
+                else {
+                    if ( $pattern ) {
+                        if ( preg_match($pattern, $file) ) {
+                        }
+                        else continue;
+                    }
+                    array_push($tmp, $dir . DIRECTORY_SEPARATOR . $file);
+                }
+            }
+        }
+        closedir($handle);
+        return $tmp;
+    }
+}
+function get_text_translation_option_name($md5) {
+    return get_text_translation_option_name_prefix() . $md5;
+}
+
+function get_text_translation_option_name_prefix() {
+    $domain = get_opt('xforum[domain]', 'default');
+    return 'translation-' . $domain . '-';
+}
+
+function _getText($str, $convert=false) {
+    $md5 = md5($str);
+    $option_name = get_text_translation_option_name( $md5 );
+    $data = get_option( $option_name );
+    $org = esc_html($str);
+    if ( empty($data) ) $str = $org;
+    else {
+        $content = null;
+        if ( isset($data['content']) ) $content = trim($data['content']);
+        if ( empty($content) ) $str = $org;
+        else $str = $data['content'];
+    }
+
+    if ( $convert ) {
+        $str = convert_text_var( 'company name', 'company_name', $str );
+        $str = convert_text_var( 'company address', 'company_address', $str );
+        $str = convert_text_var( 'phone number', 'phone_number', $str );
+        $str = convert_text_var( 'manager name', 'manager_name', $str );
+        $str = convert_text_var( 'email', 'email', $str );
+        $str = convert_text_var( 'skype', 'skype', $str );
+        $str = convert_text_var( 'kakaotalk', 'kakaotalk', $str );
+        $str = convert_text_var( 'bank', 'bank', $str );
+    }
 
 
+    return $str;
+}
+
+/**
+ * Echoes the return value of 'get_opt'
+ * @param $name
+ * @param null $default
+ * @param bool $escape
+ * @code
+ * <?php opt('lms[logo]', 'img/logo.jpg')?>
+ * @endcode
+ */
+function opt($name, $default=null, $escape = true) {
+    echo get_opt($name, $default, $escape);
+}
+/**
+ *
+ * Returns option value
+ *
+ * @param $name - is option name. It can be an element of array. like "abc[def]"
+ * @param null $default - is the default value which will be returned if the value of the option name is empty.
+ * @param bool $escape
+ * @return mixed|null|void
+ * @code
+ *  echo opt('abc', 'def');
+ *  echo opt('lms[logo]', 'img/logo.jpg');
+ * @endcode
+ *
+ * @code
+ *      "option('lms', 'company_name')" can be converted into "opt('lms[company_name]')"
+ *      "get_option( 'lms' );" can be converted into "get_opt('lms')"
+ * @endcode
+ */
+function get_opt($name, $default=null, $escape = true) {
+
+
+    $value = null;
+    if ( strpos( $name, '[' ) ) {
+        list( $name, $rest ) = explode( '[', $name );
+        $element = trim($rest, ']');
+        $arr = get_option( $name );
+        if ( isset( $arr[$element] ) ) $value = $arr[$element];
+    }
+    else {
+        $value = get_option( $name );
+    }
+
+
+    if ( empty($value) ) $value = $default;
+
+    if ( $escape ) $value = esc_attr( $value );
+
+    return $value;
+}
+function convert_text_var($text_var, $option_name, $str) {
+    if ( stripos( $str, "($text_var)") !== false ) {
+        $v = get_opt("xforum[$option_name]");
+        $str = str_ireplace("($text_var)", $v, $str);
+    }
+    return $str;
 }

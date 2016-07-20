@@ -39,7 +39,7 @@ if ( $ex ) {
 <?php } ?>
 
 <div>
-    <?php _text('Time') ?>: <?php echo date('Y-m-d H:i')?>,
+    Time: <?php echo date('Y-m-d H:i')?>,
     <?php _text('No of works') ?>: <?php echo $query->found_posts?>,
 
 

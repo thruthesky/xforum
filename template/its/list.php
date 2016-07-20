@@ -269,14 +269,14 @@ get_header();
 
 
             <label for="deadline-begin"><?php _text('Deadline') ?></label>
-            <input type="date" id="deadline-begin" name="deadline_begin" placeholder="<?php _text('Deadline begin') ?>" value="<?php echo in('deadline_begin') ?>">
-            <input type="date" id="deadline-end" name="deadline_end" placeholder="<?php _text('Deadline end') ?>" value="<?php echo in('deadline_end') ?>">
+            <input type="date" id="deadline-begin" name="deadline_begin" placeholder="Deadline begin" value="<?php echo in('deadline_begin') ?>">
+            <input type="date" id="deadline-end" name="deadline_end" placeholder="Deadline end" value="<?php echo in('deadline_end') ?>">
 
 
 
             <label for="created-begin"><?php _text('Created') ?></label>
-            <input type="date" id="created-begin" name="created_begin" placeholder="<?php _text('Work created') ?>" value="<?php echo in('created_begin') ?>">
-            <input type="date" id="created-end" name="created_end" placeholder="<?php _text('Work created end') ?>" value="<?php echo in('created_end') ?>">
+            <input type="date" id="created-begin" name="created_begin" placeholder="Work created" value="<?php echo in('created_begin') ?>">
+            <input type="date" id="created-end" name="created_end" placeholder="Work created end" value="<?php echo in('created_end') ?>">
 
 
         </fieldset>
