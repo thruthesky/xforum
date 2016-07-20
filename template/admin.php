@@ -8,3 +8,4 @@ wp_enqueue_style( 'bootstrap', URL_XFORUM . 'css/bootstrap/css/bootstrap.min.css
 
 include $template;
 
+

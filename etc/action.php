@@ -160,7 +160,7 @@ add_action('admin_menu', function () {
         __('Text Translation', 'xforum'),
         __('Text Translation', 'xforum'),
         'manage_options',
-        'xforum/template/admin-text-translation.php',
+        'xforum/template/adminTextTranslation.php',
         ''
     );
 

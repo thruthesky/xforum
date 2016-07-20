@@ -1,6 +1,11 @@
 <?php
 if ( ! isset( $_REQUEST['settings-updated'] ) )
     $_REQUEST['settings-updated'] = false;
+
+
+wp_enqueue_style( 'font-awesome', URL_XFORUM . 'css/font-awesome/css/font-awesome.min.css' );
+wp_enqueue_style( 'bootstrap', URL_XFORUM . 'css/bootstrap/css/bootstrap.min.css');
+
 ?>
 <div class="wrap">
     <hr>
@@ -9,22 +14,33 @@ if ( ! isset( $_REQUEST['settings-updated'] ) )
     <?php endif; ?>
     <h2>Settings</h2>
 
+    <h3>Selection Language</h3>
+    <p>
+        Select a language to translate.
+    </p>
+    <a class="btn btn-secondary" href="admin.php?page=xforum%2Ftemplate%2FadminTextTranslation.php&language=en">English</a>
+    <a class="btn btn-secondary" href="admin.php?page=xforum%2Ftemplate%2FadminTextTranslation.php&language=ko">Korean</a>
 
 
 
-    <h2>Translation</h2>
+    <h3>Translation</h3>
     <?php
-    if ( isset($_REQUEST['mode'] ) && $_REQUEST['mode'] == 'translate' ) {
+    $language = in('language') ? in('language') : 'en';
+
+
+    if ( isset($_REQUEST['mode'] ) && $_REQUEST['mode'] == 'submit' ) {
         $_REQUEST['original_text'] = stripslashes($_REQUEST['original_text']);
         $_REQUEST['content'] = stripslashes($_REQUEST['content']);
         if ( empty( $_REQUEST['original_text'] ) ) $_REQUEST['original_text'] = '&nbsp;';
         $option_name = $_REQUEST['option_name'];
 
-
         delete_option( $option_name );
-        add_option( $option_name, ['original_text' => $_REQUEST['original_text'], 'content' => $_REQUEST['content']] );
+        $option = ['original_text' => $_REQUEST['original_text'], 'content' => $_REQUEST['content']];
+        add_option( $option_name, $option );
 
     }
+
+
 
     $files = getFiles( DIR_XFORUM , true, '/php/' );
     $files2 = getFiles( get_stylesheet_directory(), true, '/php/' );
@@ -45,18 +61,19 @@ if ( ! isset( $_REQUEST['settings-updated'] ) )
             for( $i = 0; $i < count($patterns); $i ++ ) {
                 $pattern = $patterns[$i];
                 $code = $str = $codes[$i];
-                $option_name = md5($str);
+                $option_name = _getLanguageCode( $language, $str );
 
                 $org = esc_html($str);
-                $str = _getText($str);
+                $str = _getText($str, $option_name);
+                di($option_name);
                 ?>
-                <form action="admin.php?page=xforum%2Ftemplate%2Fadmin-text-translation.php" method="POST">
-                    <input type="hidden" name="mode" value="translate">
+                <form action="admin.php?page=xforum%2Ftemplate%2FadminTextTranslation.php" method="POST">
+                    <input type="hidden" name="mode" value="submit">
+                    <input type="hidden" name="language" value="<?php echo $language?>">
                     <input type="hidden" name="option_name" value="<?php echo $option_name?>">
                     <input type="hidden" name="original_text" value="<?php echo $org?>">
 
                     <?php echo $code?><br>
-
                     <textarea name="content" style='width:80%;'><?php echo $str?></textarea>
                     <input type="submit">
                 </form>
@@ -67,3 +84,4 @@ if ( ! isset( $_REQUEST['settings-updated'] ) )
     }
     ?>
 </div><!--/wrap-->
+

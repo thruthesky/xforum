@@ -156,29 +156,54 @@ function e( $string ) {
 }
 
 
+function _getUserLanguage() {
+
+    /**
+     * @todo check if the user chosen a language.
+     */
+
+
+    return get_browser_language();
+}
+
+
+/**
+ *
+ * Returns the language code of browser in two letter. ie) 'en', 'ko', 'jp', 'cn', etc...
+ *
+ */
+function get_browser_language()
+{
+    return substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+}
+
+
 
 
 /**
  * Admin can only edit the text. so it lets the admin to use css and javascript.
  * @param $str
- * @return void
+ * @param null $language - language to get from database.
  */
-function _text($str) {
-    $option_name = md5($str);
+function _text($str, $language = null) {
     $org = esc_html($str);
+    if ( empty($language) ) $language = _getUserLanguage();
+    $option_name = _getLanguageCode($language, $str);
 
-    if ( !isset($_COOKIE['site-edit']) || $_COOKIE['site-edit'] != 'Y' || ! user()->admin() ) {
-        $str = _getText($str, true);
-        echo $str;
-    }
-    else {
-        $str = _getText($str);
+
+    if ( user()->admin() && isset($_COOKIE['site-edit']) && $_COOKIE['site-edit'] == 'Y' ) {
+        $str = _getText($str, $language);
         echo "
 <div class='translate-text' original-text='$org' code='$option_name'><span class='dashicons dashicons-welcome-write-blog'></span>
 <div class='html-content'>$str</div>
 </div>
 ";
     }
+    else {
+        $str = _getText($str, $option_name);
+        echo $str;
+    }
+
 
 }
 
@@ -218,8 +243,7 @@ function getFiles($dir, $re=true, $pattern=null)
 }
 
 
-function _getText($str) {
-    $option_name = md5($str);
+function _getText($str, $option_name) {
     $data = get_option( $option_name );
     $org = esc_html($str);
     if ( empty($data) ) $str = $org;
@@ -233,3 +257,7 @@ function _getText($str) {
 }
 
 
+
+function _getLanguageCode( $language, $str ) {
+    return $language . '-' . md5($str);
+}
