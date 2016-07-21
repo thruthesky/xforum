@@ -1392,6 +1392,13 @@ class forum {
 
     /**
      *
+     *
+     *
+     * if in('response') == 'ajax', then it returns session_id and session_password.
+     *
+     * @todo customize the return value.
+     *
+     *
      */
     public function login() {
 
@@ -1411,6 +1418,9 @@ class forum {
             $user = user( $user_login );
             if ( $user->exists() ) ferror( -40132, "Wrong password" );
             else ferror( -40131, "Wrong username" );
+        }
+        else if ( in('response') == 'ajax' ) {
+            //$this->response( user($user_login)->session() );
         }
         else {
             $this->response( ['data' => $this->get_button_user( $user_login ) ] );
