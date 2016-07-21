@@ -1420,7 +1420,7 @@ class forum {
             else ferror( -40131, "Wrong username" );
         }
         else if ( in('response') == 'ajax' ) {
-            $this->response( user($user_login)->session() ); // 여기서 부터..
+            // $this->response( user($user_login)->session() ); // 여기서 부터..
         }
         else {
             $this->response( ['data' => $this->get_button_user( $user_login ) ] );
