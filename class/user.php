@@ -15,6 +15,13 @@ require_once ABSPATH . '/wp-admin/includes/user.php';
 class user extends WP_User {
 
 
+
+public static $user_data = [];
+    /**
+     *
+     * properties of WP_User
+     *
+     */
     static $properties = [
         'nickname',
         'description',
@@ -35,6 +42,7 @@ class user extends WP_User {
         'spam',
         'deleted',
     ];
+
 
     /**
      * WP_LIBRARY_USER constructor.
@@ -62,35 +70,80 @@ class user extends WP_User {
     }
 
 
-
-
-
-
-
-
     /**
      *
      * Check if the user has logged in.
+     *
+     * @update 2016-07-22. If $user_login is not null, then it tries to login the user.
+     *
+     * @note (Ko) WP 의 is_user_logged_in() 을 그대로 리턴한다.
+     *
+     *  이 함수는 wp_get_current_user()->exists() 와 같은 것이다.
+     *
+     *  따라서, 로그인을 했는지 안했는지는 wp_get_current_user() 로 사용자의 값을 추출 할 수 있는지 없는지
+     *      또는 wp_get_current_user() 에 사용자가 설정되어져 있는지 없는지에 달려져 있다.
+     *
+     *
+     * @param null $user_login
+     * @param null $user_pass
+     * @param null $remember_me
      *
      * @return bool - same as is_user_logged_in();
      * @code
      *      user()->login();
      * @endcode
+     *
+     * @see test/testUser::userLogin() for sample code.
+     *
+     *
      */
-    public function login() {
+
+    public function login($user_login=null, $user_pass=null, $remember_me=null) {
+        if ( $user_login ) {
+            return $this->doLogin($user_login, $user_pass, $remember_me);
+        }
         return is_user_logged_in();
     }
 
+    /**
+     * Set the logged in user to 'logged out'.
+     *
+     * @attention it is different from wp_logout() since it clears global $current_user.
+     * @see test/testUser::userLogin() for sample code.
+     *
+     * @code
+     *          user()->logout();
+     * @endcode
+     *
+     *
+     */
+    public function logout() {
+
+
+        wp_destroy_current_session();
+        wp_clear_auth_cookie();
+
+        global $current_user;
+        $current_user = null;
+
+    }
 
 
     /**
-     * set the user logged in without password check.
+     *
+     * Set the user logged in without password check.
+     *
      * @note This is stateless which means, on next access, the user is no longer logged in.
      * @param $user_login
      * @return false|WP_User
+     *
+     *
+     * @see test/testUser::userLogin() for sample code
+     *
      */
-    public function forceLogin($user_login) {
+    public function forceLogin($user_login=null) {
         // echo "user_login: $user_login\n";
+        if ( empty($user_login) ) $user_login = $this->user_login;
         $user = get_user_by( 'login', $user_login );
         if ( $user === false ) {
             xlog("error on forceLogin");
@@ -101,6 +154,7 @@ class user extends WP_User {
 
 
     /**
+     * @deprecated use __get()
      * Returns a field value.
      * @param $field
      * @return bool|mixed
@@ -110,79 +164,168 @@ class user extends WP_User {
         return $this->currentUser()->$field;
     }
 
+
+
     /**
-     * Returns true if the user can manage options.
+     * Returns true if the user is admin ( can manage options )
+     *
      * @return bool
+     *
+     * @code
+     *      user(1)->admin()
+     * @endcode
+     *
+     * @see test/testUser::permission for example.
      */
     public function admin()
     {
         return user_can( $this->ID, 'manage_options' );
     }
 
+
+    /**
+     *
+     * It only sets key/value on self::$userdata for the use of user()->create & user()->update
+     *
+     * @param $key
+     * @param $value
+     * @return $this
+     *
+     * @see test/testUser.php for sample codes.
+     */
+    public function set( $key, $value ) {
+        self::$user_data[$key] = $value;
+        return $this;
+    }
+
+
     /**
      *
      * Creates a user
      *
-     * @param $meta
+     *
      *
      * @return int|WP_Error The newly created user's ID or a WP_Error object if the user could not
      *                      be created.
+     *
+     *
+     * @desc (Korean) 사용자 추가를 한다.
+     *
+     * 워드프레스의 기본 필드를 입력 받고, 추가 필드가 입력되면, 사용자 메타 정보로 저장한다.
+     *
+     * @note This clears self::$user_data only if user has been created.
+     *
+     *
+     * user_login, user_pass
+     *
+     * @see test/testUser.php for sample codes.
+     *
      */
-    public function create( $meta ) {
+    public function create() {
 
-        $id = wp_insert_user($meta);
+        $id = wp_insert_user(self::$user_data);
         if ( is_wp_error( $id ) ) return $id;
         $user = user( $id );
-        $keys = array_keys( $meta );
+        $keys = array_keys( self::$user_data );
         $keys_diff = array_diff( $keys, self::$properties );
         foreach ( $keys_diff as $key ) {
-            $user->set( $key, $meta[$key] );
+            $user->$key = self::$user_data[$key];
         }
+        self::$user_data = [];
         return $id;
     }
 
+
     /**
-     * It stores the $meta_value in usermeta.
+     *
+     *
+     * @return bool|int|WP_Error
+     *
+     */
+    public function update() {
+        if ( ! $this->ID ) {
+            return false;
+        }
+        self::$user_data['ID'] = $this->ID;
+        $user_id = wp_update_user(self::$user_data);
+
+        $keys = array_keys( self::$user_data );
+        $keys_diff = array_diff( $keys, self::$properties );
+        foreach ( $keys_diff as $key ) {
+            $user->$key = self::$user_data[$key];
+        }
+
+
+        self::$user_data = [];
+        return $user_id;
+    }
+
+
+
+
+    /**
+     *
+     * Saves user field or meta into database.
+     *
+     * ( 워드프레스 사용자 기본 필드와 추가 메타 정보를 저장한다. )
+     *
+     * @attention WP_User()->__set() does not save value into database. It only saves into memory.
+     *
      *
      * @note
      *      - It uses wp_update_user() for updating the WP_User properties.
      *      - It uses update_user_meta() for updating non WP_User properties.
      *
+     *      - 이 메쏘드로 워드프레스 사용자 기본 필드가 meta key 로 들어오면, 워드프레스의 기본 정보를 업데이트하고,
+     *      - 워드프레스의 기본 사용자 필드가 아니면, user-meta 에 저장을 한다.
+     *
+     *
      * @note update_user_meta() 는 usermeta 테이블 정보를 업데이트한다. 하지만 user 테이블은 업데이트를 하지 않는다.
      * 따라서 WP_User property 의 경우에는 wp_update_user() 를 통해서 업데이트를 한다.
      *
      * @note wp_update_user() 는 데이터베이스를 업데이트한다. __set() 은 메모리만 업데이트한다. 따라서 이 둘을 동기화 시켜야 한다.
-     * @param $meta_key
-     * @param $meta_value
-     * @return bool|int
      *
-     * @see test.php
      *
-     */
-    public function set( $meta_key, $meta_value ) {
-        if ( in_array( $meta_key, self::$properties ) ) {
-            $userdata = array( 'ID' => $this->ID, $meta_key => $meta_value );
-            $id = wp_update_user( $userdata );
-            if ( is_wp_error( $id ) ) return $id;
-            parent::__set($meta_key, $meta_value);
-            return $id;
-        }
-        else {
-            //echo "user::set($meta_key) not property.\n";
-            return update_user_meta( $this->ID, $meta_key, $meta_value );
-        }
-    }
-
-
-    /**
      * @param string $key
      * @param mixed $value
      * @return bool|int
      */
+
     public function __set( $key, $value )
     {
-        return self::set( $key, $value );
+        if ( !isset( $this->ID ) || empty($this->ID) ) return false;
+        if ( in_array( $key, self::$properties ) ) {
+            $ID = wp_update_user( [
+                'ID' => $this->ID,
+                $key => $value
+            ] );
+            if ( is_wp_error( $ID ) ) return false;
+        }
+        else {
+            $re = update_user_meta( $this->ID, $key, $value );
+            if ( $re === false ) return false;
+        }
+
+        /**
+         * @todo Is it necessary to do parent::__set() for meta?
+         */
+        parent::__set($key, $value);
+
+        return true;
     }
+
+    /**
+     * @param string $key
+     * @return mixed
+     */
+    public function __get( $key ) {
+        return self::get( $key );
+    }
+    public function get( $key ) {
+        if ( in_array( $key, self::$properties ) ) return parent::__get($key);
+        else return get_user_meta( $this->ID, $key, true);
+    }
+
 
 
     /*
@@ -220,7 +363,7 @@ class user extends WP_User {
     /**
      * Register a user with $_GET, $POST input.
      *
-     * @todo UNIT-TEST
+     * @todo use $this->create()
      * @todo theme developer may use different registratoin form. Need to provide a way to adapt form variation.
      */
     public function registerSubmit() {
@@ -235,6 +378,11 @@ class user extends WP_User {
         if ( ! in('name') ) wp_send_json(json_error(-8, 'Input name') );
         if ( ! in('mobile') ) wp_send_json(json_error(-9, 'Input mobile number') );
 
+        $id = user()
+            ->set('user_login', in('user_login'))
+            ->set('user_pass', in('user_pass'))
+            ->create();
+        /*
 
         $id = user()->create(
             array(
@@ -250,6 +398,7 @@ class user extends WP_User {
                 'kakao' => in('kakao'),
             )
         );
+        */
         if ( is_wp_error( $id ) ) wp_send_json( json_error( -10140, 'failed on registratoin' ) ); // $id ;
         else { // Registration is OK
 
@@ -270,6 +419,11 @@ class user extends WP_User {
 
     }
 
+    /**
+     *
+     *
+     * @todo use $this->update()
+     */
     public function updateSubmit() {
         do_action('begin_updateSubmit');
         if ( ! user()->login() ) wp_send_json(json_error(-4077, 'Login first') );
@@ -309,11 +463,19 @@ class user extends WP_User {
     }
 
     /**
-     * It does user login
+     * It does user login.
+     *
+     * It returns boolean if in('response') is empty.
+     * It returns json if in('response') is not empty.
+     *
+     * @attention @update
+     *
+     *  - in('response') 에 값이 없으면 true 또는 false 만 리턴한다.
      *
      * @param null $user_login
      * @param null $user_pass
      * @param null $remember_me
+     * @return bool
      */
     public function doLogin( $user_login=null, $user_pass=null, $remember_me=null) {
         if ( empty($user_login) ) {
@@ -328,12 +490,21 @@ class user extends WP_User {
         );
         $re = wp_signon( $credits, false );
         if ( is_wp_error($re) ) {
-            $user = user( in('user_login') );
-            if ( $user->exists() ) ferror( -40132, "Wrong password" );
-            else ferror( -40131, "Wrong username" );
+            if ( in('response') ) {
+                $user = user( in('user_login') );
+                if ( $user->exists() ) ferror( -40132, "Wrong password" );
+                else ferror( -40131, "Wrong username" );
+            }
+            else
+                return false;
         }
-        else wp_send_json_success();
+        else {
+            if ( in('response') == 'ajax' ) wp_send_json_success();
+            return true;
+        }
+        return false;
     }
+
 
 
 
@@ -370,11 +541,33 @@ class user extends WP_User {
 
 /**
  *
- * @see test file for example.
+ * Returns user object(inherited by WP_User).
+ *
+ * @see test/userTest.php for more sample codes.
  *
  * @param null $uid
  * @return user
  *
+ * @code basic usage
+    $user = user( "id_$user_id_count" );
+    print_r( $user );
+    print_r( $user->user_login );
+ * @endcode
+ *
+ * @code Can create more than 1 user objects and use it at the sametime.
+        $user_A = user( $user_id );
+        $user_B = user( 1 );
+ * @endcode
+ *
+ * @attention Do not use like below.
+ * @code WRONG CODE. ( 아래와 같이 하면 안된다 )
+ *      user('abc');
+ *      user()->get('nickname');
+ * @endcode
+ * @code RIGHT WAY TO USE ( 아래와 같이 객체를 사용 해야 한다. )
+ *      $user = user('abc');
+ *      $user->nickname
+ * @endcode
  *
  */
 function user( $uid = null ) {
@@ -383,6 +576,8 @@ function user( $uid = null ) {
 }
 
 /**
+ *
+ *
  * @param null $uid
  * @return user
  * @code

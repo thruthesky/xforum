@@ -13,7 +13,7 @@ foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
 }
 
 $class = 'test' . in('test');
-msg("main.php : going to test : " . $class);
+msg("main.php : going to test : " . $class . "<br>\n");
 
 
 if ( $class == 'testall' ) {
