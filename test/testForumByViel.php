@@ -110,21 +110,24 @@ class testForumByViel extends forum
         $no_of_categories_create = count($categories2);
 
         // compare initial count to new count
-        check( ($no_of_categories + 1) == $no_of_categories_create, "No of categories match.",
+        check( ($no_of_categories + 1) == $no_of_categories_create,
+            "No of categories match.",
             "No of categories is wrong. prev: $no_of_categories, new: $no_of_categories_create", true);
 
        // edit forum
         $category = get_category_by_slug( $param['slug'] );
         $param_edit = [];
         $param_edit['do'] = 'forum_edit';
+        $param_edit['response'] = 'ajax';
         $param_edit['term_id'] = $category->term_id;
         $param_edit['cat_name'] = 'Test Forum on count() - Edited';
         $param_edit['slug'] = $param['slug'];
         $param_edit['category_parent'] = $param['category_parent'];
         $param_edit['category_description'] = "This is a category created by unit test - Edited";
-        $param_edit['response'] = 'ajax';
         $re = forum()->http_query( $param_edit );
         success( $re, "forum has been edited", "failed on do=forum_edit.", true);
+
+
 
         // count again should be the same - because it is not inserted
         $cat = forum()->getXForumCategory();
@@ -140,7 +143,7 @@ class testForumByViel extends forum
 
         $category = get_category_by_slug( $param_edit['slug'] );
         success(
-            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id]),
+            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id, 'response'=>'ajax']),
             "Forum - $slug - has been deleted.",
             "failed on forum_delete ", true
         );
@@ -153,6 +156,7 @@ class testForumByViel extends forum
         // compare initial count to the count after delete;
         check( $no_of_categories == ($no_of_categories_delete - 1), "No of categories match.",
             "No of categories is wrong. prev: $no_of_categories, new: $no_of_categories_delete", true);
+
 
 
     }
@@ -179,7 +183,7 @@ class testForumByViel extends forum
         $plugin_custom_temp = DIR_XFORUM . "template/$template_name/temp.php";
 
         // locate the file: test on non existing forum - must be plugin/default/temp.php since no template exists.
-        $path = forum()->locateTemplate( 0, 'temp' );
+        $path = forum()->locateTemplate( 'non-existing-forum', 'temp' );
         check( $path == $plugin_default_temp, "template match.", "1: path: $path vs expectation: $plugin_default_temp");
 
         // create the forum of the slug

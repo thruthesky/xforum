@@ -16,7 +16,8 @@ class user extends WP_User {
 
 
 
-public static $user_data = [];
+    public static $user_data = [];
+
     /**
      *
      * properties of WP_User
@@ -99,10 +100,8 @@ public static $user_data = [];
      */
 
     public function login($user_login=null, $user_pass=null, $remember_me=null) {
-        if ( $user_login ) {
-            return $this->doLogin($user_login, $user_pass, $remember_me);
-        }
-        return is_user_logged_in();
+        if ( $user_login === null ) return is_user_logged_in();
+        else return $this->doLogin($user_login, $user_pass, $remember_me);
     }
 
     /**
@@ -189,12 +188,17 @@ public static $user_data = [];
      *
      * @param $key
      * @param $value
-     * @return $this
+     * @return user
      *
      * @see test/testUser.php for sample codes.
      */
     public function set( $key, $value ) {
         self::$user_data[$key] = $value;
+        return $this;
+    }
+
+    public function sets( $arr ) {
+        self::$user_data = array_merge( self::$user_data, $arr );
         return $this;
     }
 
@@ -220,24 +224,39 @@ public static $user_data = [];
      *
      * @see test/testUser.php for sample codes.
      *
+     * @code
+     *         $in = in();
+    unset( $in['do'], $in['response'] );
+    $user_id = user()->sets( $in )->create();
+    $this->response( $user_id );
+
+     * @endcode
      */
     public function create() {
 
-        $id = wp_insert_user(self::$user_data);
-        if ( is_wp_error( $id ) ) return $id;
-        $user = user( $id );
+        $user_id = wp_insert_user(self::$user_data);
+        if ( is_wp_error( $user_id ) ) return $user_id;
+        $user = user( $user_id );
         $keys = array_keys( self::$user_data );
         $keys_diff = array_diff( $keys, self::$properties );
         foreach ( $keys_diff as $key ) {
             $user->$key = self::$user_data[$key];
         }
         self::$user_data = [];
-        return $id;
+        return $user_id;
     }
 
 
     /**
      *
+     * @attention It only updates with user object that has proper user data.
+     *
+     *      which means, you must first create user instance with ID or user_login.
+     *
+     *
+     * @attention It does not update user_login. and it does not update email immediately depending on the settings.
+     *
+     * @see https://docs.google.com/document/d/1hTnA99kcDY13tzxK1lg2khZG83SJUnQzGiNzQ87c1c8/edit#heading=h.so8sn8ytxpzl
      *
      * @return bool|int|WP_Error
      *
@@ -248,13 +267,13 @@ public static $user_data = [];
         }
         self::$user_data['ID'] = $this->ID;
         $user_id = wp_update_user(self::$user_data);
-
+        if ( is_wp_error( $user_id ) ) return $user_id;
+        $user = user( $user_id );
         $keys = array_keys( self::$user_data );
         $keys_diff = array_diff( $keys, self::$properties );
         foreach ( $keys_diff as $key ) {
             $user->$key = self::$user_data[$key];
         }
-
 
         self::$user_data = [];
         return $user_id;
@@ -328,12 +347,8 @@ public static $user_data = [];
 
 
 
-    /*
-        public function get( $key ) {
 
-            return $this->__get( $key );
-        }
-    */
+
 
     /**
      * wrapper of wp_delete_user()
@@ -341,7 +356,8 @@ public static $user_data = [];
      *
      * @param null $reassign
      *
-     * @return bool
+     * @return bool - true if user deleted.
+     *
      */
     public function delete( $reassign = null ) {
         if ( $this->ID ) {
@@ -353,114 +369,92 @@ public static $user_data = [];
 
     /**
      *
-     * @todo UNIT-TEST
+     * @todo Is this method for what?
      */
-    public function count() {
-        wp_send_json( count_users() );
+    public function passwordLostSubmit() {
+        include ABSPATH . '/wp-login.php';
+        retrieve_password();
     }
 
 
     /**
-     * Register a user with $_GET, $POST input.
      *
-     * @todo use $this->create()
-     * @todo theme developer may use different registratoin form. Need to provide a way to adapt form variation.
+     * Returns a session id of a user.
+     *
+     * @use when you need a session id.
+     *
+     *
+     * 리턴되는 값은 사용자 정보를 바탕으로 한 md5 를 리턴하는 것으로 해당 사용자의 고유 값이라고 보면 된다.
+     *
+     *
+     *
+     * @see test/testUser::test_session_id() for more session id.
+     *
+     * @note 입력값 $userdata 가 있으면, 해당 사용자의 정보를 바탕으로 session_id 를 만든다.
+     *
+     *      만약 $userdata 가 지정되지 않았으면, 현재 객체의 값을 바탕으로 session_id 를 만든다.
+     *
+     * @param array $userdata
+     * @return mixed|null|string
      */
-    public function registerSubmit() {
-        do_action('begin_registerSubmit');
-        if ( ! in('user_login') ) wp_send_json(json_error(-5, 'Input username') );
-        if ( ! in('user_pass') ) wp_send_json(json_error(-6, 'Input password') );
-        if ( user( in('user_login') )->exists() ) wp_send_json(json_error(-10, 'Username already exists.'));
+    public function get_session_id( $userdata = array() ) {
+        $uid = null;
+        if ( empty( $userdata ) ) $userdata = $this->to_array();
 
-        if ( ! in('user_email') ) wp_send_json(json_error(-7, 'Input email') );
-        if ( user( in('user_email') )->exists() ) wp_send_json(json_error(-20, 'email already exists.'));
-
-        if ( ! in('name') ) wp_send_json(json_error(-8, 'Input name') );
-        if ( ! in('mobile') ) wp_send_json(json_error(-9, 'Input mobile number') );
-
-        $id = user()
-            ->set('user_login', in('user_login'))
-            ->set('user_pass', in('user_pass'))
-            ->create();
-        /*
-
-        $id = user()->create(
-            array(
-                'user_login' => in('user_login'),
-                'user_pass' => in('user_pass'),
-                'user_email' => in('user_email'),
-                'nickname' => in('nickname'),
-                'name' => in('name'),
-                'mobile' => in('mobile'),
-                'landline' => in('landline'),
-                'address' => in('address'),
-                'skype' => in('skype'),
-                'kakao' => in('kakao'),
-            )
-        );
-        */
-        if ( is_wp_error( $id ) ) wp_send_json( json_error( -10140, 'failed on registratoin' ) ); // $id ;
-        else { // Registration is OK
-
-
-
-            do_action('end_registerSubmit', $id);
-
-            if ( in('login') == '1' ) { // Set user logged-in
-                $credits = array(
-                    'user_login'    => in('user_login'),
-                    'user_password' => in('user_pass'),
-                    'rememberme'    => true
-                );
-                wp_signon( $credits, false );
-            }
-            wp_send_json( json_success( $id ) );
+        if ( isset($userdata['ID']) && $userdata['ID'] ) {
+            $uid = $userdata['user_registered'];
+            //$uid = strtotime( $uid );
+            $uid = str_replace(' ', '', $uid);
+            $uid = str_replace('-', '', $uid);
+            $uid = str_replace(':', '', $uid);
+            $uid = $userdata['ID'] . $userdata['user_login'] . $userdata['user_pass'] . $userdata['user_email'] . $uid;
+            $uid = $userdata['ID'] . '_' . md5( $uid );
         }
-
+        return $uid;
     }
+
 
     /**
      *
+     * @attention this method does not need any user object instance on $this.
      *
-     * @todo use $this->update()
+     *      - but still you can use the user instance of $this.
+     *
+     *      ( session_id 가 유효한지 비교하는데, session_id 에는 사용자 번호가 포함이 되어져 있다. 그래서 session_id 만으로 그 값이 유효한지 알 수 있다. )
+     *
+     * @code both will work.
+     *      user()->check_session_id( in('session_id') );
+     *      user(1234)->check_session_id( in('session_id') );
+     * @endcode
+     *
+     *
+     * @param $session_id - If it is null, then it uses current object's userdata.
+     * @return bool|int - false on error. user's ID on success.
+     *
+     *
      */
-    public function updateSubmit() {
-        do_action('begin_updateSubmit');
-        if ( ! user()->login() ) wp_send_json(json_error(-4077, 'Login first') );
-        if ( ! in('user_email') ) wp_send_json(json_error(-4078, 'Input email') );
-        // @note
-        $user = user( in('user_email') );
-        if ( $user->exists() ) {
-            if ( $user->ID != my()->ID ) {
-                wp_send_json(json_error(-4079, 'email already exists.'));
+    public function check_session_id( $session_id ) {
+        if ( $session_id === null ) {
+            if ( $this->exists() && $this->ID ) {
+                if ($this->get_session_id() == $session_id) return $this->get_user_id_from_session_id($session_id);
+                else return false;
             }
+            else return false;
         }
-        if ( ! in('name') ) wp_send_json(json_error(4070, 'Input name') );
-        if ( ! in('mobile') ) wp_send_json(json_error(-4071, 'Input mobile number') );
-
-        my()->user_email = in('user_email');
-        my()->nickname = in('nickname');
-        my()->name = in('name');
-        my()->mobile = in('mobile');
-        my()->landline = in('landline');
-        my()->address = in('address');
-        my()->skype = in('skype');
-        my()->kakao = in('kakao');
-
-        do_action( 'end_updateSubmit', my()->ID );
-
-        wp_send_json( json_success() );
+        else {
+            $user_id = $this->get_user_id_from_session_id( $session_id );
+            $user = get_user_by('id', $user_id);
+            if ( user()->get_session_id( $user->to_array() ) == $session_id ) return $this->get_user_id_from_session_id($session_id);
+            else return false;
+        }
+    }
+    public function get_user_id_from_session_id( $session_id ) {
+        $arr = explode( '_', $session_id );
+        return $arr[0];
     }
 
 
-    /**
-     *
-     *
-     * @todo unit test
-     */
-    public function loginSubmit( ) {
-        $this->doLogin();
-    }
+
 
     /**
      * It does user login.
@@ -507,34 +501,16 @@ public static $user_data = [];
 
 
 
-
-
-    public function passwordLostSubmit() {
-        include ABSPATH . '/wp-login.php';
-        retrieve_password();
-    }
-
     /**
-     * Returns user's Unique ID. It is composed with ID and registered date.
-     * @return null
+     *
+     * Logs in with the HTTP Query Variables.
+     *
+     * @todo unit test
      */
-    public function uniqid()
-    {
-        echo $this->getUniqID();
+    public function user_login( ) {
+        $this->doLogin();
     }
-    public function getUniqID() {
-        $uid = null;
-        if ( $this->login() ) {
-            $uid = my()->user_registered;
-            //$uid = strtotime( $uid );
-            $uid = str_replace(' ', '', $uid);
-            $uid = str_replace('-', '', $uid);
-            $uid = str_replace(':', '', $uid);
 
-            $uid = my()->ID . my()->user_login . $uid;
-        }
-        return $uid;
-    }
 
 
 }
@@ -569,6 +545,8 @@ public static $user_data = [];
  *      $user->nickname
  * @endcode
  *
+ * @attention it reload user object, use clean_user_cache()
+ * @see https://docs.google.com/document/d/1hTnA99kcDY13tzxK1lg2khZG83SJUnQzGiNzQ87c1c8/edit#heading=h.d1ob0kkr5vl0
  */
 function user( $uid = null ) {
     $user = new user($uid);
@@ -616,8 +594,7 @@ function login( $attr ) {
  */
 function json_error( $code, $message ) {
     if ( is_wp_error( $message ) ) {
-        list ( $k, $v ) = each ($message->errors);
-        $message = "$k : $v[0]";
+        $message = $message->get_error_message();
     }
     return array(
         'code' => $code,

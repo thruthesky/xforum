@@ -1,7 +1,7 @@
 <?php
 set_time_limit(0);
 $__count_isTrue = 0;
-
+ob_start();
 xlog("test runs : main.php");
 foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
     if ( strpos($php, 'main.php') === false ) {
@@ -11,18 +11,15 @@ foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
         }
     }
 }
-
 $class = 'test' . in('test');
 msg("main.php : going to test : " . $class . "<br>\n");
-
-
 if ( $class == 'testall' ) {
     foreach( $tests as $class ) testClass( $class );
 }
 else testClass( $class );
-
-
 xlog("xforum.php TEST ends -----------------------");
+$html = ob_get_clean();
+echo $html;
 exit;
 
 
@@ -77,8 +74,13 @@ function check( $re, $ok='', $bad='', $end = false ) {
 
 /**
  *
- * Use this function with the return value of fourm()->http_query();
- * @param $re
+ *
+ *
+ * Use this function with the return value of forum()->http_query();
+ *
+ * It is just a handy wrapper function for check()
+ *
+ * @param $re - must be the return value of forum()->http_query()
  * @param $ok
  * @param $bad
  * @param bool $end
