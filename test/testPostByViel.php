@@ -108,7 +108,9 @@ class testPostByViel extends post
         check( $post, "$update_ID post has been deleted.", "failed on post()->delete( $update_ID )");
 
         // check if the edited post is still exists; it should not exist
-        $post_check  = get_post(['ID'=>$post_ID, 'post_status' => 'publish']);
+
+        $post_check = post()->exists( $update_ID );
+
         check( ! $post_check, "Deleted post ($post_ID) did not exist.", "Error: $post_ID shouldn't exist.");
 
         // create a draft post
@@ -133,7 +135,7 @@ class testPostByViel extends post
         check( $post, "$post_ID post has been deleted.", "failed on post()->delete( $post_ID )");
 
         // check if the draft post is still exists; it should not exist
-        $post_check  = get_post(['ID'=>$post_ID, 'post_status' => 'draft']);
+        $post_check = post()->exists( $post_ID );
         check( ! $post_check, "Deleted post ($post_ID) did not exist.", "$post_ID shouldn't exist.");
 
         // delete the forum

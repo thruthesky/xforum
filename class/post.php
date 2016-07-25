@@ -466,6 +466,27 @@ class post {
     }
 
 
+    /**
+     *
+     * Returns true if the post exists and is not in trash.
+     *
+     * @param $post_ID
+     * @return bool
+     *
+     * @code
+     *      post()->exists( $update_ID );
+     * @endcode
+     */
+    public function exists( $post_ID ) {
+
+        $status = get_post_status ( $post_ID );
+        if ( $status === false ) return false;
+        if ( $status == 'trash' ) return false;
+        return true;
+
+    }
+
+
 }
 
 

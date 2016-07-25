@@ -51,7 +51,7 @@ class testForum extends forum {
 
         if ( $category ) { // delete if exists.
 
-            success( forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ), "$slug deleted", "failed on deleting forum - $slug", true);
+            success( forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id, "response"=>"ajax"] ), "$slug deleted", "failed on deleting forum - $slug", true);
             $category = get_category_by_slug($slug);
         }
         check( ! $category, "$slug does not exists", "$slug should not exist.", true);
@@ -60,6 +60,7 @@ class testForum extends forum {
         // create the forum of the slug
         $param = [];
         $param['do'] = 'forum_create';
+        $param['response'] = 'ajax';
         $param['cat_name'] = 'Test Forum';
         $param['slug'] = $slug; // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
@@ -69,43 +70,46 @@ class testForum extends forum {
 
         // delete it
         $category = get_category_by_slug($slug);
-        check( $category, null, "$slug should exist.");      // this test may not be needed.
-        $re = forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] );
+        check( $category, "category deleted", "$slug should exist.");      // this test may not be needed.
+        $re = forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id, "response"=>"ajax"] );
         success( $re, "forum_delete ok", "failed to delete forum - $slug", true);
 
         // check if it is deleted.
         $category = get_category_by_slug($slug);
-        check( ! $category, null, "$slug shouldn't exist.");
+        check( ! $category, "category $slug does not exist.", "forum category delete error. $slug should not exist.");
 
 
 
         // create the forum again
         $param = [];
         $param['do'] = 'forum_create';
+        $param['response'] = 'ajax';
         $param['cat_name'] = 'Test Forum';
         $param['slug'] = $slug; // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";
         $re = forum()->http_query( $param );
-        check( $re['success'], null, "failed on do=forum_create");
+        check( $re['success'], "do=forum_create success.", "failed on do=forum_create");
 
         // update. change the category name.
         $category = get_category_by_slug($slug);
         $param['do'] = 'forum_edit';
+        $param['response'] = 'ajax';
         $param['term_id'] = $category->term_id; // changed cat_ID to term_id 7/4/2016
         $param['cat_name'] = 'Test Forum Name Has Changed';
         $re = forum()->http_query( $param );
-        success( $re, null, $re['success'] ? null : "failed on do=forum_edit : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
+        check( $re['success'], "forum_edit() ok", $re['success'] ? null : "failed on do=forum_edit : code=>{$re['data']['code']}, message=>{$re['data']['message']}");
 
 
         // and check if the category name has changed.
         $category = get_category_by_slug($slug);
-        check( $category->cat_name == $param['cat_name'], null, "Category name should be $param[cat_name]");
+        check( $category->cat_name == $param['cat_name'], 'category name changed', "Category name should be $param[cat_name]");
 
         // delete the garbage.
-        success(
-            forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id] ),
-            "Grabage froum - $slug - delted !!",
+        forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id, 'response'=>'ajax'] );
+        check(
+            $re['success'],
+            "Grabage froum - $slug - deleted !!",
             "failed on forum_delete (7) "
         );
 
@@ -122,6 +126,7 @@ class testForum extends forum {
         $parent = get_category_by_slug(FORUM_CATEGORY_SLUG);
         $param = [];
         $param['do'] = 'forum_create';
+        $param['response'] = 'ajax';
         $param['cat_name'] = 'Test Forum';
         $param['slug'] = 'cat-count-test' . uniqid(); // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
@@ -203,7 +208,7 @@ class testForum extends forum {
         // test on non existing forum.
         // must be plugin/default/temp.php since no template exists.
         $this->deleteTemplates();
-        $path = forum()->locateTemplate( 0, 'temp' );
+        $path = forum()->locateTemplate( 'non-forum', 'temp' );
         check( $path == $plugin_default_temp, null, "2: path: $path vs expectation: $plugin_default_temp");
 
 

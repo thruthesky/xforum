@@ -41,11 +41,9 @@ function reset_http_query() {
  *              reset_http_query_with(['response'=>'list']);
  * @endcode
  */
-function reset_http_query_with( $vars ) {
-    foreach ( $vars as $k => $v ) {
-        $_POST[$k] = $v;
-    }
-    reset_http_query();
+function add_query_var( $k, $v ) {
+    global $_in;
+    $_in = array_merge( $_in, [ $k => $v ] );
 }
 function in( $name = null, $default = null ) {
     global $_in;
@@ -106,7 +104,7 @@ function get_url_admin_page() {       return forum()->urlAdminPage(); }
  * It echoes JSON of error message or redirects to $_REQUEST['return_url_on_error'];
  *
  * @param $code - error code
- * @param $message - message.
+ * @param $message - message string. OR it can be WP_Error object.
  *
  * @note use of $_REQUEST['on_error'] has deprecated.
  *
@@ -114,6 +112,7 @@ function get_url_admin_page() {       return forum()->urlAdminPage(); }
 function ferror( $code, $message ) {
 
     forum()->errorResponse( $code, $message );
+
     /*
     if ( in('on_error') == 'alert_and_go_back' ) {
         echo <<<EOH

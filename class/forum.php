@@ -13,7 +13,7 @@ class forum {
 
 
     static $entity;
-    public static $query_vars = ['forum', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
+    public static $query_vars = ['forum', 'do', 'session_id', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
 
 
     private $category = null;
@@ -81,6 +81,11 @@ class forum {
             'file_upload', // @todo implement ajax call.
             'file_delete', // @todo implement ajax call.
             'blogger_getUsersBlogs',
+            'user_register',
+            'user_update',
+            'user_delete',
+            'user_check_session_id',
+            'user_login_check',
             'login',
             'logout',
             'export',
@@ -236,8 +241,46 @@ class forum {
 
     /**
      *
+     * Returns the user ID of poster.
      *
-     * @todo add test code.
+     * @note if there is in('session_id'), then it uses that user of the session id.
+     *      or else, it uses current login user's ID.
+     *
+     *
+     * @return mixed
+     *
+     *      - if in('session_id') has wrong value, then it will return false.
+     *      - INT will be returned when it has poster's ID.
+     *      - 0 will be return otherwise.
+     *      - ( Ko ) session_id 가 없거나, 로그인을 하지 않았으면 0 을 리턴한다. ( 이것은 anomymous 로 글을 쓸 수 있게 해 준다. )
+     *
+     */
+    public function get_post_author() {
+        if ( in('session_id') ) {
+            $ID = user()->check_session_id( in('session_id') );
+        }
+        else {
+            $ID = wp_get_current_user()->ID;
+            if ( empty($ID) ) $ID = 0;
+        }
+        return $ID;
+    }
+
+    /**
+     *
+     * This method posts or edits a post.
+     *
+     * @note It can redirect to another page based on the 'response'.
+     *
+     *      And it can display JSON data with the result.
+     *
+     * @note since this method can response in JSON, it can be used for API.
+     *
+     *
+     *
+     *
+     * @todo add test code with session_id.
+     *
      */
     public function post_edit_submit() {
 
@@ -262,9 +305,12 @@ class forum {
             ->set('post_category', [ forum()->getCategory()->term_id ])
             ->set('post_title', $title)
             ->set('post_content', $content)
-            ->set('post_status', 'publish')
-            ->set('post_author', wp_get_current_user()->ID);
-        if ( $slug ) $post_ID = $post->create();
+            ->set('post_status', 'publish');
+        if ( $slug ) {
+            $post
+                ->set('post_author', $this->get_post_author());
+            $post_ID = $post->create();
+        }
         else {
             $post_ID = $post
                 ->set('ID', $post_ID)
@@ -316,7 +362,7 @@ class forum {
         $re = wp_delete_post( $post_ID );
 
         if ( $re ) {
-            reset_http_query_with(['response'=>'list']);
+            add_query_var('response', 'list');
             $this->response( ['post_ID' => $post_ID] );
         }
         else {
@@ -337,7 +383,7 @@ class forum {
 
         $re = wp_delete_comment( $comment_ID );
         if ( $re ) {
-            reset_http_query_with(['response'=>'view']);
+            add_query_var('response', 'view');
             $this->response( ['post_ID' => $post_ID ] );
         }
         else {
@@ -459,19 +505,29 @@ class forum {
             else wp_die("forum()->response() : no post_ID or comment_ID provided.");
         }
         else if ( $res == 'ajax' ) {
+            /**
+            $json = [];
+            if ( $slug ) $json['slug'] = $slug;
+            if ( $post_ID ) $json['post_ID'] = $post_ID;
+            if ( $comment_ID ) $json['comment_ID'] = $comment_ID;
+            if ( $data ) $json['html'] = $data;
+            */
+            /*
             $json = [
                 'slug' => $slug,
                 'post_ID' => $post_ID,
                 'comment_ID' => $comment_ID,
                 'html' => $data
             ];
-            wp_send_json_success( $json );
+            */
+            //wp_send_json_success( $json );
+            wp_send_json_success( $o );
         }
-        else if ( $data ) {
-            wp_send_json_success( $data );
+        else if ( $o ) {
+            wp_send_json_success( $o );
         }
         else if ( empty($slug) && empty($post_ID) && empty($comment_ID) && empty($data) ) {
-            echo ('No response coe. [response] must be one of list, view, ajax');
+            echo ('No response code. [response] must be one of list, view, ajax');
         }
         die();
     }
@@ -487,6 +543,7 @@ class forum {
      * @param $message
      */
     public function errorResponse($code, $message) {
+        if ( is_wp_error($message) ) $message = $message->get_error_message();
         if ( $url = in('return_url_on_error') ) {
             $message = urlencode($message);
             $url .= "&error_code=$code&error_message=$message";
@@ -496,8 +553,10 @@ class forum {
             wp_send_json_error( ['code'=>$code, 'message'=>$message]);
         }
         else {
-            wp_die($message, "XForum Error");
-        };
+            wp_send_json_error( $message );
+            //wp_die($message, "XForum Error");
+        }
+        exit;
     }
 
 
@@ -554,14 +613,40 @@ class forum {
      *              - Returns true if admin
      *              - returns true if the user has permission.
      *
+     *
+     * @todo add test code.
+     * $todo add test code with session_id
+     *
      */
     private function checkOwnership( $id, $type='post' )
     {
-        if ( ! is_user_logged_in() ) $this->errorResponse(-50400, "Please login");
+
 
         if ( current_user_can( 'manage_options' ) ) return true;
 
-        $user = wp_get_current_user();
+
+
+        /**
+         * @since 2016-07-24
+         */
+
+        $current_user_id = 0;
+        if ( $session_id = in('session_id') ) {
+            $current_user_id = user()->check_session_id( $session_id );
+            if ( ! $current_user_id ) $this->errorResponse(-50510, "session_id is wrong.");
+        }
+        else if ( $login = is_user_logged_in() ) {
+            $user = wp_get_current_user();
+            $current_user_id = $user->ID;
+        }
+        else {
+            $this->errorResponse( -50400, "Login or provide session_id");
+        }
+
+        /// if ( ! is_user_logged_in() ) $this->errorResponse(-50400, "Please login");
+
+
+
 
 
         // Get post/comment user info.
@@ -582,8 +667,9 @@ class forum {
 
 
 
+
         // compare.
-        if ( $user->ID == $user_id ) {
+        if ( $current_user_id == $user_id ) {
             // ok
             return true;
         }
@@ -906,12 +992,14 @@ class forum {
      * @return array|mixed|object
      *
      */
-    public function http_query($param)
+    public function http_query($param, $echo_url=false)
     {
         $url = home_url( '?' . http_build_query( $param ) );
         xlog( $url );
-        echo "url: $url<hr>";
-        $res = wp_remote_get( $url, ['timeout'=>20,  'httpversion'=>'1.1'] );
+        if ( $echo_url ) {
+            echo "<div>url: <a href='$url' target='_blank'>$url</a></div>";
+        }
+        $res = wp_remote_get( $url, ['timeout'=>5] );
         $body = wp_remote_retrieve_body( $res );
         $re = json_decode( $body, true);
         if ( empty($re) && !empty($body) ) return $body;
@@ -1144,7 +1232,8 @@ class forum {
 
     /**
      * @param $slug
-     * @param $page
+     * @param $page - template name.
+     *      - If $page is empty, then $slug is used for page and current forum's slug will be used as slug.
      * @return string
      *
      * @warning before
@@ -1153,6 +1242,11 @@ class forum {
      *      return forum()->locateTemplate( forum()->getCategory()->slug, 'comment');
      *      <?php include forum()->locateTemplate( forum()->slug, 'pagination') ?>
      * @endcode
+     *
+     * @desc (Ko) 적당한 $slug 값이 없으면, 그냥 아무 값이나 지정하면 default 폴더에서 찾는다.
+     *
+     *          - 그런데, 현재 forum()->getCategory() 에 값이 없으면서, this->locateTemplate( 'abc' ) 와 같이 하면, -50052 에러가 난다.
+     *
      */
     public function locateTemplate( $slug, $page = null )
     {
@@ -1160,6 +1254,7 @@ class forum {
 
         if ( empty( $page ) ) {
             $page = $slug;
+            if ( empty( $this->getCategory()) ) ferror( -50052, "Current forum is not found. Slug is not found. If slug is not passed to xforum()->locatTemplate(), then current forum must be set.");
             $slug = $this->getCategory()->slug;
         }
 
@@ -1167,8 +1262,10 @@ class forum {
         $template_name = 'default';
         if ( $slug ) {
             $category = get_category_by_slug( $slug );
-            $term_id = $category->term_id;
-            $template_name = $this->meta( $term_id, 'template');
+            if ( $category ) {
+                $term_id = $category->term_id;
+                $template_name = $this->meta( $term_id, 'template');
+            }
         }
         if ( empty( $template_name ) ) $template_name = 'default';
 
@@ -1391,6 +1488,125 @@ class forum {
 
 
     /**
+     * Create a user.
+     *
+     * @see test/testUser::remoteCRUD() for more example.
+     *
+     * @attention it returns user session id on json.
+     */
+    public function user_register() {
+
+
+        if ( ! in('user_login') ) ferror( -500250, "Input user login ID");
+        if ( user()->user_login_exists( in('user_login') ) ) ferror( -500251, "User login ID exists.");
+        if ( ! in('user_pass') ) ferror( -500252, "Input password");
+        if ( strlen(in('user_login')) < 3 ) ferror( -500253, "User login ID is too short.");
+        if ( strlen(in('user_pass')) < 4 ) ferror( -500254, "Password is too short.");
+
+
+        $in = in();
+        unset( $in['do'], $in['response'] );
+
+
+
+        $user_id = @user()->sets( $in )->create();
+        if ( is_wp_error( $user_id ) ) {
+            wp_send_json_error( $user_id->get_error_message() );
+        }
+        else {
+            $this->response( [
+                'session_id' => user( $user_id )->get_session_id(),
+                'user_login' => in('user_login'),
+            ] );
+        }
+
+    }
+
+    public function user_update() {
+
+        if ( ! in('ID') ) ferror( -500329, "User ID is empty");
+        $user = user( in('ID') );
+        if ( $user->get_session_id() != in('session_id') ) ferror(-500330, "Session ID does not match.");
+
+
+        $in = in();
+        unset( $in['do'], $in['response'], $in['session_id'] );
+        $user_id = @$user->sets( $in )->update();
+        if ( is_wp_error( $user_id ) ) {
+            wp_send_json( $user_id->get_error_message() );
+        }
+        else $this->response( $user_id );
+    }
+
+    /**
+     *
+     * @see test/testUser::remoteCRUD for more sample codes.
+     *
+     */
+    public function user_delete() {
+
+        if ( ! in('ID') ) ferror( -50049, "User ID is empty");
+        $user = user( in('ID') );
+
+
+        //di( $user->get_session_id() );
+        //print_r($user);
+        //di( in('session_id') );
+        //print_r( in() );
+
+        if ( $user->get_session_id() != in('session_id') ) ferror(-500348, "Session ID does not match for user delete");
+
+        if ( $user->delete() ) {
+            wp_send_json_success();
+        }
+        else {
+            wp_send_json_error();
+        }
+
+    }
+
+
+    /**
+     * Check user session id and response through json string.
+     */
+    public function user_check_session_id() {
+        if ( user()->check_session_id( in('session_id') ) ) wp_send_json_success();
+        else wp_send_json_error();
+    }
+
+    /**
+     * @attention if the user has logged in, it only returns session_id through JSON.
+     *
+     *          - it does not actually login
+     *
+     *
+     *
+     * @see test/testUser::test_remote_login() for more sample code for remote login & session_id test.
+     *
+     */
+    public function user_login_check() {
+        if ( ! in('user_login') ) ferror( -500201, "User login is empty");
+        if ( ! in('user_pass') ) ferror( -500202, "User pass is empty");
+        $user_login = in('user_login');
+        $user = user( $user_login );
+        if ( ! $user->exists() ) ferror( -500503, "Invalid username. User - $user_login - does not exist");
+        if ( ! wp_check_password( in('user_pass'), $user->user_pass, $user->ID ) ) {
+            ferror( -500504, "The password you entered for the username - $user_login is incorrect.");
+        }
+
+        wp_send_json_success(
+            [
+                'session_id' => $user->get_session_id(),
+                'user_login' => $user->user_login,
+            ]
+        );
+
+    }
+
+    /**
+     *
+     *
+     * @attention this is only for web-login. Use user_login_check() for mobile login check.
      *
      *
      *
@@ -1425,7 +1641,9 @@ class forum {
         else {
             $this->response( ['data' => $this->get_button_user( $user_login ) ] );
         }
+
     }
+
 
     public function logout() {
         wp_logout();
@@ -1445,6 +1663,15 @@ class forum {
         if ( user()->login() ) $id = my()->user_login;
         echo $this->get_button_user($id);
     }
+
+
+    /**
+     * @deprecated Don't do front-end coding here.
+     *
+     * @param null $id
+     * @return string
+     *
+     */
     public function get_button_user($id = null) {
 
         if ( $id ) {
