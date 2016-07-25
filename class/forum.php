@@ -13,7 +13,7 @@ class forum {
 
 
     static $entity;
-    public static $query_vars = ['forum', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
+    public static $query_vars = ['forum', 'do', 'session_id', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
 
 
     private $category = null;
@@ -239,8 +239,46 @@ class forum {
 
     /**
      *
+     * Returns the user ID of poster.
      *
-     * @todo add test code.
+     * @note if there is in('session_id'), then it uses that user of the session id.
+     *      or else, it uses current login user's ID.
+     *
+     *
+     * @return mixed
+     *
+     *      - if in('session_id') has wrong value, then it will return false.
+     *      - INT will be returned when it has poster's ID.
+     *      - 0 will be return otherwise.
+     *      - ( Ko ) session_id 가 없거나, 로그인을 하지 않았으면 0 을 리턴한다. ( 이것은 anomymous 로 글을 쓸 수 있게 해 준다. )
+     *
+     */
+    public function get_post_author() {
+        if ( in('session_id') ) {
+            $ID = user()->check_session_id( in('session_id') );
+        }
+        else {
+            $ID = wp_get_current_user()->ID;
+            if ( empty($ID) ) $ID = 0;
+        }
+        return $ID;
+    }
+
+    /**
+     *
+     * This method posts or edits a post.
+     *
+     * @note It can redirect to another page based on the 'response'.
+     *
+     *      And it can display JSON data with the result.
+     *
+     * @note since this method can response in JSON, it can be used for API.
+     *
+     *
+     *
+     *
+     * @todo add test code with session_id.
+     *
      */
     public function post_edit_submit() {
 
@@ -265,9 +303,12 @@ class forum {
             ->set('post_category', [ forum()->getCategory()->term_id ])
             ->set('post_title', $title)
             ->set('post_content', $content)
-            ->set('post_status', 'publish')
-            ->set('post_author', wp_get_current_user()->ID);
-        if ( $slug ) $post_ID = $post->create();
+            ->set('post_status', 'publish');
+        if ( $slug ) {
+            $post
+                ->set('post_author', $this->get_post_author());
+            $post_ID = $post->create();
+        }
         else {
             $post_ID = $post
                 ->set('ID', $post_ID)
@@ -480,8 +521,8 @@ class forum {
             //wp_send_json_success( $json );
             wp_send_json_success( $o );
         }
-        else if ( $data ) {
-            wp_send_json_success( $data );
+        else if ( $o ) {
+            wp_send_json_success( $o );
         }
         else if ( empty($slug) && empty($post_ID) && empty($comment_ID) && empty($data) ) {
             echo ('No response code. [response] must be one of list, view, ajax');
@@ -570,14 +611,40 @@ class forum {
      *              - Returns true if admin
      *              - returns true if the user has permission.
      *
+     *
+     * @todo add test code.
+     * $todo add test code with session_id
+     *
      */
     private function checkOwnership( $id, $type='post' )
     {
-        if ( ! is_user_logged_in() ) $this->errorResponse(-50400, "Please login");
+
 
         if ( current_user_can( 'manage_options' ) ) return true;
 
-        $user = wp_get_current_user();
+
+
+        /**
+         * @since 2016-07-24
+         */
+
+        $current_user_id = 0;
+        if ( $session_id = in('session_id') ) {
+            $current_user_id = user()->check_session_id( $session_id );
+            if ( ! $current_user_id ) $this->errorResponse(-50510, "session_id is wrong.");
+        }
+        else if ( $login = is_user_logged_in() ) {
+            $user = wp_get_current_user();
+            $current_user_id = $user->ID;
+        }
+        else {
+            $this->errorResponse( -50400, "Login or provide session_id");
+        }
+
+        /// if ( ! is_user_logged_in() ) $this->errorResponse(-50400, "Please login");
+
+
+
 
 
         // Get post/comment user info.
@@ -598,8 +665,9 @@ class forum {
 
 
 
+
         // compare.
-        if ( $user->ID == $user_id ) {
+        if ( $current_user_id == $user_id ) {
             // ok
             return true;
         }
@@ -1426,14 +1494,28 @@ class forum {
      */
     public function user_register() {
 
+
+        if ( ! in('user_login') ) ferror( -500250, "Input user login ID");
+        if ( user()->user_login_exists( in('user_login') ) ) ferror( -500251, "User login ID exists.");
+        if ( ! in('user_pass') ) ferror( -500252, "Input password");
+        if ( strlen(in('user_login')) < 3 ) ferror( -500253, "User login ID is too short.");
+        if ( strlen(in('user_pass')) < 4 ) ferror( -500254, "Password is too short.");
+
+
         $in = in();
         unset( $in['do'], $in['response'] );
+
+
+
         $user_id = @user()->sets( $in )->create();
         if ( is_wp_error( $user_id ) ) {
             wp_send_json_error( $user_id->get_error_message() );
         }
         else {
-            $this->response( user( $user_id )->get_session_id() );
+            $this->response( [
+                'session_id' => user( $user_id )->get_session_id(),
+                'user_login' => in('user_login'),
+            ] );
         }
 
     }
@@ -1455,8 +1537,9 @@ class forum {
     }
 
     /**
-     * @todo implement user_delete()
-     * @todo add test code on test/testUser::remoteCRUD
+     *
+     * @see test/testUser::remoteCRUD for more sample codes.
+     *
      */
     public function user_delete() {
 
@@ -1508,10 +1591,16 @@ class forum {
         if ( ! wp_check_password( in('user_pass'), $user->user_pass, $user->ID ) ) {
             ferror( -500504, "The password you entered for the username - $user_login is incorrect.");
         }
-        wp_send_json_success( $user->get_session_id() );
 
-//        wp_authenticate_username_password(null, in('user_login'), in('user_pass'));
+        wp_send_json_success(
+            [
+                'session_id' => $user->get_session_id(),
+                'user_login' => $user->user_login,
+            ]
+        );
+
     }
+
     /**
      *
      *

@@ -38,9 +38,9 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 # TODO
 
-* MOVE ALL Work DATA to ITS
+* let anonymous post. ( 익명으로 글 쓰기 )
+* set an option on admin setting for the forum for private post between admin and user. ( 비밀게시판 )
 * language translation : see its.
-* ITS 서버 백업.
 
 * put OG_ImAGE tag. on ... wp_head. get the first image or featured image for the content.
     * put default image when there is no image to show.
@@ -341,6 +341,19 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 
 
 # Coding Guide
+
+
+
+## Post content type
+
+* when a post is posted in mobile, it is not wysiwyg. which means, there is no <br> or <p> tags on the content.
+
+    * there will be only line feed.
+    
+    * but the content_type will be 'text/plain'
+
+        * so, you need to display line feed to <br> if content_type is 'text/plain'.
+        
 
 
 ## How to use forum configuration

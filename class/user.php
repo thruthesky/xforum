@@ -346,7 +346,17 @@ class user extends WP_User {
     }
 
 
-
+    /**
+     * Returns if user login exists.
+     * @note WP_User()->exists() is expansive.
+     *
+     *
+     */
+    public function user_login_exists( $user_login ) {
+        global $wpdb;
+        $count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->users WHERE user_login = %s", $user_login ) );
+        return $count === 1;
+    }
 
 
 

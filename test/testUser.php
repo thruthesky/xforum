@@ -154,9 +154,11 @@ class testUser extends user
         // User create SUCCESS test.
         $p['user_login'] = $user_login;
         $re = forum()->http_query( $p );
-        check( $re['success'], "remoteCRUD() : do=register OK. User created.", "Remote user create failed: $re[data]");
+        check( $re['success'],
+            "remoteCRUD() : do=register OK. User created.",
+            "Remote user create failed: " . ( $re['success'] ? null : $re['data']['message']));
 
-        $session_id = $re['data'];
+        $session_id = $re['data']['session_id'];
 
         $s = [];
         $s['do'] = 'user_check_session_id';
@@ -385,9 +387,11 @@ class testUser extends user
         $p['response'] = 'ajax';
 
         $re = forum()->http_query( $p );
-        check( $re['success'], "test_remote_login() : do=user_register OK. User created.", "test_remote_login(): user create failed: $re[data]");
+        check( $re['success'],
+            "test_remote_login() : do=user_register OK. User created.",
+            "test_remote_login(): user create failed: " . ( $re['success'] ? null : $re['data']['message']));
 
-        $session_id = $re['data'];
+        $session_id = $re['data']['session_id'];
 
         $r = [];
         $r['do'] = 'user_login_check';
@@ -404,10 +408,11 @@ class testUser extends user
         $r['user_login'] = $user_login;
         $r['user_pass'] = '1234abcd';
         $re = forum()->http_query( $r );
-        check( $re['success'], "Login success: session_id: $re[data]", "test_remote_login: Login failed: $re[data]");
+
+        check( $re['success'], "Login success: session_id: {$re['data']['session_id']}", "test_remote_login: Login failed: ");
 
 
-        check( $session_id == $re['data'], "Session ID of register and Session ID of login are the same.", "Session ID does not match.");
+        check( $session_id == $re['data']['session_id'], "Session ID of register and Session ID of login are the same.", "Session ID does not match.");
 
 
     }
