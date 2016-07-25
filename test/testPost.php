@@ -117,8 +117,8 @@ class testPost extends post {
         $param['title'] = 'this is title of remote crud()';
         $param['content'] = 'content...<br>..<p>test</p>';
         $re = forum()->http_query( $param );
-        print_r($re);
-        check( $re['success'], null, "failed on do=post_edit_submit");
+        //print_r($re);
+        check( $re['success'], "Success on post_edit_submit", "failed on do=post_edit_submit");
     }
 
 
