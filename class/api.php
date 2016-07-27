@@ -47,6 +47,26 @@ class api {
                 foreach( $meta as $k => $arr ) {
                     $post->$k = $arr[0];
                 }
+                $post->comments = comment()->get_nested_comments_with_meta( $post->ID );
+                /*
+                if ( get_comments_number( $post->ID ) ) {
+
+                    $comment_args = array(
+                        'post_id' => $post->ID,
+                    );
+                    $comments = get_comments( $comment_args );
+                    // load comment meta
+                    foreach( $comments as $comment ) {
+                        $meta = get_comment_meta( $comment->comment_ID );
+                        foreach( $meta as $k => $arr ) {
+                            $comment->$k = $arr[0];
+                        }
+                    }
+
+                    $post->comments = $comments;
+
+                }
+                */
             }
         }
 

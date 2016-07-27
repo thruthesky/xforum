@@ -73,11 +73,17 @@ add_action('wp_head', function() {
     $og_image = null;
     $og_sitename = get_bloginfo('name');
     if ( is_single() ) {
-        $title = esc_attr(get_the_title());
-        $permalink = get_the_permalink();
-        // @todo get the first image or featured image for the content.
-        $og_image = '';
-        $description = esc_attr( forum()->getCategory()->description) ;
+        if ( forum()->isPost( get_the_ID() ) ) {
+            $title = esc_attr(get_the_title());
+            $permalink = get_the_permalink();
+            // @todo get the first image or featured image for the content.
+            $og_image = '';
+
+            /**
+             *
+             */
+            $description = esc_attr(forum()->getCategory()->description);
+        }
     }
     else if ( in('forum') == 'list' ) {
         $title = esc_attr(forum()->getCategory()->name);

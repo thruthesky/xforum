@@ -97,6 +97,11 @@ class post {
     }
 
 
+    /**
+     * Returns error from wp_create_post(), wp_update_post()
+     * @param $post_ID
+     * @return string
+     */
     private function returnResult($post_ID)
     {
         if ( is_wp_error( $post_ID ) ) {
@@ -131,11 +136,9 @@ class post {
 
     /**
      *
-     * @todo @warning very important. If you don't do permission check, google will delete all of your posts.
      *
      * @todo delete blogs if you have on blog api.
      *
-     * @todo attachemnts ( media files )
      *
      *
      *
@@ -144,8 +147,12 @@ class post {
      * @return array|false|WP_Post False on failure. - same as wp_delete_post
      */
     public function delete( $post_ID ) {
-        $post = wp_delete_post($post_ID);
-        return $post;
+
+        // $post = wp_delete_post($post_ID);
+        // return $post;
+
+        $post_ID = wp_update_post( ['ID'=> $post_ID, 'post_title' => forum::deleted, 'post_content' => forum::deleted ] );
+        return $this->returnResult( $post_ID );
     }
 
     public function getViewPostID()

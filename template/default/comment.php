@@ -1,5 +1,67 @@
 <?php
 /**
+ *
+ *
+ * ---------------------------------------------------------------------------
+ *
+ *
+ * W A R N I N G : Theme Development on Desktop version has been discontinued.
+ *
+ * B E C A U S E : People use mobile for web browsing
+ *
+ *      And 'Mobile theme version' can handle desktop also.
+ *
+ *      So, we develop mobile theme version only which works on desktop also.
+ *
+ *
+ * ---------------------------------------------------------------------------
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+?>
+
+<?php
+/**
  * The template for displaying comments
  *
  * The area of the page that contains both current comments
@@ -30,6 +92,9 @@ wp_enqueue_script('comment', URL_XFORUM . 'js/comment.js');
 
 
 <?php
+
+
+
 function comments_basic($comment, $args, $depth) {
 comment()->set($comment);
 $parent_comment = null;
