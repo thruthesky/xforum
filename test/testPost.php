@@ -109,8 +109,11 @@ class testPost extends post {
      */
     public function remoteCRUD()
     {
+        user()->forceLogin( 'admin' );
+        $session_id = user()->get_session_id( user()->to_array() );
         // create the forum again
         $param = [];
+        $param['session_id'] = $session_id;
         $param['do'] = 'post_edit_submit';
         $param['response'] = 'ajax';
         $param['slug'] = 'qna'; // @todo @warning what if 'qna' slug does not exists? you have to crate a new forum and delete it after test.
@@ -118,7 +121,7 @@ class testPost extends post {
         $param['content'] = 'content...<br>..<p>test</p>';
         $re = forum()->http_query( $param );
         //print_r($re);
-        check( $re['success'], "Success on post_edit_submit", "failed on do=post_edit_submit");
+        check( $re['success'], "Success on post_edit_submit", "remoteCRUD()::failed on do=post_edit_submit: " . ( $re['success'] ? null : $re['data']['message']));
     }
 
 

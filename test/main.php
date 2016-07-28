@@ -14,7 +14,10 @@ foreach( glob(DIR_XFORUM . 'test/*.php') as $php ) {
 $class = 'test' . in('test');
 msg("main.php : going to test : " . $class . "<br>\n");
 if ( $class == 'testall' ) {
-    foreach( $tests as $class ) testClass( $class );
+    foreach( $tests as $class ) {
+        msg("<b>$class.php</b><br>");
+        testClass( $class );
+    }
 }
 else testClass( $class );
 xlog("xforum.php TEST ends -----------------------");
