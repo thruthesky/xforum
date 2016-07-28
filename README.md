@@ -179,8 +179,14 @@ Run script like below;
 $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 
-# How to use/manage on admin
+# How to use/manage xforum
+
 * when a forum loads category, it loads its meta data and put it all together in $category
+
+* 'max depth' of comment is controlled in the same way of wordpress except API call.
+
+    * api's comment max depth is set to 10.
+
 
 
 
@@ -344,7 +350,9 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 
 
 
-## Post content type
+
+
+## Post/ Comment content type
 
 * when a post is posted in mobile, it is not wysiwyg. which means, there is no <br> or <p> tags on the content.
 
@@ -400,6 +408,22 @@ Use this as much as you can.
 ## xforum_admins
 
 xforum_admins in setting(option) tells who can manage all the forum.
+
+
+
+## Comment Deletion
+
+It only marks on the comment that it is deleted.
+
+the reason why it only marks and does not delete is because on wordpress, if you delete a comment, all the children comment will be deleted too.
+
+the content of comment is 'deleted...', then it is treated as deleted.
+
+
+## POST Deletion
+
+It is the same idea of comment deletion why it only marks 'deleted...'
+
 
 
 
@@ -538,8 +562,7 @@ When you export, you will get JSON string containg all the posts of the category
 
 # OG Tags
 
-
-* xforum does OG Tags only for forum list and is_single().
+* xforum does OG Tags only for 'forum list' and is_single() of 'xforum' category.
 
     * which means, you need to do it manually for page specific content.
     
@@ -650,7 +673,13 @@ By query directly to WP_Query with full support WP_Query arguments, you can get 
 * s - is the search keyword
 
 
+# Things to know
+
+A forum that is not under 'xforum' category uses the 'comments.php' under the active theme.
+
+There will be a notice on the is_single() page.
 
 
 
+    * Notice: Theme without comments.php is deprecated since version 3.0 with no alternative available. Please include a comments.php template in your theme. in C:\work\www\wordpress46b1\wp-includes\functions.php on line 3825
 

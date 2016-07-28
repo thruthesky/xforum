@@ -12,6 +12,7 @@ class forum {
     use Url;
 
 
+    const deleted = 'deleted, ...';
     static $entity;
     public static $query_vars = ['forum', 'do', 'session_id', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
 
@@ -76,6 +77,7 @@ class forum {
             'edit_submit',
             'post_edit_submit',
             'post_delete_submit', // @todo implement ajax call.
+            'post_like',
             'comment_edit_submit', // @todo implement ajax call.
             'comment_delete_submit', // @todo implement ajax call.
             'file_upload', // @todo implement ajax call.
@@ -292,6 +294,8 @@ class forum {
         if ( empty( $slug ) && empty( $post_ID ) ) ferror(-50044, 'slug ( category_slug ) or post_ID are not provided');
         if ( ! $title ) ferror(-50045, 'title is not provided');
         if ( ! $content ) ferror(-50046,'content is not provided');
+        $user_ID = $this->get_post_author();
+        if ( empty($user_ID) ) ferror( -50047, "login  first");
 
         if ( $slug ) { // new post
             //$category = get_category_by_slug( $id );
@@ -306,9 +310,10 @@ class forum {
             ->set('post_title', $title)
             ->set('post_content', $content)
             ->set('post_status', 'publish');
-        if ( $slug ) {
+
+        if ( $slug ) { // new post
             $post
-                ->set('post_author', $this->get_post_author());
+                ->set('post_author', $user_ID);
             $post_ID = $post->create();
         }
         else {
@@ -359,10 +364,10 @@ class forum {
         forum()->endIfNotMyPost( $post_ID );
         $this->setCategoryByPostID( $post_ID );
 
-        $re = wp_delete_post( $post_ID );
-
+        // $re = wp_delete_post( $post_ID );
+        $re = post()->delete( $post_ID );
         if ( $re ) {
-            add_query_var('response', 'list');
+            if ( ! in('response') ) add_query_var('response', 'list'); // if there in no 'response', then it goes to 'post list' page.
             $this->response( ['post_ID' => $post_ID] );
         }
         else {
@@ -370,6 +375,10 @@ class forum {
         }
     }
 
+    /**
+     *
+     * @note since it response in JSON, comment delete api does not needed.
+     */
     public function comment_delete_submit() {
 
         $comment_ID = in('comment_ID');
@@ -381,15 +390,22 @@ class forum {
 
         $this->endIfNotMyComment( $comment_ID );
 
-        $re = wp_delete_comment( $comment_ID );
+
+        // $re = wp_delete_comment( $comment_ID );
+        $re = comment()->delete( $comment_ID );
+
         if ( $re ) {
-            add_query_var('response', 'view');
-            $this->response( ['post_ID' => $post_ID ] );
+            if ( in('response') == 'ajax' ) {
+                $this->response( ['post_ID' => $post_ID, 'comment_ID', 'comment' => comment()->get_comment_with_meta( $comment_ID ) ] );
+            }
+            else {
+                add_query_var('response', 'view');
+                $this->response( ['post_ID' => $post_ID ] );
+            }
         }
         else {
             $this->errorResponse(-50310, "Failed to delete comment");
         }
-
     }
 
 
@@ -553,8 +569,8 @@ class forum {
             wp_send_json_error( ['code'=>$code, 'message'=>$message]);
         }
         else {
-            wp_send_json_error( $message );
-            //wp_die($message, "XForum Error");
+            // wp_send_json_error( $message );
+            wp_die($message, "XForum Error");
         }
         exit;
     }
@@ -640,7 +656,7 @@ class forum {
             $current_user_id = $user->ID;
         }
         else {
-            $this->errorResponse( -50400, "Login or provide session_id");
+            $this->errorResponse( -50400, "Please, Login first...");
         }
 
         /// if ( ! is_user_logged_in() ) $this->errorResponse(-50400, "Please login");
@@ -699,6 +715,8 @@ class forum {
     /**
      * Creates / Updates a comment.
      *
+     * @note since it can retrun the result in JSON, it does not need to be in api class.
+     *
      *
      * @note it loads 'init.php' of the template.
      *
@@ -707,6 +725,8 @@ class forum {
 
         $comment_ID = in( 'comment_ID' );
         $update = $comment_ID ? true : false;
+        
+        
         if ( $update ) {
             $comment = get_comment( $comment_ID );
             $post_ID = $comment->comment_post_ID;
@@ -715,6 +735,7 @@ class forum {
             $post_ID = in('post_ID');
         }
         forum()->setCategoryByPostID($post_ID);
+
 
 
 
@@ -732,10 +753,13 @@ class forum {
             }
         }
         else { // new
+            $user_ID = $this->get_post_author();
+            $user = get_user_by( 'id', $user_ID );
             $comment_ID = wp_insert_comment([
                 'comment_post_ID' => $post_ID,
                 'comment_parent' => in('comment_parent'),
-                'user_id' => wp_get_current_user()->ID,
+                'comment_author' => $user->user_login,
+                'user_id' => $user_ID,
                 'comment_content' => in('comment_content'),
                 'comment_approved' => 1,
             ]);
@@ -746,8 +770,7 @@ class forum {
 
         //$this->updateFileWithPost( FORUM_COMMENT_POST_NUMBER  + $comment_ID );
 
-        $url = get_permalink( $post_ID ) . '#comment-' . $comment_ID ;
-
+        // $url = get_permalink( $post_ID ) . '#comment-' . $comment_ID ; // this is not used.
 
         //
         $files = in('files');
@@ -759,8 +782,13 @@ class forum {
 
 
 
-        $this->response( [ 'post_ID' => $post_ID, 'comment_ID' => $comment_ID ] );
+        // Save All extra input into post meta.
+        comment()->saveAllMeta( $comment_ID );
 
+
+        $o = [ 'post_ID' => $post_ID, 'comment_ID' => $comment_ID ];
+        if ( in('response') == 'ajax' ) $o['comment'] = comment()->get_comment_with_meta( $comment_ID );
+        $this->response( $o );
     }
     /**
      *
@@ -871,7 +899,7 @@ class forum {
     /**
      * @param $key
      * @param $value
-     * @return $this
+     * @return forum
      */
     public function set( $key, $value ) {
         self::$entity[ $key ] = $value;
@@ -1254,8 +1282,9 @@ class forum {
 
         if ( empty( $page ) ) {
             $page = $slug;
-            if ( empty( $this->getCategory()) ) ferror( -50052, "Current forum is not found. Slug is not found. If slug is not passed to xforum()->locatTemplate(), then current forum must be set.");
-            $slug = $this->getCategory()->slug;
+            $cat = $this->getCategory();
+            if ( empty( $cat) ) ferror( -50052, "Current forum is not found. Slug is not found. If slug is not passed to xforum()->locatTemplate(), then current forum must be set.");
+            $slug = $cat->slug;
         }
 
         $page = "{$page}.php";
@@ -1593,7 +1622,6 @@ class forum {
         if ( ! wp_check_password( in('user_pass'), $user->user_pass, $user->ID ) ) {
             ferror( -500504, "The password you entered for the username - $user_login is incorrect.");
         }
-
         wp_send_json_success(
             [
                 'session_id' => $user->get_session_id(),
@@ -1721,6 +1749,17 @@ EOH;
 EOH;
     }
 
+    public function button_like( array $o = [] ) {
+        $defaults = [
+            'text' => 'LIKE',
+            'no' => '',
+        ];
+        $o = array_merge( $defaults, $o );
+        echo <<<EOH
+<button class="like btn btn-secondary" type="button">$o[text]<span class="no">$o[no]</span></button>
+EOH;
+    }
+
 
 
     public function button_write() {
@@ -1807,6 +1846,36 @@ EOH;
 
 
 
+
+    public function post_like() {
+        if ( $this->is_user_logged_in() ) {
+            $like = get_post_meta( in('post_ID'), 'like', true);
+            $like ++;
+            update_post_meta( in('post_ID'), 'like', $like);
+            wp_send_json_success( ['post_ID' => in('post_ID'), 'like' => $like ] );
+        }
+        else {
+            wp_send_json_error( json_error( -100400, 'Please, login first') );
+        }
+    }
+
+
+    /**
+     *
+     * Returns true if the has logged in.
+     *
+     * @return bool
+     *
+     */
+    public function is_user_logged_in() {
+        if ( $session_id = in('session_id') ) {
+            $current_user_id = user()->check_session_id( $session_id );
+            if ( $current_user_id ) return true;
+            else return false;
+        }
+        else if ( is_user_logged_in() ) return true;
+        else return false;
+    }
 
 
 }

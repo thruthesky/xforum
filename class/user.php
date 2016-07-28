@@ -453,11 +453,21 @@ class user extends WP_User {
         }
         else {
             $user_id = $this->get_user_id_from_session_id( $session_id );
-            $user = get_user_by('id', $user_id);
-            if ( user()->get_session_id( $user->to_array() ) == $session_id ) return $this->get_user_id_from_session_id($session_id);
-            else return false;
+            if ( $user_id ) {
+                $user = get_user_by('id', $user_id);
+                if ( $user ) {
+                    if ( user()->get_session_id( $user->to_array() ) == $session_id ) return $this->get_user_id_from_session_id($session_id);
+                }
+            }
+            return false;
         }
     }
+
+    /**
+     * Returns user ID from session_id.
+     * @param $session_id
+     * @return mixed
+     */
     public function get_user_id_from_session_id( $session_id ) {
         $arr = explode( '_', $session_id );
         return $arr[0];

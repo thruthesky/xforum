@@ -1,4 +1,65 @@
 <?php
+/**
+ *
+ *
+ * ---------------------------------------------------------------------------
+ *
+ *
+ * W A R N I N G : Theme Development on Desktop version has been discontinued.
+ *
+ * B E C A U S E : People use mobile for web browsing
+ *
+ *      And 'Mobile theme version' can handle desktop also.
+ *
+ *      So, we develop mobile theme version only which works on desktop also.
+ *
+ *
+ * ---------------------------------------------------------------------------
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+?>
+<?php
 get_header();
 wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
@@ -18,7 +79,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
         padding: 1em;
     }
 </style>
-<article class="forum">
+<article class="forum post" post-id="<?php the_ID()?>">
     <header>
         <h1><?php the_title()?></h1>
         <dl class="meta">
@@ -49,6 +110,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
         <?php forum()->button_edit()?>
         <?php forum()->button_delete()?>
         <?php forum()->button_list()?>
+        <?php forum()->button_like( ['no'=>get_post_meta( get_the_ID(), 'like', true)] )?>
         <?php forum()->list_menu_user()?>
     </nav>
 
@@ -56,6 +118,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
 
 
 </article>
+
 
 <?php
 // If comments are open or we have at least one comment, load up the comment template.
