@@ -366,9 +366,15 @@ class forum {
 
         // $re = wp_delete_post( $post_ID );
         $re = post()->delete( $post_ID );
+        $data = ['post_ID' => $post_ID];
         if ( $re ) {
-            if ( ! in('response') ) add_query_var('response', 'list'); // if there in no 'response', then it goes to 'post list' page.
-            $this->response( ['post_ID' => $post_ID] );
+            if ( in('response') == 'ajax' ) {
+                $data['post'] = get_post( $post_ID );
+            }
+            else if ( ! in( 'response') ) {
+                add_query_var('response', 'list'); // if there in no 'response', then it goes to 'post list' page.
+            }
+            $this->response( $data );
         }
         else {
             $this->errorResponse( -50314, "Failed to delete post");
