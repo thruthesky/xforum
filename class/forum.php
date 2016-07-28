@@ -13,6 +13,8 @@ class forum {
 
 
     const deleted = 'deleted, ...';
+    const log_msg_comment_like = 'comment_like';
+    const log_msg_post_like = 'post_like';
     static $entity;
     public static $query_vars = ['forum', 'do', 'session_id', 'response', 'slug', 'on_error', 'return_url', 'title', 'content'];
 
@@ -22,9 +24,7 @@ class forum {
 
     public function __construct()
     {
-
-        header('Access-Control-Allow-Origin: *');
-
+        if( ! headers_sent() ) header('Access-Control-Allow-Origin: *');
     }
 
     public function __get( $field ) {
@@ -1855,27 +1855,62 @@ EOH;
 
 
     public function post_like() {
+        $id = in('post_ID');
         if ( $this->is_user_logged_in() ) {
-            $like = get_post_meta( in('post_ID'), 'like', true);
+            if ( post()->isMine( $id ) ) wp_send_json_error( json_error(-11003, "You cannot like on your own post."));
+            if ( $this->post_like_already( $id )) wp_send_json_error( json_error(-11002, "You have already voted on this post."));
+            $like = get_post_meta( $id, 'like', true);
             $like ++;
-            update_post_meta( in('post_ID'), 'like', $like);
-            wp_send_json_success( ['post_ID' => in('post_ID'), 'like' => $like ] );
+            update_post_meta( $id, 'like', $like);
+            $this->post_like_log( $id );
+            wp_send_json_success( ['post_ID' => $id, 'like' => $like ] );
+        }
+        else {
+            wp_send_json_error( json_error( -11001, 'Please, login first') );
+        }
+    }
+    public function post_like_already( $id ) {
+        return $this->get_log_by_user_object_action( $this->get_user_id(), $id, forum::log_msg_post_like );
+    }
+    public function post_like_log( $id ) {
+        $this->insert_log( ['user_id'=>$this->get_user_id(), 'object_id'=>$id,  'action'=>forum::log_msg_post_like] );
+    }
+
+    public function comment_like() {
+        $id = in('comment_ID');
+        if ( $this->is_user_logged_in() ) {
+            if ( $this->comment_like_already( $id )) wp_send_json_error( json_error(-100405, "You have already voted on this comment."));
+            $like = get_comment_meta( $id, 'like', true);
+            $like ++;
+            update_comment_meta( $id, 'like', $like);
+            $this->comment_like_log( $id );
+            wp_send_json_success( ['comment_ID' => $id, 'like' => $like ] );
         }
         else {
             wp_send_json_error( json_error( -100400, 'Please, login first') );
         }
     }
+    public function comment_like_already( $comment_ID ) {
+        return $this->get_log_by_user_object_action( $this->get_user_id(), $comment_ID, forum::log_msg_comment_like );
+    }
+    public function comment_like_log( $comment_ID ) {
+        $this->insert_log( ['user_id'=>$this->get_user_id(), 'object_id'=>$comment_ID,  'action'=>forum::log_msg_comment_like] );
+    }
 
-    public function comment_like() {
-        if ( $this->is_user_logged_in() ) {
-            $like = get_comment_meta( in('comment_ID'), 'like', true);
-            $like ++;
-            update_comment_meta( in('comment_ID'), 'like', $like);
-            wp_send_json_success( ['comment_ID' => in('comment_ID'), 'like' => $like ] );
-        }
-        else {
-            wp_send_json_error( json_error( -100400, 'Please, login first') );
-        }
+
+    public function get_log_by_user_object_action( $user_id, $object_id, $action ) {
+        return $this->get_log("user_id=$user_id AND object_id=$object_id AND action='$action'");
+    }
+    public function get_log( $cond ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'xforum_log';
+        return $wpdb->get_row( "SELECT * FROM $table_name WHERE $cond", ARRAY_A );
+    }
+
+    public function insert_log( $data ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'xforum_log';
+        $wpdb->insert( $table_name, $data);
     }
 
 
@@ -1883,18 +1918,20 @@ EOH;
      *
      * Returns true if the has logged in.
      *
-     * @return bool
+     * @return bool|int - false on error. user's ID on success.
      *
      */
     public function is_user_logged_in() {
         if ( $session_id = in('session_id') ) {
-            $current_user_id = user()->check_session_id( $session_id );
-            if ( $current_user_id ) return true;
-            else return false;
+            return user()->check_session_id( $session_id );
         }
-        else if ( is_user_logged_in() ) return true;
+        else if ( is_user_logged_in() ) return wp_get_current_user()->ID;
         else return false;
     }
+    public function get_user_id() {
+        return $this->is_user_logged_in();
+    }
+
 
 
 }

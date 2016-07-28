@@ -166,6 +166,7 @@ class post {
      * Loads a post and return this.
      *
      *
+     * @deprecated use setup()
      *
      * @param $post_ID
      * @return post|null - if there is error, it returns null.
@@ -429,7 +430,13 @@ class post {
      */
     public function setup($query)
     {
-        if ( $query instanceof WP_Post ) {
+        if ( is_numeric( $query ) ) {
+            $post_ID = $query;
+            $post = get_post( $post_ID );
+            self::$post = $post;
+            setup_postdata( $post );
+        }
+        else if ( $query instanceof WP_Post ) {
             self::$post = $query;
             setup_postdata( $query );
         }
@@ -439,6 +446,7 @@ class post {
         }
 //        self::$post = $post;
 //        setup_postdata( $post );
+        return $this;
     }
 
     /**
@@ -493,6 +501,11 @@ class post {
 
     }
 
+    public function isMine($id)
+    {
+
+    }
+
 
 }
 
@@ -513,7 +526,11 @@ class post {
 function post( $deprecated = null ) {
     if ( $deprecated ) {
         $post = new post();
-        return $post->load( $deprecated );
+        /**
+         *
+         */
+        return $post->setup( $deprecated );
+//        return $post->load( $deprecated );
     }
     else return new post();
 }

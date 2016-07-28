@@ -351,6 +351,27 @@ Like comments.php, if the xforum has no comment.php template in anywhere, then t
 
 
 
+## Event log
+
+* xforum_log is exists for events like
+    * user activity like login, logout, etc ...
+    * post activity like posting/commenting/editing/deleting/voting/report/block/blind etc ...
+    * point activity
+    * message activity
+    * etc..
+
+
+* action is the action of the event
+* code/data is a pair of key/value set.
+* user_id is the user ID
+* object_id is the target ID. it can be a post, a comment, other user, etc.
+* stamp is the time of event log.
+* ip is the user's ip.
+* etc is a comment field. use 'etc' for any need. 포인트 변경을 할 때, 몇점이 추가되었는지. 또는 "적용전포인트:증감포인트:적용후포인트"와 같이 기록 할 수 있다.
+
+
+
+
 
 ## Post/ Comment content type
 

@@ -15,3 +15,4 @@
 if ( in('forum') == 'list' && in('slug') == null ) {
     wp_die("Slug is not provided");
 }
+

@@ -32,6 +32,7 @@ include_once DIR_XFORUM . 'etc/action.php';
 include_once DIR_XFORUM . 'etc/filter.php';
 include_once DIR_XFORUM . 'etc/config.php';
 include_once DIR_XFORUM . 'etc/init.php';
+include_once DIR_XFORUM . 'etc/install.php';
 
 
 
