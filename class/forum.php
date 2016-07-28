@@ -78,6 +78,7 @@ class forum {
             'post_edit_submit',
             'post_delete_submit', // @todo implement ajax call.
             'post_like',
+            'comment_like',
             'comment_edit_submit', // @todo implement ajax call.
             'comment_delete_submit', // @todo implement ajax call.
             'file_upload', // @todo implement ajax call.
@@ -1859,6 +1860,18 @@ EOH;
             $like ++;
             update_post_meta( in('post_ID'), 'like', $like);
             wp_send_json_success( ['post_ID' => in('post_ID'), 'like' => $like ] );
+        }
+        else {
+            wp_send_json_error( json_error( -100400, 'Please, login first') );
+        }
+    }
+
+    public function comment_like() {
+        if ( $this->is_user_logged_in() ) {
+            $like = get_comment_meta( in('comment_ID'), 'like', true);
+            $like ++;
+            update_comment_meta( in('comment_ID'), 'like', $like);
+            wp_send_json_success( ['comment_ID' => in('comment_ID'), 'like' => $like ] );
         }
         else {
             wp_send_json_error( json_error( -100400, 'Please, login first') );
