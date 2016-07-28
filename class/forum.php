@@ -1857,13 +1857,14 @@ EOH;
     public function post_like() {
         $id = in('post_ID');
         if ( $this->is_user_logged_in() ) {
-            if ( post()->isMine( $id ) ) wp_send_json_error( json_error(-11003, "You cannot like on your own post."));
+            if ( post($id)->isMine() ) wp_send_json_error( json_error(-11003, "You cannot like on your own post."));
             if ( $this->post_like_already( $id )) wp_send_json_error( json_error(-11002, "You have already voted on this post."));
             $like = get_post_meta( $id, 'like', true);
             $like ++;
             update_post_meta( $id, 'like', $like);
             $this->post_like_log( $id );
             wp_send_json_success( ['post_ID' => $id, 'like' => $like ] );
+
         }
         else {
             wp_send_json_error( json_error( -11001, 'Please, login first') );
@@ -1879,6 +1880,7 @@ EOH;
     public function comment_like() {
         $id = in('comment_ID');
         if ( $this->is_user_logged_in() ) {
+            if ( comment()->isMine($id) ) wp_send_json_error( json_error(-11013, "You cannot like on your own comment."));
             if ( $this->comment_like_already( $id )) wp_send_json_error( json_error(-100405, "You have already voted on this comment."));
             $like = get_comment_meta( $id, 'like', true);
             $like ++;
@@ -1928,6 +1930,11 @@ EOH;
         else if ( is_user_logged_in() ) return wp_get_current_user()->ID;
         else return false;
     }
+
+    /**
+     * @attention don't user "user()->ID" because forum api uses 'session_id'
+     * @return bool|int
+     */
     public function get_user_id() {
         return $this->is_user_logged_in();
     }

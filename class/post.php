@@ -56,6 +56,8 @@ class post {
      * post constructor.
      *
      * @warning clarify the use of get_post()
+     * @return post
+     *
      */
     public function __construct()
     {
@@ -501,9 +503,9 @@ class post {
 
     }
 
-    public function isMine($id)
+    public function isMine()
     {
-
+        return $this->post_author == forum()->get_user_id();
     }
 
 
@@ -523,13 +525,13 @@ class post {
  * @see post:load()
  *
  */
-function post( $deprecated = null ) {
-    if ( $deprecated ) {
+function post( $pid = null ) {
+    if ( $pid ) {
         $post = new post();
         /**
          *
          */
-        return $post->setup( $deprecated );
+        return $post->setup( $pid );
 //        return $post->load( $deprecated );
     }
     else return new post();

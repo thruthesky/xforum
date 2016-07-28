@@ -174,6 +174,16 @@ class comment
         ]);
     }
 
+
+
+    public function isMine($id)
+    {
+        $comment = get_comment( $id );
+        return $comment->user_id == forum()->get_user_id();
+    }
+
+
+
 }
 function get_nested_comments_with_meta( $comment, $args, $depth ) {
     $parent_comment = null;

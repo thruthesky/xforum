@@ -47,6 +47,9 @@ class user extends WP_User {
 
     /**
      * WP_LIBRARY_USER constructor.
+     *
+     * @note 자동으로 현재 사용자의 정보를 설정한다.
+     *
      * @param null $uid - it can be one of the following value.
      *      - ID
      *      - user_email
