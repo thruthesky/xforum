@@ -1,0 +1,51 @@
+/** LAYOUT */
+.page-content {
+    margin-top: 60px; /* must be here */
+}
+
+body > section > header { }
+body > section > .content.page-content { }
+body > section > footer { }
+
+aside.left {
+}
+
+aside.left .card {
+    display: none;
+}
+
+@media (min-width: 544px) and (max-width: 767px) {
+
+}
+@media (min-width: 768px) {
+
+
+    aside.left .card {
+        display: block;
+    }
+
+    .page-content.container-fluid aside.left {
+        padding-right: 0;
+    }
+
+    .page-content.container-fluid #main {
+        padding-left: 10px;
+    }
+}
+@media (min-width: 992px) {
+
+}
+@media (min-width: 1200px) {
+
+    .page-content.container-fluid aside.right {
+        padding-left: 0;
+    }
+
+    .page-content.container-fluid #main {
+        padding-right: 10px;
+    }
+}
+
+
+
+

@@ -1,0 +1,231 @@
+$margin-post-item: 0 0 .4rem;
+$padding-post-item: .3rem;
+$button-font-size: 9pt;
+%post-form-box {
+    margin: 0  0 .2rem;
+    padding: .3rem;
+    background-color: grey;
+}
+@mixin post-form {
+    @extend %post-form-box;
+    [name="title"] {
+    }
+    [name="content"] {
+        height: 10em;
+    }
+}
+@mixin post-padding {
+    padding: .4rem;
+}
+
+.post-list-page {
+    margin-bottom: 1rem;
+
+    .header {
+        margin-bottom: 1rem;
+        padding: .4rem;
+        background-color: $background-color-post-header;
+    }
+
+}
+
+/// POST
+.post {
+    margin-bottom: 1rem;
+    word-break: break-all;
+
+    .display {
+        margin: $margin-post-item;
+        padding: $padding-post-item;
+        background-color: $background-color-post;
+    }
+
+    .meta {
+        margin: $margin-post-item;
+        .info {
+            margin: $margin-post-item;
+            padding: $padding-post-item;
+        }
+        .buttons {
+            padding: $padding-post-item;
+            font-size: $button-font-size;
+            span { cursor: pointer; }
+        }
+    }
+
+    .title {
+        display: block;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-size: 1.6rem!important;
+        color: #222;
+        &:hover {
+            color: #02E;
+            text-decoration: none;
+        }
+    } // .post .title
+
+    .content {
+        line-height: 1.4em;
+        max-height: 5.6em;
+        overflow: hidden;
+
+        img {
+            max-width: 100%;
+        }
+    }
+
+} // eo .post
+
+/// POST DELETED
+.post.deleted {
+    .meta {
+        .post-edit-button,
+        .post-delete-button,
+        .post-like-button,
+        .post-report-button,
+        .post-copy-button,
+        .post-blind-button {
+            display: none;
+        }
+    }
+} /// .post.deleted
+
+/// comments ( list ) of all comment node
+.comments {
+    .buttons {
+        font-size: $button-font-size;
+    }
+}
+
+/// comment node
+.comment {
+    margin: $margin-post-item;
+    padding: $padding-post-item;
+    .comment-meta {
+        .buttons {
+            span { cursor: pointer; }
+        }
+    }
+    .comment-content {
+        @include post-padding;
+    }
+    &[depth='0'], &[depth='1'] { margin-left: 0; background-color: #e0e4e4; }
+    &[depth='2'] { margin-left: 1em; background-color: #e4e8e8; }
+    &[depth='3'] { margin-left: 2em; background-color: #ebefef; }
+    &[depth='4'] { margin-left: 3em; background-color: #f1f5f5; }
+    &[depth='5'] { margin-left: 5em; background-color: #f5f2ed; }
+    &[depth='6'] { margin-left: 5.5em; background-color: #f6f3ee; }
+        &[depth='7'] { margin-left: 6em; background-color: #fffcf6; }
+    &[depth='8'] { margin-left: 6.4em; background-color: #c0d0d0; }
+    &[depth='9'] { margin-left: 6.8em; background-color: #c0d0d0; }
+    &[depth='10'] { margin-left: 7.2em; background-color: #c0d0d0; }
+    &[depth='11'],&[depth='12'],&[depth='13'],&[depth='14'],&[depth='15'],&[depth='16'] {
+        margin-left: 7.6em; background-color: #c0d0d0;
+    }
+
+}
+
+/// deleted comments
+.comment.deleted {
+    background-color: $background-color-deleted;
+    .comment-meta {
+        .comment-edit-button,
+        .comment-delete-button,
+        .comment-like-button,
+        .comment-report-button,
+        .comment-copy-button,
+        .comment-blind-button {
+            display: none;
+        }
+    }
+}
+
+
+/// POST WRITE FORM
+.post-write-form {
+    @include post-form;
+    .buttons {
+        overflow: auto;
+        .file-upload { display:block; padding: 4px;}
+        .file-upload-button { padding-left: 4px; font-size: 18pt;}
+        .left {
+            float:left;
+        }
+        .right {
+            float:right;
+        }
+    }
+}
+
+
+
+/// COMMENT EDIT FORM
+.comment-edit-form {
+    @extend %post-form-box;
+    [name="comment_content"] {
+        width: 100%;
+        height: 10em;
+    }
+}
+
+/// COMMENT WRITE FORM ( Under a post or under a comment ( of another comment ) ).
+.comment-write-form {
+    .buttons {
+        display:none;
+    }
+    .fa-camera {
+        font-size: 1.6em;
+    }
+    textarea {
+        width: 100%;
+        height: 2em;
+    }
+    &.selected {
+        padding: $padding-post-item;
+        background-color: $color-background-focus;
+        .fa-camera {
+            font-size: 2em;
+        }
+        textarea {
+            height: 120px;
+        }
+        .buttons {
+            display:block;
+        }
+    }
+} // eo .comment-write-form
+
+/// LIKE Button
+.buttons .no {
+    margin: 0;
+    padding: 1px 0 0 3px;
+    display: inline-block;
+    height: 1.2em;
+    width: 1.2em;
+    overflow:hidden;
+    border-radius: 50%;
+    background-color: #014c8c;
+    color: white;
+}
+/// file upload button
+
+.file-upload {
+    position: relative;
+    cursor: pointer;
+    input {
+        position: absolute;
+        top:0;
+        z-index: 123;
+        width: 36px;
+        height: 32px;
+        font-size:10em;
+        overflow: hidden;
+        opacity: .5;
+        cursor: pointer;
+    }
+    .file-upload-button {
+        cursor: pointer;
+    }
+}

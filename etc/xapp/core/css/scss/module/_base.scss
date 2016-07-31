@@ -1,0 +1,24 @@
+html, body {
+    background-color: $background-color-body;
+}
+html {
+
+}
+body {
+
+}
+
+body > section.page > div.page-content {
+    background-color: $background-color-page;
+    font-size: $font-size;
+    font-family: $font-family;
+}
+
+body > section.page {
+    h1, h2, h3, h4, h5, h6,
+    div, span,
+    a {
+        font-family: $font-family;
+    }
+}
+
