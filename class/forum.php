@@ -1584,6 +1584,7 @@ class forum {
         $user = user( in('ID') );
 
 
+
         //di( $user->get_session_id() );
         //print_r($user);
         //di( in('session_id') );

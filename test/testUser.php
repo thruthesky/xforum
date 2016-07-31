@@ -199,8 +199,9 @@ class testUser extends user
         $d = [];
         $d['do'] = 'user_delete';
         $d['ID'] = $B->ID;
+        $d['response'] = 'ajax';
         $re = forum()->http_query( $d, true );
-        check( ! $re['success'], "User is not deleted.", "User deleted. " . ( isset( $re['data'] ) ? $re['data'] : null ));
+        check( ! $re['success'], "User is not deleted.", "User deleted. " . ( isset( $re['data'] ) ? $re['data']['message'] : null ));
 
         $d['session_id'] = $B->get_session_id();
         $re = forum()->http_query( $d, true );
@@ -397,13 +398,14 @@ class testUser extends user
         $r['do'] = 'user_login_check';
         $r['user_login'] = $user_login . '_fail_test';
         $r['user_pass'] = '1234abcd';
+        $r['response'] = 'ajax';
         $re = forum()->http_query( $r );
-        check( ! $re['success'], "Fail test: wrong ID: $re[data]", "test_remote_login: fail test failed.");
+        check( ! $re['success'], "Fail test: wrong ID: {$re['data']['message']}", "test_remote_login: fail test failed.");
 
         $r['user_login'] = $user_login;
         $r['user_pass'] = '1234abcd' . '_fail_test';
         $re = forum()->http_query( $r );
-        check( ! $re['success'], "Fail test: wrong password: $re[data]", "test_remote_login: fail test failed: $re[data]");
+        check( ! $re['success'], "Fail test: wrong password: {$re['data']['message']}", "test_remote_login: fail test failed: {$re['data']['message']}");
 
         $r['user_login'] = $user_login;
         $r['user_pass'] = '1234abcd';
