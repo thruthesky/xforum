@@ -7,7 +7,11 @@ class api {
     }
 
     public function ping() {
-        wp_send_json_success( ['data' => ['pong'=>time()] ] );
+        wp_send_json_success( [
+            'pong'=>time(),
+            'server_name' => $_SERVER['SERVER_NAME'],
+            'sever_addr' => $_SERVER['SERVER_ADDR']
+        ] );
     }
 
     public function get_categories() {

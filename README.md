@@ -637,7 +637,7 @@ return: html.
 ## PROTOCOLS
 
 
-* ?forum=api&action=ping
+* index.php?forum=api&action=ping
 * ?forum=api&action=user_login&id=....&password=....&rememberme=.....
 * ?forum=api&action=user_register&.....
 * ?forum=api&action=get_categories
