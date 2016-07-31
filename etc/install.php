@@ -2,6 +2,8 @@
 register_activation_hook( FILE_XFORUM, function( ) {
     global $wpdb;
     $table_name = $wpdb->prefix . 'xforum_log';
+
+    // xforum_log
     if ($wpdb->get_var("show tables like '{$table_name}'") != $table_name) {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         $q = <<<EOH
@@ -24,6 +26,31 @@ register_activation_hook( FILE_XFORUM, function( ) {
 );
 EOH;
         dbDelta($q);
-
     }
-});
+
+    // xforum_api_login
+    $table = $wpdb->prefix . 'xforum_api_login';
+    if ($wpdb->get_var("show tables like '$table'") != $table) {
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        $q = <<<EOQ
+CREATE TABLE `api_login` (
+    `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `domain` varchar(64) NOT NULL,
+  `code` varchar(255) NOT NULL,
+  `stamp` int(10) UNSIGNED NOT NULL,
+  `ip` char(15) NOT NULL,
+  `uid` varchar(255) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `nickname` varchar(64) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  PRIMARY KEY(`id`),
+  KEY `user_domain` (`user_id`, `domain),
+  KEY `code_domain` (`code`, `domain`),
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+EOQ;
+        dbDelta($q);
+    }
+} );
+

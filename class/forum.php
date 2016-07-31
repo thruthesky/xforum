@@ -298,13 +298,12 @@ class forum {
         $user_ID = $this->get_post_author();
         if ( empty($user_ID) ) ferror( -50047, "login  first");
 
-        if ( $slug ) { // new post
-            //$category = get_category_by_slug( $id );
-            $this->setCategory( $slug );
-        }
-        else { // update post
+        if ( $post_ID ) { // update
             forum()->endIfNotMyPost( $post_ID );
             $this->setCategoryByPostID( $post_ID );
+        }
+        else { // new
+            $this->setCategory( $slug );
         }
         $post = post()
             ->set('post_category', [ forum()->getCategory()->term_id ])
@@ -312,15 +311,15 @@ class forum {
             ->set('post_content', $content)
             ->set('post_status', 'publish');
 
-        if ( $slug ) { // new post
-            $post
-                ->set('post_author', $user_ID);
-            $post_ID = $post->create();
-        }
-        else {
+        if ( $post_ID ) { // update
             $post_ID = $post
                 ->set('ID', $post_ID)
                 ->update();
+        }
+        else { // new
+            $post_ID = $post
+                ->set('post_author', $user_ID)
+                ->create();
         }
         if ( ! is_integer($post_ID) ) ferror( -50048, "Failed on post_create() : $post_ID");
 

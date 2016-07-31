@@ -72,6 +72,7 @@ class api {
 
         wp_send_json_success( [
             'in' => $in,
+            'file_server_url' => get_option('xforum_url_file_server'),
             'category' => $category,
             'args' => $args,
             'posts' => $posts
