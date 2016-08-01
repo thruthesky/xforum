@@ -1281,10 +1281,17 @@ class forum {
      *
      *          - 그런데, 현재 forum()->getCategory() 에 값이 없으면서, this->locateTemplate( 'abc' ) 와 같이 하면, -50052 에러가 난다.
      *
+     *
      */
     public function locateTemplate( $slug, $page = null )
     {
-        if ( empty($slug) ) ferror(-50051, "slug or page shouldn't be empty on locateTemplate()");
+        /**
+         * @doc http://new.philgo.org/?forum=all 에서 에러가 발생하는데 이를 피하기 위한 것이다.
+         */
+        if ( in('forum') == 'all' ) {
+
+        }
+        else if ( empty($slug) ) ferror(-50051, "slug or page shouldn't be empty on locateTemplate()");
 
         if ( empty( $page ) ) {
             $page = $slug;
