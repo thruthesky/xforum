@@ -289,7 +289,7 @@ class user extends WP_User {
      *
      * Saves user field or meta into database.
      *
-     * ( 워드프레스 사용자 기본 필드와 추가 메타 정보를 저장한다. )
+     * ( 워드프레스 사용자 기본 필드와 추가 메타 정보를 DB 에 저장한다. )
      *
      * @attention WP_User()->__set() does not save value into database. It only saves into memory.
      *
@@ -308,6 +308,12 @@ class user extends WP_User {
      * @note wp_update_user() 는 데이터베이스를 업데이트한다. __set() 은 메모리만 업데이트한다. 따라서 이 둘을 동기화 시켜야 한다.
      *
      *
+     * @code
+     *
+     * $user->kakao_id = in('kakao_id');
+     * $user->kakao_nickname = in('kakao_nickname');
+     *
+     * @endcode
      * @param string $key
      * @param mixed $value
      * @return bool|int
@@ -415,12 +421,12 @@ class user extends WP_User {
         if ( empty( $userdata ) ) $userdata = $this->to_array();
 
         if ( isset($userdata['ID']) && $userdata['ID'] ) {
-            $uid = $userdata['user_registered'];
+            $reg = $userdata['user_registered'];
             //$uid = strtotime( $uid );
-            $uid = str_replace(' ', '', $uid);
-            $uid = str_replace('-', '', $uid);
-            $uid = str_replace(':', '', $uid);
-            $uid = $userdata['ID'] . $userdata['user_login'] . $userdata['user_pass'] . $userdata['user_email'] . $uid;
+            $reg = str_replace(' ', '', $reg);
+            $reg = str_replace('-', '', $reg);
+            $reg = str_replace(':', '', $reg);
+            $uid = $userdata['ID'] . $userdata['user_login'] . $reg;
             $uid = $userdata['ID'] . '_' . md5( $uid );
         }
         return $uid;
@@ -449,6 +455,8 @@ class user extends WP_User {
     public function check_session_id( $session_id ) {
         if ( $session_id === null ) {
             if ( $this->exists() && $this->ID ) {
+                /// @todo $session_id is compared to null above and now it compares again.
+                /// It is wrong.
                 if ($this->get_session_id() == $session_id) return $this->get_user_id_from_session_id($session_id);
                 else return false;
             }

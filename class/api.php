@@ -82,6 +82,18 @@ class api {
             'posts' => $posts
         ] );
     }
+
+
+    public function kakao_login() {
+        $user_id = user()->check_session_id( in('session_id') );
+        if ( empty( $user_id ) ) wp_send_json_error(['code'=>-100500, 'message'=>'Wrong session id.']);
+        $user = user( $user_id );
+        if ( ! $user->exists() ) wp_send_json_error(['code'=>-100400, 'message'=>'User does not exists by that session id']);
+        if ( !in('kakao_id') || !in('kakao_nickname') ) wp_send_json_error(['code'=>-100404, 'message'=>'Kakao information does not exists.']);
+        $user->kakao_id = in('kakao_id');
+        $user->kakao_nickname = in('kakao_nickname');
+        wp_send_json_success();
+    }
 }
 
 function api()  {
