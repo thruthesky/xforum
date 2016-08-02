@@ -7,19 +7,17 @@
         <li>Menu 1</li>
         <li>Menu 1</li>
         <li>Menu 5</li>
-        <li class="close">Close</li>
+        <li class="panel-close">Close</li>
     </ul>
 </div>
 
 <?php if ( $user = api()->login() ) { ?>
     <div class="panel widget" name="user">
         <h2><?php echo $user->nicename?></h2>
-        nickname: <?php echo $user->nickname?><br>
-        Level: 9<br>
-        Point: 1234<br>
-        Post: 134<br>
-        Comment: 134<br>
-        Like: 134<br>
+        <ul>
+            <li>nickname: <?php echo $user->nickname?></li>
+            <li><div class="logout">Logout</div></li>
+        </ul>
     </div>
 <?php } else { ?>
     <div class="panel widget" name="login">
@@ -32,8 +30,8 @@
                 <input type="password" name="user_pass" value="" placeholder="Input Password">
                 <div class="message loader"></div>
                 <div class="button">
-                    <button type="button" class="submit btn btn-secondary btn-sm">SUBMIT</button>
-                    <button type="button" class="cancel close btn btn-secondary btn-sm">CANCEL</button>
+                    <button type="button" class="login-submit btn btn-secondary btn-sm">SUBMIT</button>
+                    <button type="button" class="login-cancel panel-close btn btn-secondary btn-sm">CANCEL</button>
                 </div>
             </form>
         </div>

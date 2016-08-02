@@ -1,22 +1,6 @@
 ///
 
 
-/// over ride bootstrap default.
-.close {
-  float: none;
-  font-size: 1rem;
-  font-weight: normal;
-  text-shadow: none;
-  opacity: 1;
-}
-button.close  {
-  padding: .25rem .5rem;
-  color: #373a3c;
-  border: 1px solid #ccc;
-  background-color: #fff;
-}
-
-
 form .message {
   margin: .25rem 0;
   padding: .4rem;
@@ -25,3 +9,4 @@ form .message {
 form .message:empty {
   display:none;
 }
+

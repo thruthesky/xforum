@@ -527,22 +527,12 @@ class forum {
             else wp_die("forum()->response() : no post_ID or comment_ID provided.");
         }
         else if ( $res == 'ajax' ) {
-            /**
-            $json = [];
-            if ( $slug ) $json['slug'] = $slug;
-            if ( $post_ID ) $json['post_ID'] = $post_ID;
-            if ( $comment_ID ) $json['comment_ID'] = $comment_ID;
-            if ( $data ) $json['html'] = $data;
-            */
-            /*
-            $json = [
-                'slug' => $slug,
-                'post_ID' => $post_ID,
-                'comment_ID' => $comment_ID,
-                'html' => $data
-            ];
-            */
-            //wp_send_json_success( $json );
+            wp_send_json_success( $o );
+        }
+        else if ( strpos($res,'template/') !== false ) {
+            ob_start();
+            include DIR_XFORUM . "$res.php";
+            $o['markup'] = ob_get_clean();
             wp_send_json_success( $o );
         }
         else if ( $o ) {
@@ -1349,7 +1339,7 @@ class forum {
         if ( $this->category ) return;
         $this->category = get_category_by_slug( $category_slug );
         if ( empty($this->category) ) {
-            wp_die("Error: Category(slug) - $category_slug - does not exists.");
+            ferror(-500150, "Error: Category(slug) - $category_slug - does not exists.");
         }
         $this->loadConfig();
     }
@@ -1640,6 +1630,7 @@ class forum {
             [
                 'session_id' => $user->get_session_id(),
                 'user_login' => $user->user_login,
+                'user_nicename' => $user->user_nicename,
             ]
         );
 

@@ -249,7 +249,11 @@ class post {
     public function content()
     {
         if ( self::$post ) {
-            return self::$post->post_content;
+            $content = self::$post->post_content;
+            if ( $this->content_type == 'text/plain' ) {
+                $content = nl2br($content);
+            }
+            return $content;
         }
         else return null;
     }
@@ -508,7 +512,21 @@ class post {
         return $this->post_author == forum()->get_user_id();
     }
 
+    public function author() {
+        echo user($this->post_author)->user_nicename;
+    }
+    public function date_short($post_id=0) {
+        echo $this->get_date_short( $post_id );
+    }
 
+    public function get_date_short( $post_id = 0 ) {
+        if ( empty($post_id) ) $post_id = $this->ID;
+        $time = get_the_time( 'U', $post_id );
+        $date = date('Y-m-d', $time);
+        $today_date = date('Y-m-d');
+        if ( $date == $today_date ) return date("h:i a", $time);
+        else return $date;
+    }
 }
 
 

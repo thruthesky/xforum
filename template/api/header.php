@@ -1,3 +1,6 @@
+<?php
+$user = api()->login();
+?>
 <div class="x-header">
     <nav>
         <ul>
@@ -14,7 +17,7 @@
                 </a>
             </li>
             <li>
-                <?php if ( api()->login() ) { ?>
+                <?php if ( $user ) { ?>
                     <div class="item" panel="user">
                         <i class="fa fa-user"></i>
                         Profile
@@ -42,6 +45,6 @@
         </ul>
     </nav>
 </div>
-<div class="x-page <?php echo $x['name']?>">
+<div class="x-page" name="<?php echo $x['name']?>">
+    <?php include 'panel.php' ?>
     <div class="x-content">
-        <?php include 'panel.php' ?>

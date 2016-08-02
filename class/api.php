@@ -30,6 +30,15 @@ class api {
         return false;
     }
 
+
+    /**
+     * @attention There is no need to logout on server side.
+     * For, xapp, it only need to delete session_id on client side.
+     */
+    public function logout() {
+        
+    }
+
     public function get_categories() {
         wp_send_json_success( get_categories() );
     }

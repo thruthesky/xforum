@@ -234,6 +234,13 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 # Submission & Response - How submission works.
 
+* @since aug 2, 2016. If response value begins with 'template/',
+    
+    It does the same as 'response=ajax' except, it loads the template and save the markup into data['markup']. 
+ 
+    <input type="hidden" name="response" value="template/api/view">
+    
+
 * When you submit a form of xforum, you do the form submission as
 
     * ordinary form submit ( a form submit and redirect into another page )
