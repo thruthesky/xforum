@@ -1,5 +1,12 @@
-@mixin box {
+@mixin box() {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+@mixin clearfix() {
+  &::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
 }

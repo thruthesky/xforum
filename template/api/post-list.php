@@ -1,4 +1,5 @@
 <?php
+$x = ['name'=>'post-list']; include 'header.php';
 forum()->setCategory( in('slug') );
 $args = [
     'cat' => forum()->term_id,
@@ -20,24 +21,16 @@ foreach( $posts as $post ) {
     }
 }
 ?>
-<div class="x-page post-list">
-    <?php
-    include DIR_XFORUM . 'template/api/header.php';
-    ?>
-    <div class="x-content">
+    <h2><?php _text('POST List') ?></h2>
 
-        <h2><?php _text('POST List') ?></h2>
-
-        <div class="posts">
+    <div class="posts">
         <?php foreach( $posts as $post ) {
             post( $post );
             ?>
             <div class="post"><?php echo post()->title()?></div>
         <?php } ?>
-        </div>
-
     </div>
-    <?php
-    include DIR_XFORUM . 'template/api/footer.php';
-    ?>
-</div>
+
+
+<?php
+include 'footer.php';

@@ -1,7 +1,11 @@
+@import "scss/variable";
 @import "scss/mixin";
 @import "scss/base";
 @import "scss/layout";
-
+@import "scss/module";
+@import "scss/top_menu";
+@import "scss/widget";
+@import "scss/panel";
 
 .x-page {
   background-color:white;

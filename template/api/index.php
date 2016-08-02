@@ -1,10 +1,8 @@
-<div class="x-page index">
 <?php
+$x = ['name'=>'index']; include 'header.php';
 $cat = forum()->getXForumCategory();
 $categories = lib()->get_categories_with_depth( $cat->term_id );
-include DIR_XFORUM . 'template/api/header.php';
 ?>
-<div class="x-content">
 
     <h2><?php _text('X Forum - List') ?></h2>
 
@@ -25,8 +23,10 @@ include DIR_XFORUM . 'template/api/header.php';
 
     </div>
 
-</div>
+    <p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p>
+    <p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p>
+    <p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p>
+    <p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p><p>.</p>
+
 <?php
-include DIR_XFORUM . 'template/api/footer.php';
-?>
-</div>
+include 'footer.php';

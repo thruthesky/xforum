@@ -1647,6 +1647,8 @@ class forum {
 
     /**
      *
+     * It does User login.
+     * 
      *
      * @attention this is only for web-login. Use user_login_check() for mobile login check.
      *

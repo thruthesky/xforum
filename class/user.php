@@ -431,9 +431,10 @@ class user extends WP_User {
         }
         return $uid;
     }
-
-
+    
     /**
+     *
+     * Returns user ID if session_id is correct. Or false will be returned.
      *
      * @attention this method does not need any user object instance on $this.
      *

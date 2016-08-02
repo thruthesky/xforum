@@ -14,6 +14,22 @@ class api {
         ] );
     }
 
+
+    /**
+     * Return WP_User object if the user logged in. Otherwise false will be returned.
+     *
+     * 
+     */
+    public function login() {
+        if ( $session_id = in('session_id') ) {
+            $user_id = user()->check_session_id( $session_id );
+            if ( $user_id ) {
+                return user( $user_id );
+            }
+        }
+        return false;
+    }
+
     public function get_categories() {
         wp_send_json_success( get_categories() );
     }
