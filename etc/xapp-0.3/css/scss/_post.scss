@@ -1,39 +1,74 @@
 $post-padding: .6em;
 $post-background-color: #f7f7f7;
+$comment-background-color: #ececec;
 
 .post {
   margin-bottom: 1em;
-}
 
-.post .meta {
-  padding: $post-padding;
-  background-color: #ebefef;
-  font-size: .85em;
-}
-
-.post .title {
-  padding: $post-padding;
-  background-color: $post-background-color;
-}
-
-.post .content {
-  padding: $post-padding;
-  background-color: $post-background-color;
-}
-
-.post .buttons {
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .meta {
+    padding: $post-padding;
+    background-color: #ebefef;
+    font-size: .85em;
   }
-  li {
-    display:inline;
+
+  .title {
+    padding: $post-padding;
+    background-color: $post-background-color;
+  }
+
+  .content {
+    margin-bottom: 1em;
+    padding: $post-padding;
+    background-color: $post-background-color;
+  }
+  .buttons {
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      display:inline;
+    }
   }
 }
 
 
-/// post write form
+.comment {
+  margin: 0 0 1em;
+  background-color: $post-background-color;
+
+  .comment-meta {
+    padding: 1em;
+    background-color: #d6cbbf;
+  }
+
+
+  .comment-content {
+    background-color: white;
+  }
+  .buttons {
+    span {
+      cursor: pointer;
+    }
+  }
+
+  &[depth="1"] { margin-left: 1.2em; }
+  &[depth="2"] { margin-left: 2.2em; }
+  &[depth="3"] { margin-left: 3.2em; }
+  &[depth="4"] { margin-left: 4em; }
+  &[depth="5"] { margin-left: 4.8em; }
+  &[depth="6"] { margin-left: 5.6em; }
+  &[depth="7"] { margin-left: 6.4em; }
+  &[depth="8"] { margin-left: 7em; }
+  &[depth="9"] { margin-left: 4.6em; }
+  &[depth="10"] { margin-left: 5em; }
+
+
+}
+
+
+  /// post write form
 .form.post-write {
   [name="title"] {
     width: 100%;

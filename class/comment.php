@@ -31,8 +31,15 @@ class comment
     ];
 
 
+    /**
+     * $comment = comment()->set( get_comment($o['comment_ID']) );
+     * @param WP_Comment $comment
+     * @return $this
+     *
+     */
     public function set( WP_Comment $comment ) {
         self::$comment = $comment;
+        return $this;
     }
 
 
@@ -50,10 +57,10 @@ class comment
      *
      */
     public function __get( $prop ) {
-        if ( isset( self::$comment ) ) return self::$comment->$prop;
+        if ( self::$comment ) return self::$comment->$prop;
         else return false;
     }
-    
+
 
     /**
      *

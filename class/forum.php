@@ -729,6 +729,10 @@ class forum {
         }
         else {
             $post_ID = in('post_ID');
+            if ( empty( $post_ID ) ) {
+                $comment = get_comment(in('comment_parent'));
+                $post_ID = $comment->comment_post_ID;
+            }
         }
         forum()->setCategoryByPostID($post_ID);
 

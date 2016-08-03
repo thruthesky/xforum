@@ -20,7 +20,6 @@ foreach( $posts as $post ) {
         foreach( $meta as $k => $arr ) {
             $post->$k = $arr[0];
         }
-        $post->comments = comment()->get_nested_comments_with_meta( $post->ID );
     }
 }
 ?>
@@ -36,7 +35,6 @@ foreach( $posts as $post ) {
     <div class="posts">
         <?php
         foreach( $posts as $post ) {
-            post( $post );
             include 'view.php';
         }
         ?>

@@ -36,6 +36,11 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 
 # TODO
 
+* For panel, don't scroll down all other page content. it's very slow.
+
+Make it absolute. so, the page content is moved.
+
+
 * let anonymous post. ( 익명으로 글 쓰기 )
 * set an option on admin setting for the forum for private post between admin and user. ( 비밀게시판 )
 * language translation : see its.

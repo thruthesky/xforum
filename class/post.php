@@ -264,6 +264,8 @@ class post {
      *
      * @Warning to use this 'magical __get()', the Object must be instantiated with 'post()' and must have a valid post data.
      *
+     * @Warning This function is a mistake. It should use WP_Post::__get()
+     *
      *
      * @param $property
      * @return mixed|null

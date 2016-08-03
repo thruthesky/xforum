@@ -52,8 +52,9 @@ $(function(){
     $body.on('click', '.post-edit-cancel', post.on_post_edit_cancel);
 
 
-    /// comment write
+    /// comment write/edit
     $body.on('click', '.form.comment-write .file-upload, .form.comment-write textarea', post.comment_form_clicked);
+    $body.on('click', '.comment-edit-button', post.on_comment_edit_button_clicked);
     $body.on('click', '.comment-edit-cancel', post.on_comment_edit_cancel);
     $body.on('click', '.comment-edit-submit', post.on_comment_edit_submit);
 
@@ -67,7 +68,7 @@ x.loadForumEnd = function() {
 
     /// $('.post-edit-button:eq(0)').click(); /// test. open post  write form.
 
-    $('.form.comment-write:eq(0)').find('[name="comment_content"]').click();
+    /// $('.form.comment-write:eq(0)').find('[name="comment_content"]').click();
 };
 x.init = function() {
     var parse_query_string = function () {
@@ -199,8 +200,75 @@ x.loadForum = function (e) {
     $.fn.isFrontPage = function() {
         return ! this.getPage().length;
     };
+
+
+    /**
+     *
+     *
+     * Returns true if the form is for a top comment right under a post.
+     *
+     * 'this' must be a comment form object.
+     *
+     * @returns {*}
+     */
+    $.fn.isRootComment = function() {
+        return this.parent().hasClass('post');
+    };
+
+    /**
+     * Returns true if the form is for creating a comment ( not for editing )
+     * @note 'this' must be a comment form object.
+     * @returns {boolean}
+     */
+    $.fn.isNewComment = function() {
+        return isEmpty(this.find('[name="comment_ID"]').val());
+    };
+
+
+
+    /**
+     * Returns true if this form object is comment form object.
+     *
+     * @note 'this' must be a form object.
+     */
+    $.fn.isComment = function()  {
+        return isEmpty(this.value('slug'));
+    };
+
+    /**
+     * Returns the value of attr, prop or input.
+     * @param name
+     * @returns {string}
+     */
+    $.fn.value = function( name ) {
+        var v = '';
+        v = this.attr(name); if ( ! isEmpty(v) ) return v;
+        v = this.prop(name); if ( ! isEmpty(v) ) return v;
+        var obj = this.find('[name="'+name+'"]');
+        if ( obj.length ) {
+            v = obj.val();
+            if ( ! isEmpty(v) ) return v;
+        }
+        obj = this.find('['+name+']');
+        if ( obj.length ) {
+            v = obj.val();
+            if ( ! isEmpty(v) ) return v;
+        }
+        return v;
+    };
+
+
+
     $.fn.getForm = function() {
         return this.closest( '.form' );
+    };
+    $.fn.getPost = function(post_ID) {
+        if ( post_ID ) return $('.post[no="'+post_ID+'"]');
+        else return this.closest( '.post' );
+    };
+    $.fn.getComment = function(comment_ID) {
+        if ( comment_ID ) return $('.comment[no="'+commnet_ID+'"]');
+        else return this.closest( '.comment' );
     };
     $.fn.disableButtons = function() {
         this.find('button').prop('disabled', true);
@@ -250,7 +318,7 @@ x.loadForum = function (e) {
     $.fn.addPostEditForm = function( )  {
         if ( $('.form.post-write').length ) return x.alert('Notice', 'You have opened a post write form already. Please submit/remove the other form.');
         var $post = this.closest('.post');
-        var post_ID = $post.attr('no');
+        //var post_ID = $post.attr('no');
         var title = trim($post.find('.title').text());
         var content = trim( $post.find('.content').text());
 
@@ -262,9 +330,8 @@ x.loadForum = function (e) {
         $m.find('.post-edit-cancel').removeClass('post-write-cancel');
 
 
-
-
-        $m.find('[name="post_ID"]').val( post_ID );
+        //$m.find('[name="post_ID"]').val( post_ID );
+        $m.set('post_ID', $post.value('no'));
         $m.find('[name="title"]').val( title );
         $m.find('[name="content"]').val( content );
 
@@ -301,14 +368,6 @@ x.loadForum = function (e) {
     $.fn.postData = function() {
         return this.find('form').serializeArray();
     };
-    /**
-     * 'this' must be a comment form object.
-     *
-     * @returns {*}
-     */
-    $.fn.isRootComment = function() {
-        return this.parent().hasClass('post');
-    };
 
     $.fn.set = function( name, value ) {
         this.find('[name="'+name+'"]').val( value );
@@ -316,16 +375,51 @@ x.loadForum = function (e) {
     };
 
 
-    $.fn.isNewComment = function() {
-        return isEmpty(this.find('[name="comment_parent"]').val());
-    };
+
+    /**
+     * 'this' is .form
+     *
+     * @param re - return value of forum()->comment_edit_submit()
+     *
+     */
     $.fn.addComment = function ( re ) {
         console.log('addComment');
+        if ( this.value('comment_parent') ) { // a comment of another comment.
+            var $comment = this
+                .close()
+                .getComment();
+
+            var depth = parseInt($comment.attr('depth')) + 1;
+            var $m = $( re.data.markup )
+                .attr('depth', depth);
+            $comment.after( $m );
+        }
+        else {
+            this
+                .close()
+                .getPost()
+                .find('.comment-list')
+                .prepend( re.data.markup );
+        }
     };
     $.fn.updateComment = function ( re ) {
         console.log('updateComment');
     };
 
+    /**
+     * Close the form
+     * 'this' must be .form
+     *
+     */
+    $.fn.close = function() {
+        if ( this.isComment() ) {
+            this
+                .removeClass('selected')
+                .set('comment_content', '')
+                .find('.message').html('');
+            return this;
+        }
+    };
 
 
 }(jQuery));
@@ -527,18 +621,36 @@ post.comment_form_clicked = function() {
     console.log('comment form clicked');
     if  ( ! $form.hasClass('selected') ) $form.addClass('selected');
     if ( $form.isRootComment() ) {
+        console.log("Commenting right under a post");
         var post_ID = $form.parent().attr('no');
-        //$form.find('[name="post_ID"]').val( post_ID );
         $form.set('post_ID', post_ID);
     }
+    else {
+        console.log("Commenting under another comment");
+        var comment_ID = $form.parent().attr('no');
+        $form.set('comment_parent', comment_ID);
+    }
+};
+
+post.on_comment_edit_button_clicked = function () {
+    console.log('post.on_comment_edit_button_clicked');
+    var $comment = $(this).getComment();
+    $comment.hide();
+
+
+
 };
 
 
 post.on_comment_edit_cancel = function () {
-    var $form = $(this).getForm();
+    /*var $form = $(this).getForm();
     $form
         .set('comment_content', '')
         .removeClass('selected');
+        */
+    $(this)
+        .getForm()
+        .close();
 };
 
 post.on_comment_edit_submit = function () {
@@ -547,7 +659,7 @@ post.on_comment_edit_submit = function () {
         .disableButtons()
         .showLoader({text:'Please, wait while commenting...'});
     var q = $form.getQuery();
-    console.log(q);
+    console.log(q.url);
     $.post({
         'url' : q.url,
         'data' : q.data,
@@ -558,19 +670,6 @@ post.on_comment_edit_submit = function () {
                 else $form.updateComment( re );
             }
             $form.enableButtons();
-
-            /*
-            if (re.success) {
-                if (xapp.option.alert.after_edit) xapp.alert("Comment edit success", "You just have just edited a comment.");
-                post_list.close_comment_write_form($form);
-                var comment = markup.comment(re.data.comment);
-                var post_ID = re.data.comment.comment_post_ID;
-                find_comment( re.data.comment.comment_ID ).remove();
-                post_comment_list(post_ID).prepend(comment);
-                $form.remove();
-            }
-            enable_button($submit);
-            */
         },
         'error': function () {
             $form.enableButtons();
