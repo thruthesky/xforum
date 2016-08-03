@@ -297,35 +297,29 @@ x.loadForum = function (e) {
         return server_url + this.find('form').serialize();
     };
     $.fn.getQuery = function() {
-        var $form = this.find('form');
-        var files = $form.find('.files')[0].outerHTML;
-        var $content = $form.find('[name="content"]');
+        var $clone = this.find('form').clone();
+        var files = this.find('.files')[0].outerHTML;
+        var $content = $clone.find('[name="content"]');
         if ( $content.length ) {
             $content.val( $content.val() + files );
         }
         else {
-            $content = $form.find('[name="comment_content"]');
+            $content = $clone.find('[name="comment_content"]');
             $content.val( $content.val() + files );
         }
         var re;
         if ( x.debug ) {
             re = {
-                'url' : server_url + this.find('form').serialize(),
+                'url' : server_url + $clone.serialize(),
                 'data' : {}
             }
         }
         else {
             re = {
                 'url' : server_url,
-                'data' : this.find('form').serializeArray()
+                'data' : $clone.serializeArray()
             }
         }
-        var $c = $('<i>' + $content.val() +  '</i>');
-        $c.find('.files').remove();
-        $content.val( $c.text() );
-        // console.log( $content.val() );
-        // console.log(re);
-        // return;
         return re;
     };
     $.fn.postURL = function() {
