@@ -1,14 +1,5 @@
 $post-padding: .6em;
 $post-background-color: #f7f7f7;
-.form.post-write {
-  [name="title"] {
-    width: 100%;
-  }
-  [name="content"] {
-    width: 100%;
-  }
-}
-
 
 .post {
   margin-bottom: 1em;
@@ -38,5 +29,58 @@ $post-background-color: #f7f7f7;
   }
   li {
     display:inline;
+  }
+}
+
+
+/// post write form
+.form.post-write {
+  [name="title"] {
+    width: 100%;
+  }
+  [name="content"] {
+    width: 100%;
+  }
+}
+/// comment write form
+.form.comment-write {
+  [name='comment_content'] {
+    width: 100%;
+    height: 1.4em;
+  }
+  .buttons {
+    display: none;
+  }
+  &.selected {
+    [name='comment_content'] {
+      height: 10em;
+    }
+    .buttons {
+      display: block;
+    }
+    .icon {
+      font-size: 1.6rem;
+    }
+  }
+}
+
+
+  /// file upload button
+.file-upload {
+  position: relative;
+  cursor: pointer;
+  input {
+    position: absolute;
+    top:0;
+    z-index: 123;
+    width: 36px;
+    height: 32px;
+    font-size:10em;
+    overflow: hidden;
+    opacity: .5;
+    cursor: pointer;
+  }
+  .icon {
+    cursor: pointer;
   }
 }

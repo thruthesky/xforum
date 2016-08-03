@@ -1,7 +1,9 @@
 <?php
+include_once 'function.php';
 forum()->setCategory( in('slug') );
-if ( in('page') < 1 ) $page_no = 1;
-else $page_no = in('page');
+if ( is_numeric(in('page')) && in('page') > 1 ) $page_no = in('page');
+else $page_no = 1;
+if ( $page_no == 1 ) include 'post-list-top.php';
 $args = [
     'cat' => forum()->term_id,
     'posts_per_page' => in('posts_per_page', 10),
@@ -22,25 +24,6 @@ foreach( $posts as $post ) {
     }
 }
 ?>
-    <script type="text/template" id="post-write-template">
-        <div class="form post-write">
-            <form>
-                <input type="hidden" name="do" value="post_edit_submit">
-                <input type="hidden" name="session_id" value="<?php echo in('session_id')?>">
-                <input type="hidden" name="content_type" value="text/plain">
-                <input type="hidden" name="response" value="template/api/view">
-                <input type="hidden" name="slug" value="<?php echo in('slug')?>">
-                <input type="hidden" name="post_ID" value="">
-                <input type="text" name="title">
-                <textarea name="content"></textarea>
-                <div class="message loader"></div>
-                <button type="button" class="post-write-submit">Submit</button>
-                <button type="button" class="post-write-cancel btn btn-secondary btn-sm">CANCEL</button>
-            </form>
-        </div>
-    </script>
-
-
 <section class="post-page" no="<?php echo $page_no?>">
     <h2><?php _text('POST List') ?></h2>
     <div class="desc">
@@ -54,7 +37,7 @@ foreach( $posts as $post ) {
         <?php
         foreach( $posts as $post ) {
             post( $post );
-            include DIR_XFORUM . 'template/api/view.php';
+            include 'view.php';
         }
         ?>
     </div>

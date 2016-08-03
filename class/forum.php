@@ -293,8 +293,8 @@ class forum {
         $content = in('content');
 
         if ( empty( $slug ) && empty( $post_ID ) ) ferror(-50044, 'slug ( category_slug ) or post_ID are not provided');
-        if ( ! $title ) ferror(-50045, 'title is not provided');
-        if ( ! $content ) ferror(-50046,'content is not provided');
+        if ( ! $title ) ferror(-50045, 'post title is not provided');
+        if ( ! $content ) ferror(-50046,'post content is not provided');
         $user_ID = $this->get_post_author();
         if ( empty($user_ID) ) ferror( -50047, "login  first");
 
@@ -561,7 +561,7 @@ class forum {
             $url .= "&error_code=$code&error_message=$message";
             $this->url_redirect( $url );
         }
-        else if ( in('response') == 'ajax' ) {
+        else if ( in('response') == 'ajax' || strpos(in('response'), 'template') !== false ) {
             wp_send_json_error( ['code'=>$code, 'message'=>$message]);
         }
         else {

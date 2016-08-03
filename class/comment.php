@@ -44,12 +44,16 @@ class comment
      *      $comment_ID = comment()->comment_ID;
      * @endcode
      *
+     * @since Aug 3, 2016. It uses parent's magical get.
+     *
      * @todo add test code
+     *
      */
     public function __get( $prop ) {
-        if ( isset( self::$comment ) && isset( self::$comment->$prop ) ) return self::$comment->$prop;
+        if ( isset( self::$comment ) ) return self::$comment->$prop;
         else return false;
     }
+    
 
     /**
      *

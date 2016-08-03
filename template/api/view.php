@@ -1,5 +1,5 @@
 <?php
-
+include_once 'function.php';
 if ( isset( $o ) && isset( $o['post_ID'] ) ) {
     post( $o['post_ID'] );
 };
@@ -29,4 +29,5 @@ if ( isset( $o ) && isset( $o['post_ID'] ) ) {
     <div class="content">
         <?php echo post()->content()?>
     </div>
+    <?php get_comment_form()?>
 </div>

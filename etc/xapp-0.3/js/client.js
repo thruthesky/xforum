@@ -40,12 +40,23 @@ $(function(){
     $body.on('click', '.panel-close', panel.on_close);
     $body.on('click', '.login-submit', user.login_submit);
     $body.on('click', '.logout', user.logout);
+
+
+    // post
+    $body.on('submit', '.post-page form', function() { return false; } ); // block submit by entering on input.
     $body.on('click', '.post-write-button', post.on_post_write_button_click);
     $body.on('click', '.post-edit-button', post.on_post_edit_button_click);
     $body.on('click', '.post-write-submit', post.on_post_write_submit);
     $body.on('click', '.post-write-cancel', post.on_post_write_cancel);
 
     $body.on('click', '.post-edit-cancel', post.on_post_edit_cancel);
+
+
+    /// comment write
+    $body.on('click', '.form.comment-write .file-upload, .form.comment-write textarea', post.comment_form_clicked);
+    $body.on('click', '.comment-edit-cancel', post.on_comment_edit_cancel);
+    $body.on('click', '.comment-edit-submit', post.on_comment_edit_submit);
+
 
 });
 x.loadForumEnd = function() {
@@ -54,7 +65,9 @@ x.loadForumEnd = function() {
 
     //$('.post-page[no="1"]').find('.post:first-child').find('.post-edit-button').click();
 
-    $('.post-edit-button:eq(0)').click();
+    /// $('.post-edit-button:eq(0)').click(); /// test. open post  write form.
+
+    $('.form.comment-write:eq(0)').find('[name="comment_content"]').click();
 };
 x.init = function() {
     var parse_query_string = function () {
@@ -92,14 +105,16 @@ x.forumPage = function() {
  *
  * @returns {boolean}
  */
-x.success = function ( re ) {
+x.success = function ( re, title ) {
     if ( typeof re.success == 'undefined' ) {
-        x.alert('Server failed...', 'Malformed server response. Server script printed error.');
+        title = title ? title : 'Server internal error';
+        x.alert(title, 'Malformed server response. Server script printed error.');
         return false;
     }
     else if ( re.success ) return true;
     else {
-        x.alert("Error ...", x.get_error_message( re['data'] ));
+        title = title ? title : 'Error';
+        x.alert(title, x.get_error_message( re['data'] ));
     }
 };
 
@@ -187,6 +202,17 @@ x.loadForum = function (e) {
     $.fn.getForm = function() {
         return this.closest( '.form' );
     };
+    $.fn.disableButtons = function() {
+        this.find('button').prop('disabled', true);
+        return this;
+    };
+    $.fn.enableButtons = function() {
+        this.find('button').prop('disabled', false);
+        return this;
+    };
+    $.fn.findPost = function( post_ID ) {
+        return $('.post[no="'+post_ID+'"]');
+    };
     $.fn.showLoader = function( o ) {
         this.find('.loader').html( getLoader( o ) );
         return this;
@@ -194,7 +220,22 @@ x.loadForum = function (e) {
     $.fn.getURL = function() {
         return server_url + this.find('form').serialize();
     };
+    $.fn.getQuery = function() {
+        if ( x.debug ) {
+            return {
+                'url' : server_url + this.find('form').serialize(),
+                'data' : {}
+            }
+        }
+        else {
+            return {
+                'url' : server_url,
+                'data' : this.find('form').serializeArray()
+            }
+        }
+    };
     $.fn.postURL = function() {
+        return server_url;
     };
     $.fn.setMessage = function( m ) {
         this.find('.message').html( m );
@@ -210,11 +251,24 @@ x.loadForum = function (e) {
         if ( $('.form.post-write').length ) return x.alert('Notice', 'You have opened a post write form already. Please submit/remove the other form.');
         var $post = this.closest('.post');
         var post_ID = $post.attr('no');
+        var title = trim($post.find('.title').text());
+        var content = trim( $post.find('.content').text());
+
         var $m = $( $('#post-write-template').html() );
-        $m.find('[name="post_ID"]').val( post_ID );
+
+        // buttons
         $m.find('.post-write-cancel')
             .addClass('post-edit-cancel');
         $m.find('.post-edit-cancel').removeClass('post-write-cancel');
+
+
+
+
+        $m.find('[name="post_ID"]').val( post_ID );
+        $m.find('[name="title"]').val( title );
+        $m.find('[name="content"]').val( content );
+
+
         $post.hide();
         $post.after( $m );
     };
@@ -229,12 +283,50 @@ x.loadForum = function (e) {
         $form.remove();
         $('.post[no="'+post_ID+'"]').show();
     };
+    $.fn.addPost = function(re) {
+        this.closest('.post-page').find('.posts').prepend( re.data.markup );
+        this.remove();
+        console.log("A post added");
+    };
+    $.fn.updatePost = function(re) {
+        var post_ID = this.find('[name="post_ID"]').val();
+        var $post = this.findPost( post_ID );
+        $post.next().remove();
+        $post.replaceWith( re.data.markup );
+        console.log("A post updated");
+    };
     $.fn.getData = function() {
         return this.find('form').serialize();
     };
     $.fn.postData = function() {
         return this.find('form').serializeArray();
     };
+    /**
+     * 'this' must be a comment form object.
+     *
+     * @returns {*}
+     */
+    $.fn.isRootComment = function() {
+        return this.parent().hasClass('post');
+    };
+
+    $.fn.set = function( name, value ) {
+        this.find('[name="'+name+'"]').val( value );
+        return this;
+    };
+
+
+    $.fn.isNewComment = function() {
+        return isEmpty(this.find('[name="comment_parent"]').val());
+    };
+    $.fn.addComment = function ( re ) {
+        console.log('addComment');
+    };
+    $.fn.updateComment = function ( re ) {
+        console.log('updateComment');
+    };
+
+
 
 }(jQuery));
 
@@ -387,33 +479,27 @@ post.on_post_edit_button_click = function () {
 
 post.on_post_write_submit = function () {
     console.log('post write submit button clicked');
-    var $this = $(this);
-    $this.prop('disabled', true);
-    var $form = $this.getForm().showLoader({text:'Please, wait while posting to server ...'});
+    var $form = $(this)
+        .getForm()
+        .disableButtons()
+        .showLoader({text:'Please, wait while posting to server ...'});
 
-    var url = server_url;
-    var data = {};
-    if ( x.debug ) {
-        url += $form.getData();
-    }
-    else {
-        data = $form.postData();
-    }
-    console.log(url);
+    var post_ID = $form.find('[name="post_ID"]').val();
+    var q = $form.getQuery();
+    console.log(q);
     $.post({
-        'url' : url,
-        'data' : data,
+        'url' : q.url,
+        'data' : q.data,
         'success' : function(re) {
             console.log(re);
-            if ( x.success( re ) ) {
-                // location.reload();
-                $form.closest('.post-page').find('.posts').prepend( re.data.markup );
-                $form.remove();
+            if ( x.success( re, 'Post failure' ) ) {
+                if ( post_ID )  $form.updatePost( re );
+                else $form.addPost( re );
             }
-            $this.prop('disabled', false);
+            $form.enableButtons();
         },
         'error' : function () {
-            $this.prop('disabled', false);
+            $form.enableButtons();
             x.alert("Post query error", "Error occurs on post query.");
         }
     });
@@ -430,6 +516,74 @@ post.on_post_write_cancel = function () {
 post.on_post_edit_cancel = function () {
     $(this).removePostEditForm();
 };
+
+
+/**
+ * This expands/shows comment textarea & buttons
+ *      when user clicks on camera button or textarea on comment box.
+ */
+post.comment_form_clicked = function() {
+    var $form = $(this).getForm();
+    console.log('comment form clicked');
+    if  ( ! $form.hasClass('selected') ) $form.addClass('selected');
+    if ( $form.isRootComment() ) {
+        var post_ID = $form.parent().attr('no');
+        //$form.find('[name="post_ID"]').val( post_ID );
+        $form.set('post_ID', post_ID);
+    }
+};
+
+
+post.on_comment_edit_cancel = function () {
+    var $form = $(this).getForm();
+    $form
+        .set('comment_content', '')
+        .removeClass('selected');
+};
+
+post.on_comment_edit_submit = function () {
+    var $form = $(this)
+        .getForm()
+        .disableButtons()
+        .showLoader({text:'Please, wait while commenting...'});
+    var q = $form.getQuery();
+    console.log(q);
+    $.post({
+        'url' : q.url,
+        'data' : q.data,
+        'success' : function (re) {
+            console.log(re);
+            if ( x.success( re, 'Comment failure' ) ) {
+                if ( $form.isNewComment() )  $form.addComment( re );
+                else $form.updateComment( re );
+            }
+            $form.enableButtons();
+
+            /*
+            if (re.success) {
+                if (xapp.option.alert.after_edit) xapp.alert("Comment edit success", "You just have just edited a comment.");
+                post_list.close_comment_write_form($form);
+                var comment = markup.comment(re.data.comment);
+                var post_ID = re.data.comment.comment_post_ID;
+                find_comment( re.data.comment.comment_ID ).remove();
+                post_comment_list(post_ID).prepend(comment);
+                $form.remove();
+            }
+            enable_button($submit);
+            */
+        },
+        'error': function () {
+            $form.enableButtons();
+            alert('error on comment write');
+        }
+    });
+};
+
+
+
+
+
+/// EO Post
 
 
 
