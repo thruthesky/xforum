@@ -139,7 +139,13 @@ form .message:empty {
     opacity: .5;
     cursor: pointer; }
   .file-upload .icon {
+    font-size: 1.4rem;
     cursor: pointer; }
+
+.files img {
+  max-width: 100px;
+  max-height: 100px;
+  overflow: hidden; }
 
 .modal-dialog {
   margin-top: 58px; }

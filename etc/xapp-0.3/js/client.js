@@ -62,13 +62,15 @@ $(function(){
 });
 x.loadForumEnd = function() {
     // test
-    // $('.post-page[no="1"]').find('.post-write-button').click();
+    $('.post-page[no="1"]').find('.post-write-button').click(); // open new post button
 
-    //$('.post-page[no="1"]').find('.post:first-child').find('.post-edit-button').click();
+    /// $('.post-edit-button:eq(0)').click(); /// test. open post edit form.
 
-    /// $('.post-edit-button:eq(0)').click(); /// test. open post  write form.
+    //$('.post-page[no="1"]').find('.post:first-child').find('.post-edit-button').click(); //
 
-    /// $('.form.comment-write:eq(0)').find('[name="comment_content"]').click();
+    /// $('.form.comment-write:eq(0)').find('[name="comment_content"]').click(); // open comment write form
+
+    // $('.comment-edit-button:eq(0)').click(); // open comment edit form
 };
 x.init = function() {
     var parse_query_string = function () {
@@ -267,8 +269,14 @@ x.loadForum = function (e) {
         else return this.closest( '.post' );
     };
     $.fn.getComment = function(comment_ID) {
-        if ( comment_ID ) return $('.comment[no="'+commnet_ID+'"]');
-        else return this.closest( '.comment' );
+        if ( comment_ID ) return $('.comment[no="'+comment_ID+'"]');
+        else {
+            if ( this.hasClass('comment-write') ) { // if it's a comment edit form.
+                comment_ID = this.value('comment_ID');
+                if ( comment_ID ) return this.getComment(comment_ID);
+            }
+            return this.closest( '.comment' );
+        }
     };
     $.fn.disableButtons = function() {
         this.find('button').prop('disabled', true);
@@ -289,18 +297,36 @@ x.loadForum = function (e) {
         return server_url + this.find('form').serialize();
     };
     $.fn.getQuery = function() {
+        var $form = this.find('form');
+        var files = $form.find('.files')[0].outerHTML;
+        var $content = $form.find('[name="content"]');
+        if ( $content.length ) {
+            $content.val( $content.val() + files );
+        }
+        else {
+            $content = $form.find('[name="comment_content"]');
+            $content.val( $content.val() + files );
+        }
+        var re;
         if ( x.debug ) {
-            return {
+            re = {
                 'url' : server_url + this.find('form').serialize(),
                 'data' : {}
             }
         }
         else {
-            return {
+            re = {
                 'url' : server_url,
                 'data' : this.find('form').serializeArray()
             }
         }
+        var $c = $('<i>' + $content.val() +  '</i>');
+        $c.find('.files').remove();
+        $content.val( $c.text() );
+        // console.log( $content.val() );
+        // console.log(re);
+        // return;
+        return re;
     };
     $.fn.postURL = function() {
         return server_url;
@@ -370,7 +396,15 @@ x.loadForum = function (e) {
     };
 
     $.fn.set = function( name, value ) {
-        this.find('[name="'+name+'"]').val( value );
+        var obj = this.find('[name="'+name+'"]');
+        if ( obj.length ) obj.val( value );
+
+
+        obj = this.find('['+name+']');
+        if ( obj.length ) {
+            obj.attr( name, value );
+        }
+
         return this;
     };
 
@@ -384,7 +418,7 @@ x.loadForum = function (e) {
      */
     $.fn.addComment = function ( re ) {
         console.log('addComment');
-        if ( this.value('comment_parent') ) { // a comment of another comment.
+        if ( this.value('comment_parent') ) { // add a comment under another comment.
             var $comment = this
                 .close()
                 .getComment();
@@ -394,7 +428,7 @@ x.loadForum = function (e) {
                 .attr('depth', depth);
             $comment.after( $m );
         }
-        else {
+        else { // add a comment right under a post.
             this
                 .close()
                 .getPost()
@@ -404,6 +438,10 @@ x.loadForum = function (e) {
     };
     $.fn.updateComment = function ( re ) {
         console.log('updateComment');
+        this
+            .remove()
+            .getComment()
+            .replaceWith( $( re.data.markup ).attr('depth', this.getComment().attr('depth')) );
     };
 
     /**
@@ -636,21 +674,24 @@ post.on_comment_edit_button_clicked = function () {
     console.log('post.on_comment_edit_button_clicked');
     var $comment = $(this).getComment();
     $comment.hide();
-
-
-
+    var $m = $($('#comment-write-template').html())
+        .addClass('selected')
+        .set('comment_content', $comment.find('.comment-content').text())
+        .set('comment_ID', $comment.attr('no'));
+    $comment.after( $m );
 };
 
 
 post.on_comment_edit_cancel = function () {
-    /*var $form = $(this).getForm();
-    $form
-        .set('comment_content', '')
-        .removeClass('selected');
-        */
-    $(this)
-        .getForm()
-        .close();
+
+    var $form = $(this).getForm();
+    if ( $form.isNewComment() ) $form.close();
+    else {
+        $form
+            .remove()
+            .getComment()
+            .show();
+    }
 };
 
 post.on_comment_edit_submit = function () {
@@ -678,6 +719,48 @@ post.on_comment_edit_submit = function () {
     });
 };
 
+
+
+
+/// file upload
+post.on_file_upload = function (input) {
+
+    var $form = $(input)
+        .getForm()
+        .set('action', file_server_url)
+        .disableButtons()
+        .showLoader({text:'uploading... <progress value="0" max="100"></progress>'});
+
+    $form.find('form')
+        .ajaxSubmit( {
+        beforeSend: function() {
+            console.log('beforeSend:');
+        },
+        uploadProgress: function(event, position, total, percentComplete) {
+            var percentVal = percentComplete + '%';
+            $form.find('progress').val( percentComplete );
+        },
+        success: function() {
+            console.log('success:');
+        },
+        complete: function(xhr) {
+            $form.enableButtons();
+            console.log('complete:');
+            var re = xhr.responseText;
+            console.log(re);
+            var data = JSON.parse( re );
+            if ( isEmpty(data.error) ) {
+                var m = '<img src="'+data.url+'">';
+                $form.find('.files').append( m );
+            }
+            else {
+                alert( data.error );
+            }
+        }
+    } );
+
+
+};
 
 
 

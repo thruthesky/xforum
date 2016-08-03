@@ -1,10 +1,12 @@
 <?php
 function get_comment_form()
 {
+    $file_server_domain = get_option('xforum_file_server_domain');
     ?>
     <div class="form comment-write">
         <form enctype="multipart/form-data" action="" method="POST">
             <input type="hidden" name="content_type" value="text/plain">
+            <input type="hidden" name="domain" value="<?php echo $file_server_domain?>">
             <input type="hidden" name="session_id" value="<?php echo in('session_id') ?>">
             <input type="hidden" name="forum" value="comment_edit_submit">
             <input type="hidden" name="response" value="template/api/comment">
@@ -15,7 +17,7 @@ function get_comment_form()
                 <tr valign="top">
                     <td>
                         <div class="file-upload">
-                            <input type="file" name="userfile" onchange="comment_file_upload(this);">
+                            <input type="file" name="userfile" onchange="post.on_file_upload(this);">
                             <i class="icon fa fa-camera"></i>
                         </div>
                     </td>
@@ -26,6 +28,7 @@ function get_comment_form()
                 <tr>
                     <td></td>
                     <td>
+                        <div class="files"></div>
                         <div class="message loader"></div>
                         <div class="buttons">
                             <button class="comment-edit-submit" type="button">Submit</button>
