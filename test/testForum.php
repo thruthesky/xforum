@@ -48,20 +48,24 @@ class testForum extends forum {
         // forum slug
         $slug = "new_test_category_slug";
         $category = get_category_by_slug($slug); // load forum
-
-        if ( $category ) { // delete if exists.
-
+        if ( $category->ID ) { // delete if exists.
             success( forum()->http_query( ["do"=>"forum_delete", "term_id"=>$category->term_id, "response"=>"ajax"] ), "$slug deleted", "failed on deleting forum - $slug", true);
             $category = get_category_by_slug($slug);
+
+            // it is not working? why?
+            // after delete, it still exists on cache?
+            $re = category_exists( $category->term_id );
+            check( ! $re, "$slug does not exists", "$slug should not exist.", true);
+
         }
-        check( ! $category, "$slug does not exists", "$slug should not exist.", true);
+
 
 
         // create the forum of the slug
         $param = [];
         $param['do'] = 'forum_create';
         $param['response'] = 'ajax';
-        $param['cat_name'] = 'Test Forum';
+        $param['cat_name'] = 'Test Forum ' . date("d h:i:s");
         $param['slug'] = $slug; // changed category_nicename to slug 7/4/2016
         $param['category_parent'] = $parent->term_id;
         $param['category_description'] = "This is a category created by unit test";

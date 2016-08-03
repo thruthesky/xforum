@@ -521,8 +521,9 @@ class user extends WP_User {
                 if ( $user->exists() ) ferror( -40132, "Wrong password" );
                 else ferror( -40131, "Wrong username" );
             }
-            else
+            else {
                 return false;
+            }
         }
         else {
             if ( in('response') == 'ajax' ) wp_send_json_success();
