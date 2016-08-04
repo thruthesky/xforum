@@ -343,27 +343,33 @@ x.loadForum = function (e) {
     };
     $.fn.addPostEditForm = function( )  {
         if ( $('.form.post-write').length ) return x.alert('Notice', 'You have opened a post write form already. Please submit/remove the other form.');
-        var $post = this.closest('.post');
+
+        var $post = this.getPost(); // this.closest('.post');
+
+        var $content = $( '<div>' + $post.find('.content').html() + '</div>' );
+        var $files = $content.find('.files').html();
+
+
         //var post_ID = $post.attr('no');
         var title = trim($post.find('.title').text());
         var content = trim( $post.find('.content').text());
 
-        var $m = $( $('#post-write-template').html() );
+        var $form = $( $('#post-write-template').html() );
 
         // buttons
-        $m.find('.post-write-cancel')
+        $form.find('.post-write-cancel')
             .addClass('post-edit-cancel');
-        $m.find('.post-edit-cancel').removeClass('post-write-cancel');
+        $form.find('.post-edit-cancel').removeClass('post-write-cancel');
 
 
         //$m.find('[name="post_ID"]').val( post_ID );
-        $m.set('post_ID', $post.value('no'));
-        $m.find('[name="title"]').val( title );
-        $m.find('[name="content"]').val( content );
-
+        $form.set('post_ID', $post.value('no'));
+        $form.find('[name="title"]').val( title );
+        $form.find('[name="content"]').val( content );
+        $form.find('.files').html( $files );
 
         $post.hide();
-        $post.after( $m );
+        $post.after( $form );
     };
     $.fn.removePostForm = function () {
         this
@@ -396,14 +402,18 @@ x.loadForum = function (e) {
     };
 
     $.fn.set = function( name, value ) {
-        var obj = this.find('[name="'+name+'"]');
+
+        var obj = this.find('[name="'+name+'"]');  // if there is any attribute with name
         if ( obj.length ) obj.val( value );
 
 
-        obj = this.find('['+name+']');
+        obj = this.find('['+name+']'); // if there is any attributes
         if ( obj.length ) {
             obj.attr( name, value );
         }
+
+        obj = this.find('.' + name ); // if there is any classes
+        if ( obj.length ) obj.html( value );
 
         return this;
     };
@@ -676,11 +686,13 @@ post.on_comment_edit_button_clicked = function () {
     console.log('post.on_comment_edit_button_clicked');
     var $comment = $(this).getComment();
     $comment.hide();
-    var $m = $($('#comment-write-template').html())
+    var $files = $comment.find('.files').html();
+    var $form = $($('#comment-write-template').html())
         .addClass('selected')
         .set('comment_content', $comment.find('.comment-content').text())
-        .set('comment_ID', $comment.attr('no'));
-    $comment.after( $m );
+        .set('comment_ID', $comment.attr('no'))
+        .set('files', $files);
+    $comment.after( $form );
 };
 
 

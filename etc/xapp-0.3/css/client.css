@@ -5,7 +5,8 @@
   font-size: 13pt; }
 
 .x-page {
-  margin-top: 58px; }
+  margin-top: 58px;
+  margin-bottom: 58px; }
   .x-page .x-content {
     padding: .25rem; }
 
