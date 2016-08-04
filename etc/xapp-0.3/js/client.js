@@ -62,9 +62,11 @@ $(function(){
 });
 x.loadForumEnd = function() {
     // test
-    $('.post-page[no="1"]').find('.post-write-button').click(); // open new post button
+    //
+    //
+    // $('.post-page[no="1"]').find('.post-write-button').click(); // open new post button
 
-    /// $('.post-edit-button:eq(0)').click(); /// test. open post edit form.
+    $('.post-edit-button:eq(0)').click(); /// test. open post edit form.
 
     //$('.post-page[no="1"]').find('.post:first-child').find('.post-edit-button').click(); //
 
@@ -293,6 +295,10 @@ x.loadForum = function (e) {
         this.find('.loader').html( getLoader( o ) );
         return this;
     };
+    $.fn.hideLoader = function() {
+        this.find('.loader').html( '' );
+        return this;
+    };
     $.fn.getURL = function() {
         return server_url + this.find('form').serialize();
     };
@@ -448,7 +454,9 @@ x.loadForum = function (e) {
             this
                 .removeClass('selected')
                 .set('comment_content', '')
-                .find('.message').html('');
+                .find('.message')
+                .html('');
+            this.find('.files').html('');
             return this;
         }
     };
@@ -738,7 +746,9 @@ post.on_file_upload = function (input) {
             console.log('success:');
         },
         complete: function(xhr) {
-            $form.enableButtons();
+            $form
+                .enableButtons()
+                .hideLoader();
             console.log('complete:');
             var re = xhr.responseText;
             console.log(re);
