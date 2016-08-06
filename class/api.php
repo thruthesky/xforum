@@ -95,6 +95,13 @@ class api {
         wp_send_json_success();
     }
 
+    /**
+     *
+     * Loads a page script in 'template/api/' folder.
+     *
+     *
+     *
+     */
     public function page() {
         $page_name = in('name');
         include DIR_XFORUM . 'template/api/' . $page_name . '.php';

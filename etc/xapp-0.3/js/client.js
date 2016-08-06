@@ -1,4 +1,7 @@
 var x = {};
+x.slug = ''; /// forum slug.
+x.posts_per_page = 4;
+
 x.debug = true;
 var post = {};
 var db = Lockr;
@@ -8,14 +11,13 @@ var user_nicename = db.get('user_nicename');
 var server_url = document.location.origin + '?session_id=' + session_id + '&';
 
 
-
 $(function(){
     x.init();
     if ( x.indexPage() ) {
         console.log('index page');
         x.loadPage(function() {
 
-            // $('.list-group a:eq(0)').click();
+            $('.list-group a:eq(0)').click();
 
             /// test
             //$('[panel="menu"]').click();
@@ -24,15 +26,6 @@ $(function(){
             //$('[panel="user"]').click();
         });
     }
-        /*
-    else if ( x.forumPage() ) {
-        console.log("forum page");
-        x.loadForum( function(slug){
-            console.log('clicking .post-write');
-            $('.post-page[no="1"]').find('.post-write-button').click();
-        });
-    }
-    */
     else {
         console.log("error on routing");
     }
@@ -67,6 +60,17 @@ $(function(){
 
     /// like button for post & comment
     post.like_button_clicked = function () {
+        console.log("like button clicked");
+
+        var $like_button = $(this);
+        var url = $like_button.getLikeURL();
+        console.log(url);
+        $.get(url, function(re) {
+            if ( x.success( re ) ) {
+                $like_button.find('.no').remove();
+                $like_button.append('<span class="no">'+re.data.like+'</span>');
+            }
+        } );
 
     };
     $body.on('click', '.post-like-button, .comment-like-button', post.like_button_clicked);
@@ -111,6 +115,17 @@ x.indexPage = function() {
 };
 x.forumPage = function() {
     return x.in && x.in.forum;
+};
+x.loader = function(o) {
+    var defaults = {
+        'icon' : 'fa-pulse fa-3x fa-fw',
+        'text' : 'Loading ...'
+    };
+    o = $.extend( defaults, o );
+    return '<i class="loader fa fa-spinner '+ o.icon +'"></i>' + o.text;
+};
+x.removeLoader = function() {
+    $('.loader').remove();
 };
 
 /**
@@ -186,9 +201,9 @@ x.alert = function( title, content, callback ) {
 
 x.loadForum = function (e) {
     e.preventDefault();
-    var slug = $(this).attr('forum');
+    x.slug = $(this).attr('forum');
     console.log('loading forum');
-    var url = server_url + "forum=api&action=page&name=post-list&slug=" + slug;
+    var url = server_url + "forum=api&action=page&name=post-list&slug=" + x.slug;
     console.log(url);
     $.get( url, function(re) {
         x.content().html( re );
@@ -331,6 +346,22 @@ x.loadForum = function (e) {
             url += 'comment_delete_submit&comment_ID=' + this.attr('no');
         }
         return url;
+    };
+
+    /**
+     * 'this' must be '.post-like-button' or '.comment-like-button'
+     * @returns {string}
+     */
+    $.fn.getLikeURL = function() {
+        var no;
+        if ( this.hasClass('post-like-button') ) no = this.getPost().attr('no');
+        else no = this.getComment().attr('no');
+        if ( isEmpty(no) ) return alert("Error no No. has chosen.");
+        return server_url +
+            '&forum=post_like' +
+            '&response=ajax' +
+            '&session_id=' + session_id +
+            '&post_ID=' + no;
     };
 
     /**
@@ -964,15 +995,6 @@ function enable_button(obj) {
 }
 
 
-/**
- * Returns true if obj is jQuery object.
- *
- * @param obj
- * @returns {*|boolean}
- */
-function isjQuery(obj) {
-    return !! (obj && (obj instanceof jQuery || obj.constructor.prototype.jquery));
-}
 
 /**
  * Returns true if the obj has empty value like - undefined, null, 'null', 'false', '', 0, '0', falsy value like {}, []
@@ -983,40 +1005,6 @@ function isEmpty( obj ) {
     if ( _.isEmpty( obj ) ) return true;
     else return !!(typeof obj == 'undefined' || typeof obj == null || obj == 'null' || obj == 'false' || obj == '' || obj == 0 || obj == '0' || !obj || obj == {} || obj == []);
 }
-/**
- * Returns true if obj is int or NUMERIC STRING
- * @param obj
- * @returns {*}
- */
-function isNumber( obj ) {
-    if ( typeof obj == 'object' || typeof obj == 'undefined' || typeof obj == null || obj == '' ) return false;
-    return _.isNumber( parseInt(obj) );
-}
-
-function isBoolean( obj ) {
-    return _.isBoolean( obj );
-}
-/**
- *
- alert( isNode(document.getElementsByTagName('a')[0]) ); // true
- alert( isNode('<a>..</a>') );
- alert( isNode('string') );
- alert( isNode(1234) );
- alert( isNode([]) );
- alert( isNode({}) );
-
- * @type {isNode}
- */
-var isElement = isNode = function( obj ) {
-    /*
-     if ( isEmpty(obj) ) return false;
-     else if ( isjQuery( obj ) ) return false;
-     else  return true;
-     */
-    /// return obj.ownerDocument.documentElement.tagName.toLowerCase() == "html";
-    return ! ( typeof obj == 'undefined' || typeof obj.nodeName == 'undefined' );
-};
-
 
 
 //////////////////////////////////////////////////////////////////////
@@ -1024,3 +1012,66 @@ var isElement = isNode = function( obj ) {
 // EO Functions
 //
 //////////////////////////////////////////////////////////////////////
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
+//
+// Endless Page Loading
+//
+//
+//////////////////////////////////////////////////////////////////////
+
+
+var endless = {};
+
+endless.in_loading = false,
+    endless.no_more_posts = false,
+    endless.distance_from_bottom = 300,
+    endless.page = 1;
+
+    var $window = $( window );
+    var $document = $( document );
+    $document.scroll( function() {
+        if ( endless.no_more_posts || endless.in_loading ) return;
+        var top = $document.height() - $window.height() - endless.distance_from_bottom; // compute page position
+        if ($window.scrollTop() >= top) endless.load_next_page(); // page reached at the bottom?
+    });
+endless.load_next_page = function() {
+    endless.page ++;
+    console.log("xapp.endless.js count:" + endless.page + ", : " + '');
+    var url = server_url + 'forum=api&action=page&name=post-list&posts_per_page=' + x.posts_per_page + '&slug=' + x.slug + '&page=' + endless.page;
+
+    x.content().append(x.loader({'text': 'Loading more posts ...'}));
+    console.log(url);
+    endless.in_loading = true;
+
+    $.get( url, function(re) {
+        if ( empty(re) ) {
+            endless.no_more_posts = true;
+            return;
+        }
+        x.content().append( re );
+        endless.in_loading = false;
+        x.removeLoader();
+
+        /// 여기서 부터... 글 내용, 코멘트 내용이 너무 길면, 4줄만 보여주고 감춘다...
+        /// 중요: 6줄 이상이면, 4줄만 감춘다. 내용이 5줄 이면, 다 보여준다. 즉, 여유를 준다.
+        xapp.callback_post_add_show_more(re.data);
+
+    });
+};
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// EO Endless Page Loading
+//
+//////////////////////////////////////////////////////////////////////
+
