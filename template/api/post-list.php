@@ -40,3 +40,4 @@ foreach( $posts as $post ) {
         ?>
     </div>
 </section>
+<?php

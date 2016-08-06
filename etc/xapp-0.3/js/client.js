@@ -14,7 +14,9 @@ $(function(){
     if ( x.indexPage() ) {
         console.log('index page');
         x.loadPage(function() {
-            $('.list-group a:eq(0)').click();
+
+            // $('.list-group a:eq(0)').click();
+
             /// test
             //$('[panel="menu"]').click();
             ///$('[panel="login"]').click();
@@ -62,6 +64,12 @@ $(function(){
     $body.on('click', '.comment-edit-submit', post.on_comment_edit_submit);
     $body.on('click', '.comment-delete-button', post.on_comment_delete_button_clicked);
 
+
+    /// like button for post & comment
+    post.like_button_clicked = function () {
+
+    };
+    $body.on('click', '.post-like-button, .comment-like-button', post.like_button_clicked);
 
 });
 x.loadForumEnd = function() {

@@ -24,10 +24,6 @@ $comment-background-color: #ececec;
     background-color: $post-background-color;
   }
 
-  &.deleted {
-    .title { display: none; }
-  }
-
   /// post button
   .buttons {
     ul {
@@ -46,13 +42,26 @@ $comment-background-color: #ececec;
 }
 
 
+/// deleted style for post only
+.post.deleted {
+  .title { display: none; }
+  .meta {
+    padding: .25em;
+    .buttons {
+      display: none;
+    }
+  }
+}
+
+
+
 .comment {
   margin: 0 0 1em;
   background-color: $post-background-color;
 
   .comment-meta {
     padding: 1em;
-    background-color: #d6cbbf;
+    background-color: #ded3c6;
   }
 
 
@@ -77,6 +86,16 @@ $comment-background-color: #ececec;
   &[depth="10"] { margin-left: 5em; }
 
 
+}
+
+/// deleted style for comment only
+.comment.deleted {
+  .comment-meta {
+    padding: .25em;
+    .buttons {
+      display: none;
+    }
+  }
 }
 
 

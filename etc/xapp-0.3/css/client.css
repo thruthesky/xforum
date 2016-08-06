@@ -71,8 +71,6 @@ form .message:empty {
     margin-bottom: 1em;
     padding: 0.6em;
     background-color: #f7f7f7; }
-  .post.deleted .title {
-    display: none; }
   .post .buttons ul {
     list-style: none;
     margin: 0;
@@ -83,12 +81,19 @@ form .message:empty {
     .post .buttons li:hover {
       color: #B22222; }
 
+.post.deleted .title {
+  display: none; }
+.post.deleted .meta {
+  padding: .25em; }
+  .post.deleted .meta .buttons {
+    display: none; }
+
 .comment {
   margin: 0 0 1em;
   background-color: #f7f7f7; }
   .comment .comment-meta {
     padding: 1em;
-    background-color: #d6cbbf; }
+    background-color: #ded3c6; }
   .comment .comment-content {
     background-color: white; }
   .comment .buttons span {
@@ -113,6 +118,11 @@ form .message:empty {
     margin-left: 4.6em; }
   .comment[depth="10"] {
     margin-left: 5em; }
+
+.comment.deleted .comment-meta {
+  padding: .25em; }
+  .comment.deleted .comment-meta .buttons {
+    display: none; }
 
 .form.post-write [name="title"] {
   width: 100%; }
