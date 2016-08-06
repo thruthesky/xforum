@@ -134,7 +134,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
                             if ( keyword.length >= 2 ) {
                                 if ( autocomplete_ajax_progress ) return false;
                                 autocomplete_ajax_progress = true;
-                                var url = '<?php echo home_url("?forum=ajax_search&slug=" . forum()->slug)?>&keyword=' + keyword;
+                                var url = '<?php echo home_url("?forum=ajax_search&slug=" . forum()->slug)?>&keyword=' + keyword + '&attributes[]=priority&attributes[]=process&attributes[]=worker';
                                 console.log ( url );
                                 $.get( url, function( re ) {
                                     autocomplete_ajax_progress = false;

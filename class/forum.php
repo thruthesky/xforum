@@ -1828,8 +1828,20 @@ EOH;
     }
 
 
-
-
+    /**
+     *
+     * Returns list of posts that maches the search keywords.
+     *
+     * @attention This is for general use. It should used in all cases.
+     *
+     * @use to autocomplete a search box.
+     *
+     * @input
+     *      in('attributes') - array.
+     *          it gets fields and metas and puts it in '.post' attributes.
+     *
+     * @see its/list.php & its/view.php for more example.
+     */
     function ajax_search() {
 
         $q = new WP_Query(
@@ -1839,6 +1851,8 @@ EOH;
             ]
         );
 
+        $attributes = in('attributes');
+        $attrs = '';
         $html = null;
         if ( $q->have_posts() ) {
             $html .= "<div class='no-of-posts'>No. of search result : " . $q->found_posts . "</div>";
@@ -1847,8 +1861,14 @@ EOH;
                 $m = get_the_title();
                 $url = get_the_permalink();
                 $post_ID = get_the_ID();
+                if ( $attributes && is_array( $attributes ) ) {
+                    foreach ( $attributes as $key ) {
+                        $value = post()->$key;
+                        $attrs .= "$key=\"$value\"";
+                    }
+                }
                 $html .= <<<EOH
-<div class="post" no="$post_ID"><a href="$url">$m</a></div>
+<div class="post" no="$post_ID" $attrs><a href="$url">$m</a></div>
 EOH;
             }
         }
