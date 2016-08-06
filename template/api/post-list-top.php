@@ -4,6 +4,9 @@ $file_server_url = get_option('xforum_url_file_server');
 ?>
 <script>
     var file_server_url = '<?php echo $file_server_url?>';
+    var post_title_deleted = '<?php echo forum::post_title_deleted?>';
+    var post_content_deleted = '<?php echo forum::post_content_deleted?>';
+    var comment_deleted = '<?php echo forum::comment_deleted?>';
 </script>
 <script type="text/template" id="post-write-template">
     <div class="form post-write">

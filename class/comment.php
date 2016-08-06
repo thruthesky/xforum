@@ -181,7 +181,7 @@ class comment
     {
         return wp_update_comment([
             'comment_ID' => $comment_ID,
-            'comment_content' => forum::deleted
+            'comment_content' => forum::comment_deleted
         ]);
     }
 

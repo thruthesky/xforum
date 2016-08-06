@@ -1,9 +1,13 @@
 <?php
-function get_comment_form()
+function get_comment_form( $o = [] )
 {
+    $default = [
+        'first' => 'no'
+    ];
+    $o = array_merge( $default, $o );
     $file_server_domain = get_option('xforum_file_server_domain');
     ?>
-    <div class="form comment-write">
+    <div class="form comment-write" first="<?php echo $o['first']?>">
         <form enctype="multipart/form-data" action="" method="POST">
             <input type="hidden" name="content_type" value="text/plain">
             <input type="hidden" name="domain" value="<?php echo $file_server_domain?>">

@@ -42,12 +42,15 @@ $(function(){
     $body.on('click', '.logout', user.logout);
 
 
-    // post
+
     $body.on('submit', '.post-page form', function() { return false; } ); // block submit by entering on input.
+
+    // post
     $body.on('click', '.post-write-button', post.on_post_write_button_click);
     $body.on('click', '.post-edit-button', post.on_post_edit_button_click);
     $body.on('click', '.post-write-submit', post.on_post_write_submit);
     $body.on('click', '.post-write-cancel', post.on_post_write_cancel);
+    $body.on('click', '.post-delete-button', post.on_post_delete_button_click);
 
     $body.on('click', '.post-edit-cancel', post.on_post_edit_cancel);
 
@@ -57,6 +60,7 @@ $(function(){
     $body.on('click', '.comment-edit-button', post.on_comment_edit_button_clicked);
     $body.on('click', '.comment-edit-cancel', post.on_comment_edit_cancel);
     $body.on('click', '.comment-edit-submit', post.on_comment_edit_submit);
+    $body.on('click', '.comment-delete-button', post.on_comment_delete_button_clicked);
 
 
 });
@@ -66,7 +70,7 @@ x.loadForumEnd = function() {
     //
     // $('.post-page[no="1"]').find('.post-write-button').click(); // open new post button
 
-    $('.post-edit-button:eq(0)').click(); /// test. open post edit form.
+    // $('.post-edit-button:eq(0)').click(); /// test. open post edit form.
 
     //$('.post-page[no="1"]').find('.post:first-child').find('.post-edit-button').click(); //
 
@@ -215,8 +219,8 @@ x.loadForum = function (e) {
      *
      * @returns {*}
      */
-    $.fn.isRootComment = function() {
-        return this.parent().hasClass('post');
+    $.fn.isFirstDepthComment = function() {
+        return this.attr('first') == 'yes';
     };
 
     /**
@@ -299,13 +303,89 @@ x.loadForum = function (e) {
         this.find('.loader').html( '' );
         return this;
     };
+    /**
+     * 'this' must be '.form'
+     * @returns {string}
+     */
     $.fn.getURL = function() {
         return server_url + this.find('form').serialize();
     };
+
+    /**
+     * 'this' must be either '.post' or '.comment'
+     */
+    $.fn.getDeleteURL = function() {
+        var url = server_url + '?session_id='+session_id+'&response=ajax&forum=';
+        if ( this.hasClass('post') ) {
+            url += 'post_delete_submit&post_ID=' + this.attr('no');
+        }
+        else {
+            url += 'comment_delete_submit&comment_ID=' + this.attr('no');
+        }
+        return url;
+    };
+
+    /**
+     * 'this' must be either '.post' or '.comment'
+     */
+    $.fn.delete = function() {
+        if ( this.hasClass('post') ) this
+            .setTitle( post_title_deleted )
+            .setContent( post_content_deleted )
+            .addClass('deleted');
+        else this
+            .setContent( comment_deleted )
+            .addClass('deleted');
+        return this;
+    };
+    /**
+     * Returns <textarea name='content'> or <textarea name='comment_content'>
+     *
+     * @note
+     *
+     * @returns {*}
+     */
+    $.fn.getContent = function() {
+        if ( this.isComment() ) return this.find('[name="comment_content"]');
+        else return this.find('[name="content"]');
+    };
+    /**
+     * Add a string value into a form input/textarea.
+     * @note this must be input tag or textarea tag
+     */
+    $.fn.addVal = function( str ) {
+        this.val( this.val() + str );
+        return this;
+    };
+    /**
+     * Returns '.files' HTML.
+     *
+     * @note 'this' must a '.form'.
+     *
+     */
+    $.fn.getFiles = function() {
+        var $files = this.find('.files');
+        if ( $files.length ) return $files[0].outerHTML;
+        else return '';
+    };
     $.fn.getQuery = function() {
         var $clone = this.find('form').clone();
-        var files = this.find('.files')[0].outerHTML;
-        var $content = $clone.find('[name="content"]');
+        $clone.getContent().addVal( this.getFiles() );
+        /*
+        if ( files = this.getFiles() ) {
+
+        }
+        var $obj = this.find('.files');
+        if ( $obj.length ) {
+            var files = $obj[0].outerHTML;
+            var $content;
+            if ( this.isComment() ) $content = $clone.find('[name="comment_content"]');
+            else $content = $clone.find('[name="content"]');
+            $content.val( $content.val() + files );
+        }
+        */
+
+        /*
         if ( $content.length ) {
             $content.val( $content.val() + files );
         }
@@ -313,6 +393,7 @@ x.loadForum = function (e) {
             $content = $clone.find('[name="comment_content"]');
             $content.val( $content.val() + files );
         }
+        */
         var re;
         if ( x.debug ) {
             re = {
@@ -341,7 +422,7 @@ x.loadForum = function (e) {
             .find('.x-holder-post-write-form')
             .html( m );
     };
-    $.fn.addPostEditForm = function( )  {
+    $.fn.showPostEditForm = function( )  {
         if ( $('.form.post-write').length ) return x.alert('Notice', 'You have opened a post write form already. Please submit/remove the other form.');
 
         var $post = this.getPost(); // this.closest('.post');
@@ -368,8 +449,9 @@ x.loadForum = function (e) {
         $form.find('[name="content"]').val( content );
         $form.find('.files').html( $files );
 
-        $post.hide();
-        $post.after( $form );
+        //
+        $post.find('.data').hide();
+        $post.find('.data').after( $form );
     };
     $.fn.removePostForm = function () {
         this
@@ -415,6 +497,21 @@ x.loadForum = function (e) {
         obj = this.find('.' + name ); // if there is any classes
         if ( obj.length ) obj.html( value );
 
+        return this;
+    };
+    /**
+     * 'this' must be '.post'
+     */
+    $.fn.setTitle = function(str) {
+        this.find('.title').text( str );
+        return this;
+    };
+    /**
+     * 'this' must be '.post' or '.content'
+     */
+    $.fn.setContent = function(str) {
+        if ( this.hasClass('post') ) this.find('.content').html( str );
+        else this.find('.comment-content').html( str );
         return this;
     };
 
@@ -617,7 +714,7 @@ post.on_post_write_button_click = function () {
 
 post.on_post_edit_button_click = function () {
     console.log('post edit button clicked');
-    $(this).addPostEditForm();
+    $(this).showPostEditForm();
 };
 
 
@@ -661,6 +758,32 @@ post.on_post_edit_cancel = function () {
     $(this).removePostEditForm();
 };
 
+post.on_post_delete_button_click = function () {
+    console.log('post delete button clicked');
+    var $post = $(this).getPost();
+    var url = $post.getDeleteURL();
+    console.log(url);
+    $.get(url, function(re) {
+        if ( x.success(re, 'Failed on delete')  ) {
+            $post.delete();
+            x.alert("Success", "You have deleted a post.");
+        }
+    } );
+};
+post.on_comment_delete_button_clicked = function () {
+    console.log('comment delete button clicked');
+    var $comment = $(this).getComment();
+    var url = $comment.getDeleteURL();
+    console.log(url);
+    $.get(url, function(re) {
+        console.log(re);
+        if ( x.success(re, 'Comment delete failed')  ) {
+            $comment.delete();
+            x.alert("Comment deleted", "You have deleted a comment.");
+        }
+    } );
+};
+
 
 /**
  * This expands/shows comment textarea & buttons
@@ -670,9 +793,9 @@ post.comment_form_clicked = function() {
     var $form = $(this).getForm();
     console.log('comment form clicked');
     if  ( ! $form.hasClass('selected') ) $form.addClass('selected');
-    if ( $form.isRootComment() ) {
+    if ( $form.isFirstDepthComment() ) {
         console.log("Commenting right under a post");
-        var post_ID = $form.parent().attr('no');
+        var post_ID = $form.getPost().attr('no');
         $form.set('post_ID', post_ID);
     }
     else {

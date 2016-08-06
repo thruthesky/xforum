@@ -71,12 +71,17 @@ form .message:empty {
     margin-bottom: 1em;
     padding: 0.6em;
     background-color: #f7f7f7; }
+  .post.deleted .title {
+    display: none; }
   .post .buttons ul {
     list-style: none;
     margin: 0;
     padding: 0; }
   .post .buttons li {
-    display: inline; }
+    display: inline;
+    cursor: pointer; }
+    .post .buttons li:hover {
+      color: #B22222; }
 
 .comment {
   margin: 0 0 1em;

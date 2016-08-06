@@ -12,7 +12,9 @@ class forum {
     use Url;
 
 
-    const deleted = 'deleted, ...';
+    const post_title_deleted = 'post title deleted, ...';
+    const post_content_deleted = 'post comment deleted, ...';
+    const comment_deleted = 'comment deleted, ...';
     const log_msg_comment_like = 'comment_like';
     const log_msg_post_like = 'post_like';
     static $entity;
@@ -402,7 +404,11 @@ class forum {
 
         if ( $re ) {
             if ( in('response') == 'ajax' ) {
-                $this->response( ['post_ID' => $post_ID, 'comment_ID', 'comment' => comment()->get_comment_with_meta( $comment_ID ) ] );
+                $this->response( [
+                    'post_ID' => $post_ID,
+                    'comment_ID' => $comment_ID,
+                    // 'comment' => comment()->get_comment_with_meta( $comment_ID ) // @since xapp-0.3, it does not return comment
+                ] );
             }
             else {
                 add_query_var('response', 'view');
@@ -719,6 +725,7 @@ class forum {
      */
     private function comment_edit_submit( ) {
 
+        if ( ! ( in('post_ID') || in('comment_ID') || in('comment_parent') ) ) ferror(-500481, "None of post_ID, comment_ID, comment_parent has provided.");
         $comment_ID = in( 'comment_ID' );
         $update = $comment_ID ? true : false;
         
@@ -738,15 +745,15 @@ class forum {
 
 
 
-
-
         //
         if ( $update ) { // update
             $this->endIfNotMyComment( $comment_ID );
+            remove_filter( 'pre_comment_content', 'wp_filter_kses' );
             $re = wp_update_comment([
                 'comment_ID' => $comment_ID,
                 'comment_content' => in('comment_content')
             ]);
+            add_filter( 'pre_comment_content', 'wp_filter_kses' );
 
             if ( ! $re ) {
                 // error or content has not changed.

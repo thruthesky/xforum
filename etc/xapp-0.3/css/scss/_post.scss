@@ -2,6 +2,8 @@ $post-padding: .6em;
 $post-background-color: #f7f7f7;
 $comment-background-color: #ececec;
 
+
+/// post
 .post {
   margin-bottom: 1em;
 
@@ -21,6 +23,12 @@ $comment-background-color: #ececec;
     padding: $post-padding;
     background-color: $post-background-color;
   }
+
+  &.deleted {
+    .title { display: none; }
+  }
+
+  /// post button
   .buttons {
     ul {
       list-style: none;
@@ -29,6 +37,10 @@ $comment-background-color: #ececec;
     }
     li {
       display:inline;
+      cursor: pointer;
+      &:hover {
+        color: #B22222;
+      }
     }
   }
 }

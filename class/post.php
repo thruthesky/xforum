@@ -153,7 +153,7 @@ class post {
         // $post = wp_delete_post($post_ID);
         // return $post;
 
-        $post_ID = wp_update_post( ['ID'=> $post_ID, 'post_title' => forum::deleted, 'post_content' => forum::deleted ] );
+        $post_ID = wp_update_post( ['ID'=> $post_ID, 'post_title' => forum::post_title_deleted, 'post_content' => forum::post_content_deleted ] );
         return $this->returnResult( $post_ID );
     }
 
@@ -528,6 +528,15 @@ class post {
         $today_date = date('Y-m-d');
         if ( $date == $today_date ) return date("h:i a", $time);
         else return $date;
+    }
+
+
+    /**
+     * Returns true if the post is deleted by 'api'.
+     * @return bool
+     */
+    public function isDeleted() {
+        return $this->title() == forum::post_title_deleted;
     }
 }
 
