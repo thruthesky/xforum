@@ -100,6 +100,44 @@ class api {
         include DIR_XFORUM . 'template/api/' . $page_name . '.php';
 
     }
+
+
+    /**
+     * Sets/Update a meta value of the meta key on a post.
+     * @note  users of admin, owner of the post ( with login and session_id check ) can set/update meta.
+     *
+     * @since 2016-08-06
+     * @note how to call
+     *      http://work.org/wordpress/?forum=api&action=meta_update&post_ID=1094&key=parent&value=1042
+     *
+     * @attention it only echoes in json string.
+     * @use when you need to update a single meta key.
+     *
+     * @todo add test on permission check.
+     *
+     */
+    public function meta_update() {
+        forum()->endIfNotMyPost( in('post_ID') );
+        post()->meta( in('post_ID'), in('key'), in('value') );
+        wp_send_json_success(in());
+    }
+
+    /**
+     *
+     * @note how to call/get
+     *  http://work.org/wordpress/?forum=api&action=meta_update&post_ID=1094&key=abc&value=def
+     *
+     * @use when you need to get meta value.
+     * @use together ( combination of ) with meta_update
+     *
+     */
+    public function meta_get() {
+        $in = in();
+        $in['value'] = post()->meta( in('post_ID'), in('key') );
+        wp_send_json_success( $in );
+
+    }
+
 }
 
 function api()  {
