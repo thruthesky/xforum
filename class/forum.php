@@ -1846,8 +1846,9 @@ EOH;
                 post()->setup( $q );
                 $m = get_the_title();
                 $url = get_the_permalink();
+                $post_ID = get_the_ID();
                 $html .= <<<EOH
-<div class="post"><a href="$url">$m</a></div>
+<div class="post" no="$post_ID"><a href="$url">$m</a></div>
 EOH;
             }
         }
