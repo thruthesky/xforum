@@ -61,6 +61,19 @@ get_header();
             padding: 1em;
             background-color: white;
         }
+
+        [process="F"],
+        [process="R"],
+        [process="V"] {
+            color: grey !important;
+            text-decoration: line-through!important;
+        }
+        [priority="60"],
+        [priority="60"] a {
+            color: #d10000 !important;
+        }
+
+
     </style>
 
     <script type="text/javascript">

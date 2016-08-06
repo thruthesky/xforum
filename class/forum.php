@@ -1852,7 +1852,6 @@ EOH;
         );
 
         $attributes = in('attributes');
-        $attrs = '';
         $html = null;
         if ( $q->have_posts() ) {
             $html .= "<div class='no-of-posts'>No. of search result : " . $q->found_posts . "</div>";
@@ -1862,6 +1861,7 @@ EOH;
                 $url = get_the_permalink();
                 $post_ID = get_the_ID();
                 if ( $attributes && is_array( $attributes ) ) {
+                    $attrs = '';
                     foreach ( $attributes as $key ) {
                         $value = post()->$key;
                         $attrs .= "$key=\"$value\"";

@@ -31,27 +31,42 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
         min-width: 120px;
     }
 
+    [process="F"],
+    [process="R"],
+    [process="V"] {
+        color: grey !important;
+        text-decoration: line-through!important;
+    }
+    [priority="60"],
+    [priority="60"] a {
+        color: #d10000 !important;
+    }
+
 
     .children {
 
     }
     .children a {
         display: block;
-        padding: .4em 0;
+        padding: .4em 0;¡
     }
-    .children a[depth="1"] {
+    .children a[depth="0"] {
         color: blue;
     }
-    .children a[depth="2"] {
+    .children a[depth="1"] {
+        color: #594bcf;
         margin-left: 1em;
+    }
+    .children a[depth="2"] {
+        margin-left: 2em;
         color: #444;
     }
     .children a[depth="3"] {
-        margin-left: 2em;
+        margin-left: 3em;
         color: #777;
     }
     .children a[depth="4"] {
-        margin-left: 3em;
+        margin-left: 4em;
         color: #999;
     }
     .children a[depth="5"],
@@ -59,7 +74,7 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
     .children a[depth="7"],
     .children a[depth="8"]
     {
-        margin-left: 4em;
+        margin-left: 5em;
         color: #bbb;
     }
 </style>
@@ -199,9 +214,9 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             $q = new WP_Query( $args );
             if ( $q->have_posts() ) {
                 while( $q->have_posts() ) {
-                    $q->the_post();
+                    post()->setup( $q );
                     ?>
-                    <a depth="<?php echo $depth?>" href="<?php the_permalink()?>">
+                    <a process="<?php echo post()->process?>" priority="<?php echo post()->priority?>" depth="<?php echo $depth?>" href="<?php the_permalink()?>">
                         [<?php the_ID()?>]
                         <?php the_title()?>
                         by <?php the_author()?>
@@ -212,7 +227,19 @@ wp_enqueue_script('xforum-post', URL_XFORUM . 'js/post.js');
             }
             wp_reset_postdata();
         }
-        recursive_children( $parent );
+        if ( $parent ) {
+            $post = post( $parent );
+            /// This is for root
+            ?>
+            <a depth="0" href="<?php forum()->urlView( $post->ID )?>">
+                [<?php echo $post->ID?>]
+                <?php echo $post->title()?>
+                by <?php echo $post->author()?>
+            </a>
+        <?php
+            /// and for child.
+            recursive_children( $parent );
+        }
         ?>
     </div>
 </article>

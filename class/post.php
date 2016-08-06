@@ -424,17 +424,18 @@ class post {
      *
      * @code example of best use
      *
-            $mq = new WP_Query( $args );
-            if ( $mq->have_posts() ) {
-                while ( $mq->have_posts() ) {
-                    post()->setup( $mq );
-                    post()->worker;
-                }
-            }
+     * $mq = new WP_Query( $args );
+     * if ( $mq->have_posts() ) {
+     * while ( $mq->have_posts() ) {
+     * post()->setup( $mq );
+     * post()->worker;
+     * }
+     * }
      *
      * @endcode
      *
      * @todo add test code on setup( WP_Query ) and setup( WP_Post )
+     * @return $this
      */
     public function setup($query)
     {
@@ -534,7 +535,7 @@ class post {
 
 /**
  *
- * @param null $deprecated
+ *
  * @return post
  * @todo add test code.
  *
@@ -544,6 +545,14 @@ class post {
  *
  * @see post:load()
  *
+ *
+ * @use in loop like below
+ * @code
+ *
+ *      while ( $q->have_posts() ) {
+ *          post()->setup( $q );
+ *
+ * @endcode
  */
 function post( $pid = null ) {
     if ( $pid ) {
