@@ -35,6 +35,7 @@ include_once DIR_XFORUM . 'etc/init.php';
 include_once DIR_XFORUM . 'etc/install.php';
 
 
+header('Access-Control-Allow-Origin: *');
 
 
 xlog("xforum.php begins on " . date("H:i:s") . ' -----------------------');

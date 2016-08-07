@@ -143,13 +143,17 @@ class comment
 
     /**
      * @param $post_ID
+     * @param array $fields - select fields. 원하는 필드만 가져 올 수 있다.
+     * @code
+     *      $post->comments = comment()->get_nested_comments_with_meta( $post->ID, ['comment_ID', 'comment_author', 'comment_content', 'depth'] );
+     * @endcode
      * @return array
      * @code
      *      di ( comment()->get_nested_comments_with_meta( get_the_ID() ) );
      * @endcode
      *
      */
-    public function get_nested_comments_with_meta( $post_ID ) {
+    public function get_nested_comments_with_meta( $post_ID, $fields = [] ) {
         self::$nest_comments = [];
         if ( ! get_comments_number( $post_ID ) ) return [];
         $comments = get_comments( [ 'post_id' => $post_ID ] );
@@ -169,7 +173,17 @@ class comment
             ],
             $comments);
         $trash = ob_get_clean();
-        return self::$nest_comments;
+        if ( empty(self::$nest_comments) || empty($fields) ) return self::$nest_comments;
+
+        $_comments = [];
+        foreach ( self::$nest_comments as $comment ) {
+            $_comment = new stdClass();
+            foreach( $fields as $field ) {
+                $_comment->$field = $comment->$field;
+            }
+            $_comments[] = $_comment;
+        }
+        return $_comments;
     }
 
     /**

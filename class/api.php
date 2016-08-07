@@ -3,7 +3,7 @@
 class api {
     public function __construct()
     {
-        header('Access-Control-Allow-Origin: *');
+
     }
 
     public function ping() {
@@ -62,8 +62,9 @@ class api {
         ];
         $in = in();
         $category = forum()->getCategory();
-        $posts = get_posts($args);
-        foreach( $posts as $post ) {
+        $_posts = get_posts($args);
+        $posts = [];
+        foreach( $_posts as $post ) {
             if ( $post->post_author ) {
                 $user = get_user_by( 'id', $post->post_author );
                 $post->author_name = $user->user_nicename;
@@ -71,14 +72,31 @@ class api {
                 foreach( $meta as $k => $arr ) {
                     $post->$k = $arr[0];
                 }
-                $post->comments = comment()->get_nested_comments_with_meta( $post->ID );
+                $post->comments = comment()->get_nested_comments_with_meta( $post->ID, ['comment_ID', 'comment_author', 'comment_content', 'depth'] );
+                $p = new stdClass();
+                $p->ID = $post->ID;
+                $stamp = strtotime($post->post_date);
+                $date = date('Y-m-d', $stamp);
+                if ( $date == date('Y-m-d') ) $date = date("h:i a", $stamp);
+                $p->date = $date;
+
+                if ( $post->post_title == forum::post_title_deleted ) $p->deleted = 1;
+                $p->author = $post->author_name;
+                $p->post_title = $post->post_title;
+                $p->post_content = $post->post_content;
+                ///$p->post_title = $post->post_title;
+                $p->comments = $post->comments;
+                $posts[] = $p;
             }
         }
         wp_send_json_success( [
             'in' => $in,
             'file_server_url' => get_option('xforum_url_file_server'),
-            'category' => $category,
-            'args' => $args,
+            'category' => [
+                'name' => $category->name,
+                'description' => $category->description
+            ],
+            //'args' => $args,
             'posts' => $posts
         ] );
     }

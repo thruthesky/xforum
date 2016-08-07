@@ -203,10 +203,11 @@ x.loadForum = function (e) {
     e.preventDefault();
     x.slug = $(this).attr('forum');
     console.log('loading forum');
-    var url = server_url + "forum=api&action=page&name=post-list&slug=" + x.slug;
+    // var url = server_url + "forum=api&action=page&name=post-list&slug=" + x.slug;
+    var url = server_url + 'forum=api&action=post_list&slug=' + x.slug;
     console.log(url);
     $.get( url, function(re) {
-        x.content().html( re );
+        x.content().html( markup.postList(re) );
         x.loadForumEnd();
     });
 };
@@ -454,6 +455,10 @@ x.loadForum = function (e) {
     $.fn.setMessage = function( m ) {
         this.find('.message').html( m );
     };
+
+    /**
+     * @todo x-holder-post-write-form 을 사용 하지 말고, 그냥 맨 위에 표시 할 것.
+     */
     $.fn.addPostForm = function () {
         var m = $('#post-write-template').html();
         this
@@ -678,27 +683,6 @@ panel.on_close = function () {
     $(this).closest('.panel').slideUp();
 };
 
-
-
-
-
-///
-/// Markup
-///
-var markup = {};
-var getLoader = markup.getLoader = function( o ) {
-    var defaults = {
-        icon: 'fa-spinner',
-        text: 'Loading ...'
-    };
-    o = $.extend( defaults, o );
-    return '' +
-        '<div>' +
-        '   <i class="fa fa-spin '+o.icon+'"></i>' +
-        o.text +
-        '</div>' +
-        '';
-};
 
 
 
@@ -941,24 +925,368 @@ post.on_file_upload = function (input) {
 };
 
 
-
-
-/// EO Post
+post.getClass = function(post) {
+    var cls = 'post';
+    if ( post.deleted ) cls += ' deleted';
+    return cls;
+};
 
 
 
 
 //////////////////////////////////////////////////////////////////////
+//
+// EO Post
+//
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
+//
+// Endless Page Loading
+//
+//
+//////////////////////////////////////////////////////////////////////
+
+
+var LoadMore = function( o ) {
+    var defaults = {
+        page: 1,
+        in_loading: false,
+        no_more_data : false,
+        distance_from_bottom: 300
+    };
+    o = $.extend( defaults, o );
+
+
+    this.start = function() {
+        var $window = $( window );
+        var $document = $( document );
+        $document.scroll( function() {
+            if ( o.no_more_data ) return o.callback_no_more_data();
+            if ( o.in_loading ) return o.callback_in_loading();
+            var top = $document.height() - $window.height() - o.distance_from_bottom; // compute page position
+            if ($window.scrollTop() >= top) { // page reached at the bottom?
+                o.page ++;
+                o.callback_begin_loading();
+                //var url = server_url + 'forum=api&action=page&name=post-list&posts_per_page=' + x.posts_per_page + '&slug=' + x.slug + '&page=' + o.page;
+                var url = server_url + 'forum=api&action=post_list&slug=' + x.slug + '&page=' + o.page;
+
+                console.log(url);
+                o.in_loading = true;
+
+                $.get( url, function(re) {
+                    if ( isEmpty(re) ) {
+                        o.no_more_data = true;
+                        return o.callback_no_more_data();
+                    }
+                    else {
+                        o.in_loading = false;
+                        o.callback_data( re );
+                    }
+                });
+            }
+        });
+    };
+};
+
+var loadmore = new LoadMore({
+    callback_data : function( re ) {
+        console.log('data');
+        x.content().append(markup.postList(re));
+        x.removeLoader();
+        /// 여기서 부터... 글 내용, 코멘트 내용이 너무 길면, 4줄만 보여주고 감춘다...
+        /// 중요: 6줄 이상이면, 4줄만 감춘다. 내용이 5줄 이면, 다 보여준다. 즉, 여유를 준다.
+        //xapp.callback_post_add_show_more(re.data);
+    },
+    callback_no_more_data : function() { console.log('no more data')},
+    callback_in_loading : function() {},
+    callback_begin_loading: function() {
+        x.content().append(x.loader({'text': 'Loading more posts ...'}));
+    }
+});
+loadmore.start();
+
+
+/*
+endless.in_loading = false,
+    endless.no_more_posts = false,
+    endless.distance_from_bottom = 300,
+    endless.page = 1;
+
+    var $window = $( window );
+    var $document = $( document );
+    $document.scroll( function() {
+        if ( endless.no_more_posts || endless.in_loading ) return;
+        var top = $document.height() - $window.height() - endless.distance_from_bottom; // compute page position
+        if ($window.scrollTop() >= top) endless.load_next_page(); // page reached at the bottom?
+    });
+endless.load_next_page = function() {
+    endless.page ++;
+    console.log("xapp.endless.js count:" + endless.page + ", : " + '');
+    var url = server_url + 'forum=api&action=page&name=post-list&posts_per_page=' + x.posts_per_page + '&slug=' + x.slug + '&page=' + endless.page;
+
+    x.content().append(x.loader({'text': 'Loading more posts ...'}));
+    console.log(url);
+    endless.in_loading = true;
+
+    $.get( url, function(re) {
+        if ( empty(re) ) {
+            endless.no_more_posts = true;
+            return;
+        }
+        x.content().append( re );
+        endless.in_loading = false;
+        x.removeLoader();
+
+        /// 여기서 부터... 글 내용, 코멘트 내용이 너무 길면, 4줄만 보여주고 감춘다...
+        /// 중요: 6줄 이상이면, 4줄만 감춘다. 내용이 5줄 이면, 다 보여준다. 즉, 여유를 준다.
+        xapp.callback_post_add_show_more(re.data);
+
+    });
+};
+*/
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// EO Endless Page Loading
+//
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
+//
+// Markup
+//
+//
+//////////////////////////////////////////////////////////////////////
+
+
+
+///
+/// Markup
+///
+var markup = {};
+var getLoader = markup.getLoader = function( o ) {
+    var defaults = {
+        icon: 'fa-spinner',
+        text: 'Loading ...'
+    };
+    o = $.extend( defaults, o );
+    return '' +
+        '<div>' +
+        '   <i class="fa fa-spin '+o.icon+'"></i>' +
+        o.text +
+        '</div>' +
+        '';
+};
+
+markup.postList = function( re ) {
+    console.log(re);
+    var q = re.data['in'];
+    var category = re.data.category;
+    var m = '';
+    m += '<section class="page-list" no="'+q.page+'">';
+    m += '  <h2>Post List '+ q.page+'</h2>';
+    m += '  <div class="desc">' + category.description + '</div>';
+    m +=    markup.postListButtons();
+    m += '  <div class="posts">';
+    m +=    markup.posts(re.data.posts);
+    m += '  </div>';
+    m += '</section>';
+
+    return m;
+};
+
+markup.postListButtons = function() {
+    return '<div class="buttons post-list-buttons">' +
+        '       <button type="button" class="post-write-button btn btn-secondary">POST</button>' +
+        '   </div>';
+};
+
+markup.posts = function( posts ) {
+    var m = '',
+        p = null;
+    for( var i in posts ) {
+        if ( ! posts.hasOwnProperty(i) ) continue;
+        p = posts[i];
+        m += '<div class="'+post.getClass(post)+'" no="'+p.ID+'">';
+
+        m += '  <div class="data">';
+        m +=        markup.postMeta(p);
+        m +=        markup.postButtons();
+        m +=        markup.postTitle(p);
+        m +=        markup.postContent( p );
+        m +=        markup.commentForm();
+        m +=        markup.comments( p );
+        m += '  </div>';
+
+        m += '</div>';
+    }
+    return m;
+};
+
+markup.postMeta = function( post ) {
+    var m = '<div class="meta">';
+
+    m += "No. " + post.ID;
+    m += "Date. " + post.date;
+    m += "Author. " + post.author;
+
+    m += "</div>";
+    return m;
+};
+
+
+markup.postButtons = function() {
+    var m = '<div class="buttons">' +
+    '<ul>' +
+    '   <li class="post-edit-button">edit</li>' +
+    '   <li class="post-delete-button">delete</li>' +
+    '   <li class="post-like-button">like</li>' +
+    '   <li class="post-spam-button">spam</li>' +
+    '   <li class="post-move-button">move</li>' +
+    '   <li class="post-copy-button">copy</li>' +
+    '   <li class="post-block-button">block</li>' +
+    '   <li class="post-blind-button">blind</li>' +
+    '</ul>' +
+    '</div>';
+    return m;
+};
+
+
+
+
+markup.postTitle = function(post) {
+    return '<div class="title">' +
+        post.post_title +
+        '</div>';
+};
+
+markup.postContent = function( post ) {
+    return '<div class="content">' +
+        post.post_content +
+        '</div>';
+};
+
+markup.commentForm = function() {
+    var comment = $('#comment-write-template').html();
+    return comment;
+};
+
+markup.comments = function( p) {
+    var _comments = p.comments;
+    if ( isEmpty(_comments) || _comments.length == 0 ) return '';
+
+    var count = _comments.length;
+    console.log(_comments);
+
+    var m = '';
+    m += '<div class="comments">';
+    m += '  <div class="comments-meta">';
+    m += '      <div class="count" count="'+count+'"></div>';
+    m += '  </div>';
+    m += '  <div class="comment-list">';
+
+    if ( count ) {
+        for ( var i in _comments ) {
+            if ( ! _comments.hasOwnProperty(i) ) continue;
+            var comment = _comments[i];
+            m += '<div class="comment" no="'+comment.comment_ID+'" depth="'+comment.depth+'">';
+            m +=    markup.commentMeta( comment );
+            m +=    markup.commentContent( comment );
+            m +=    markup.commentForm();
+            m += '</div>';
+
+        }
+    }
+
+    m += '  </div>';
+    m += '</div>';
+
+    return m;
+};
+
+
+markup.commentMeta = function( comment ) {
+    var m = '' +
+        '<div class="comment-meta">' +
+        '   <span class="no">' +
+        '      <span class="caption">No.</span>' +
+        '       <span class="text">'+comment.comment_ID+'</span>' +
+        '   </span>' +
+        '   <span class="author">' +
+        '       <span class="caption">Author</span>' +
+        '       <span class="text">'+comment.author+'</span>' +
+        '   </span>' +
+        '   <div class="buttons">' +
+        '       <span class="comment-edit-button">edit</span>' +
+        '       <span class="comment-delete-button">delete</span>' +
+        '       <span class="comment-like-button">like<span class="no"></span></span>' +
+        '       <span class="comment-report-button">report</span>' +
+        '       <span class="comment-copy-button">copy</span>' +
+        '       <span class="comment-move-button">move</span>' +
+        '       <span class="comment-blind-button">blind</span>' +
+        '       <span class="comment-block-button">block</span>' +
+        '   </div>' +
+        '</div>';
+    return m;
+
+};
+
+
+markup.commentContent = function( comment ) {
+
+    var m = '' +
+        '<div class="comment-content">' +
+        sanitize_content( comment.comment_content ) +
+        '</div>' +
+        '';
+    return m;
+};
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// EO Markup
+//
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+//
 //
 // Functions
 //
+//
 //////////////////////////////////////////////////////////////////////
+
+
+
 function trim(text) {
     return s(text).trim().value();
 }
 
 function sanitize_content ( content ) {
-    return nl2br(s.stripTags(content));
+    return nl2br( s.stripTags( trim( content ) ) );
 }
 
 
@@ -1015,63 +1343,18 @@ function isEmpty( obj ) {
 
 
 
-
-
 //////////////////////////////////////////////////////////////////////
 //
 //
-// Endless Page Loading
+// PHP JS Functions
 //
 //
 //////////////////////////////////////////////////////////////////////
 
+function nl2br (str, isXhtml) {
+    var breakTag = (isXhtml || typeof isXhtml === 'undefined') ? '<br ' + '/>' : '<br>'
 
-var endless = {};
-
-endless.in_loading = false,
-    endless.no_more_posts = false,
-    endless.distance_from_bottom = 300,
-    endless.page = 1;
-
-    var $window = $( window );
-    var $document = $( document );
-    $document.scroll( function() {
-        if ( endless.no_more_posts || endless.in_loading ) return;
-        var top = $document.height() - $window.height() - endless.distance_from_bottom; // compute page position
-        if ($window.scrollTop() >= top) endless.load_next_page(); // page reached at the bottom?
-    });
-endless.load_next_page = function() {
-    endless.page ++;
-    console.log("xapp.endless.js count:" + endless.page + ", : " + '');
-    var url = server_url + 'forum=api&action=page&name=post-list&posts_per_page=' + x.posts_per_page + '&slug=' + x.slug + '&page=' + endless.page;
-
-    x.content().append(x.loader({'text': 'Loading more posts ...'}));
-    console.log(url);
-    endless.in_loading = true;
-
-    $.get( url, function(re) {
-        if ( empty(re) ) {
-            endless.no_more_posts = true;
-            return;
-        }
-        x.content().append( re );
-        endless.in_loading = false;
-        x.removeLoader();
-
-        /// 여기서 부터... 글 내용, 코멘트 내용이 너무 길면, 4줄만 보여주고 감춘다...
-        /// 중요: 6줄 이상이면, 4줄만 감춘다. 내용이 5줄 이면, 다 보여준다. 즉, 여유를 준다.
-        xapp.callback_post_add_show_more(re.data);
-
-    });
-};
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////
-//
-// EO Endless Page Loading
-//
-//////////////////////////////////////////////////////////////////////
+    return (str + '')
+        .replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2')
+}
 

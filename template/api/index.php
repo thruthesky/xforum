@@ -1,4 +1,5 @@
 <?php
+include_once 'function.php';
 $x = ['name'=>'index']; include 'header.php';
 $cat = forum()->getXForumCategory();
 $categories = lib()->get_categories_with_depth( $cat->term_id );
