@@ -244,7 +244,7 @@ x.loadForum = function (e) {
      * @returns {*}
      */
     $.fn.isFirstDepthComment = function() {
-        return this.attr('first') == 'yes';
+        return this.parent().hasClass('data');
     };
 
     /**
@@ -460,11 +460,10 @@ x.loadForum = function (e) {
      * @todo x-holder-post-write-form 을 사용 하지 말고, 그냥 맨 위에 표시 할 것.
      */
     $.fn.addPostForm = function () {
-        var m = $('#post-write-template').html();
-        this
-            .closest('.post-page')
-            .find('.x-holder-post-write-form')
-            .html( m );
+        if ( $('.form.post-write').length ) return x.alert('Notice', 'You have opened a post write form already. Please submit/remove the other form.');
+        var $m = $ ( $('#post-write-template').html());
+        $m.find('[name="slug"]').val(x.slug);
+        x.content().prepend( $m );
     };
     $.fn.showPostEditForm = function( )  {
         if ( $('.form.post-write').length ) return x.alert('Notice', 'You have opened a post write form already. Please submit/remove the other form.');
@@ -498,9 +497,7 @@ x.loadForum = function (e) {
         $post.find('.data').after( $form );
     };
     $.fn.removePostForm = function () {
-        this
-            .closest('.x-holder-post-write-form')
-            .html('');
+        this.getForm().remove();
     };
     $.fn.removePostEditForm = function () {
         var $form = this.closest('.post-write');
@@ -508,8 +505,20 @@ x.loadForum = function (e) {
         $form.remove();
         $('.post[no="'+post_ID+'"]').show();
     };
+    /**
+     * 'this' must be '.form .post-write'
+     * @param re
+     */
     $.fn.addPost = function(re) {
-        this.closest('.post-page').find('.posts').prepend( re.data.markup );
+//        this.closest('.post-page').find('.posts').prepend( re.data.markup );
+        var p = {
+            ID: re.data.post_ID,
+                date: (new Date).toDateString(),
+                author: user_nicename,
+                post_title: this.find('[name="title"]').val(),
+                post_content: this.find('[name="content"]').val()
+        };
+        x.content().prepend( markup.post( p ) );
         this.remove();
         console.log("A post added");
     };
@@ -569,22 +578,33 @@ x.loadForum = function (e) {
      */
     $.fn.addComment = function ( re ) {
         console.log('addComment');
+
+        var c = {
+            'comment_ID' : re.data.comment_ID,
+            'author' : user_nicename,
+            'comment_content' : this.getForm().find('[name="comment_content"]').val()
+        };
+
         if ( this.value('comment_parent') ) { // add a comment under another comment.
             var $comment = this
                 .close()
                 .getComment();
 
-            var depth = parseInt($comment.attr('depth')) + 1;
-            var $m = $( re.data.markup )
-                .attr('depth', depth);
-            $comment.after( $m );
+            c.depth = parseInt($comment.attr('depth')) + 1;
+
+            //var $m = $( re.data.markup ).attr('depth', depth);
+
+            var m = markup.comment( c );
+
+
+            $comment.after( m );
         }
         else { // add a comment right under a post.
             this
                 .close()
                 .getPost()
                 .find('.comment-list')
-                .prepend( re.data.markup );
+                .prepend( markup.comment( c ) );
         }
     };
     $.fn.updateComment = function ( re ) {
@@ -1125,29 +1145,35 @@ markup.posts = function( posts ) {
         p = null;
     for( var i in posts ) {
         if ( ! posts.hasOwnProperty(i) ) continue;
-        p = posts[i];
-        m += '<div class="'+post.getClass(post)+'" no="'+p.ID+'">';
-
-        m += '  <div class="data">';
-        m +=        markup.postMeta(p);
-        m +=        markup.postButtons();
-        m +=        markup.postTitle(p);
-        m +=        markup.postContent( p );
-        m +=        markup.commentForm();
-        m +=        markup.comments( p );
-        m += '  </div>';
-
-        m += '</div>';
+        m += markup.post( posts[i] );
     }
     return m;
 };
 
-markup.postMeta = function( post ) {
+markup.post = function( p ) {
+    var m = '';
+    m += '<div class="'+post.getClass(post)+'" no="'+p.ID+'">';
+
+    m += '  <div class="data">';
+    m +=        markup.postMeta(p);
+    m +=        markup.postButtons();
+    m +=        markup.postTitle(p);
+    m +=        markup.postContent( p );
+    m +=        markup.commentForm();
+    m +=        markup.comments( p );
+    m += '  </div>';
+
+    m += '</div>';
+    return m;
+};
+
+
+markup.postMeta = function( p ) {
     var m = '<div class="meta">';
 
-    m += "No. " + post.ID;
-    m += "Date. " + post.date;
-    m += "Author. " + post.author;
+    m += "No. " + p.ID;
+    m += "Date. " + p.date;
+    m += "Author. " + p.author;
 
     m += "</div>";
     return m;
@@ -1207,13 +1233,7 @@ markup.comments = function( p) {
     if ( count ) {
         for ( var i in _comments ) {
             if ( ! _comments.hasOwnProperty(i) ) continue;
-            var comment = _comments[i];
-            m += '<div class="comment" no="'+comment.comment_ID+'" depth="'+comment.depth+'">';
-            m +=    markup.commentMeta( comment );
-            m +=    markup.commentContent( comment );
-            m +=    markup.commentForm();
-            m += '</div>';
-
+            m += markup.comment(_comments[i]);
         }
     }
 
@@ -1222,6 +1242,18 @@ markup.comments = function( p) {
 
     return m;
 };
+
+markup.comment = function( comment ) {
+    var m = '';
+    if ( comment.depth === void 0 || isNaN( comment.depth ) ) comment.depth = 1;
+    m += '<div class="comment" no="'+comment.comment_ID+'" depth="'+comment.depth+'">';
+    m +=    markup.commentMeta( comment );
+    m +=    markup.commentContent( comment );
+    m +=    markup.commentForm();
+    m += '</div>';
+    return m;
+};
+
 
 
 markup.commentMeta = function( comment ) {

@@ -178,7 +178,7 @@ markup.comments = function( post ) {
 markup.comment = function( comment ) {
     if ( isEmpty(comment.depth) ) comment.depth = 0;
     var cls = 'comment';
-    if ( comment.comment_content  == xapp.deleted ) cls += ' deleted';
+    if ( comment.comment_content  == comment_deleted ) cls += ' deleted';
     var like_number = '';
     if ( comment.like ) {
         like_number = '<span class="no">'+comment.like+'</span>';

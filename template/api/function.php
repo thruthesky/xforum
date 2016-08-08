@@ -5,15 +5,17 @@ function get_comment_form( $o = [] )
         'first' => 'no'
     ];
     $o = array_merge( $default, $o );
+    if ( $o['first'] == 'yes' ) $first = ' first="yes"';
+    else $first = '';
     $file_server_domain = get_option('xforum_file_server_domain');
     ?>
-    <div class="form comment-write" first="<?php echo $o['first']?>">
+    <div class="form comment-write"<?php echo $first?>>
         <form enctype="multipart/form-data" action="" method="POST">
             <input type="hidden" name="content_type" value="text/plain">
             <input type="hidden" name="domain" value="<?php echo $file_server_domain?>">
             <input type="hidden" name="session_id" value="<?php echo in('session_id') ?>">
             <input type="hidden" name="forum" value="comment_edit_submit">
-            <input type="hidden" name="response" value="template/api/comment">
+            <input type="hidden" name="response" value="ajax">
             <input type="hidden" name="post_ID" value="">
             <input type="hidden" name="comment_parent" value="">
             <input type="hidden" name="comment_ID" value="">

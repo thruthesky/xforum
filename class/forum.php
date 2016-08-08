@@ -794,7 +794,7 @@ class forum {
 
 
         $o = [ 'post_ID' => $post_ID, 'comment_ID' => $comment_ID ];
-        if ( in('response') == 'ajax' ) $o['comment'] = comment()->get_comment_with_meta( $comment_ID );
+        // if ( in('response') == 'ajax' ) $o['comment'] = comment()->get_comment_with_meta( $comment_ID );
         $this->response( $o );
     }
     /**
