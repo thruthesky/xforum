@@ -2,6 +2,15 @@ $post-padding: .6em;
 $post-background-color: #f7f7f7;
 $comment-background-color: #ececec;
 
+/// page-list
+.page-list {
+  .desc {
+    margin-bottom: $post-padding;
+    padding: 1em;
+    background-color: #efefef;
+  }
+}
+
 
 /// post
 .post {

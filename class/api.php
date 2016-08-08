@@ -72,7 +72,8 @@ class api {
                 foreach( $meta as $k => $arr ) {
                     $post->$k = $arr[0];
                 }
-                $post->comments = comment()->get_nested_comments_with_meta( $post->ID, ['comment_ID', 'comment_author', 'comment_content', 'depth'] );
+                $post->comments = comment()->get_nested_comments_with_meta( $post->ID,
+                    ['like', 'comment_ID', 'comment_author', 'comment_content', 'depth'] );
                 $p = new stdClass();
                 $p->ID = $post->ID;
                 $stamp = strtotime($post->post_date);
@@ -85,6 +86,7 @@ class api {
                 $p->post_title = $post->post_title;
                 $p->post_content = $post->post_content;
                 ///$p->post_title = $post->post_title;
+                $p->like = $post->like;
                 $p->comments = $post->comments;
                 $posts[] = $p;
             }

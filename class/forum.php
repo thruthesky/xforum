@@ -1915,6 +1915,7 @@ EOH;
             if ( comment()->isMine($id) ) wp_send_json_error( json_error(-11013, "You cannot like on your own comment."));
             if ( $this->comment_like_already( $id )) wp_send_json_error( json_error(-100405, "You have already voted on this comment."));
             $like = get_comment_meta( $id, 'like', true);
+            if ( empty($like) ) $like = 0;
             $like ++;
             update_comment_meta( $id, 'like', $like);
             $this->comment_like_log( $id );

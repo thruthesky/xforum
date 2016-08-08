@@ -67,8 +67,9 @@ $(function(){
         console.log(url);
         $.get(url, function(re) {
             if ( x.success( re ) ) {
-                $like_button.find('.no').remove();
-                $like_button.append('<span class="no">'+re.data.like+'</span>');
+                $like_button.find('.no').text( re.data.like );
+                //$like_button.find('.no').remove();
+                //$like_button.append('<span class="no">'+re.data.like+'</span>');
             }
         } );
 
@@ -265,7 +266,12 @@ x.loadForum = function (e) {
      */
     $.fn.isComment = function()  {
         // return isEmpty(this.value('slug'));
-        return this.getForm().hasClass('comment-write');
+        var $form = this.getForm();
+        if ( $form.length ) {
+            return this.getForm().hasClass('comment-write');
+        }
+
+        return this.find('[name="forum"]').val() == 'comment_edit_submit';
     };
 
     /**
@@ -359,15 +365,23 @@ x.loadForum = function (e) {
      * @returns {string}
      */
     $.fn.getLikeURL = function() {
-        var no;
-        if ( this.hasClass('post-like-button') ) no = this.getPost().attr('no');
-        else no = this.getComment().attr('no');
+        var no, forum, text_ID;
+        if ( this.hasClass('post-like-button') ) {
+            no = this.getPost().attr('no');
+            forum = 'post_like';
+            text_ID = 'post_ID';
+        }
+        else {
+            no = this.getComment().attr('no');
+            forum = 'comment_like';
+            text_ID = 'comment_ID';
+        }
         if ( isEmpty(no) ) return alert("Error no No. has chosen.");
         return server_url +
-            '&forum=post_like' +
+            '&forum=' + forum +
             '&response=ajax' +
             '&session_id=' + session_id +
-            '&post_ID=' + no;
+            '&'+text_ID+'=' + no;
     };
 
     /**
@@ -490,14 +504,29 @@ x.loadForum = function (e) {
         $post.find('.data').hide();
         $post.find('.data').after( $form );
     };
+
+    /**
+     *
+     *
+     *
+     */
     $.fn.removePostForm = function () {
         this.getForm().remove();
     };
+    /**
+     * 'this' must be a button.
+     */
     $.fn.removePostEditForm = function () {
+        this.getPost().find('.data').show();
+        this.getForm().remove();
+
+        /*
+
         var $form = this.closest('.post-write');
         var post_ID = $form.find('[name="post_ID"]').val();
         $form.remove();
         $('.post[no="'+post_ID+'"]').show();
+        */
     };
     /**
      * 'this' must be '.form .post-write'
@@ -510,7 +539,7 @@ x.loadForum = function (e) {
                 date: (new Date).toDateString(),
                 author: user_nicename,
                 post_title: this.find('[name="title"]').val(),
-                post_content: this.find('[name="content"]').val()
+                post_content: this.find('[name="content"]').val() + this.getFiles()
         };
         x.content().prepend( markup.post( p ) );
         this.remove();
@@ -529,7 +558,7 @@ x.loadForum = function (e) {
         //var $form = $post.find('.form');
         //$post.replaceWith( markup.post( p ) );
         $post.find('.title').html( this.getTitle().val() );
-        $post.find('.content').html(sanitize_content(this.getContent().val()) );
+        $post.find('.content').html( sanitize_content(this.getContent().val()) + this.getFiles() );
         this.remove();
         $post.find('.data').show();
         console.log("A post updated");
@@ -608,7 +637,7 @@ x.loadForum = function (e) {
         var c = {
             'comment_ID' : re.data.comment_ID,
             'author' : user_nicename,
-            'comment_content' : this.getForm().find('[name="comment_content"]').val()
+            'comment_content' : this.getForm().find('[name="comment_content"]').val() + this.getFiles()
         };
 
         if ( this.value('comment_parent') ) { // add a comment under another comment.
@@ -796,7 +825,7 @@ post.on_post_write_submit = function () {
 
     var post_ID = $form.find('[name="post_ID"]').val();
     var q = $form.getQuery();
-    console.log(q);
+    console.log(q.url);
     $.post({
         'url' : q.url,
         'data' : q.data,
@@ -821,7 +850,6 @@ post.on_post_write_submit = function () {
 post.on_post_write_cancel = function () {
     $(this).removePostForm();
 };
-
 
 post.on_post_edit_cancel = function () {
     $(this).removePostEditForm();
@@ -1182,7 +1210,7 @@ markup.post = function( p ) {
 
     m += '  <div class="data">';
     m +=        markup.postMeta(p);
-    m +=        markup.postButtons();
+    m +=        markup.postButtons(p);
     m +=        markup.postTitle(p);
     m +=        markup.postContent( p );
     m +=        markup.commentForm();
@@ -1206,12 +1234,12 @@ markup.postMeta = function( p ) {
 };
 
 
-markup.postButtons = function() {
+markup.postButtons = function(p) {
     var m = '<div class="buttons">' +
     '<ul>' +
     '   <li class="post-edit-button">edit</li>' +
     '   <li class="post-delete-button">delete</li>' +
-    '   <li class="post-like-button">like</li>' +
+    '   <li class="post-like-button">like<span class="no">'+p.like+'</span></li>' +
     '   <li class="post-spam-button">spam</li>' +
     '   <li class="post-move-button">move</li>' +
     '   <li class="post-copy-button">copy</li>' +
@@ -1244,9 +1272,11 @@ markup.commentForm = function() {
 
 markup.comments = function( p) {
     var _comments = p.comments;
-    if ( isEmpty(_comments) || _comments.length == 0 ) return '';
+    //if ( isEmpty(_comments) || _comments.length == 0 ) return '';
 
-    var count = _comments.length;
+    var count;
+    if ( isEmpty(_comments) ) count = 0;
+    else count = _comments.length;
     console.log(_comments);
 
     var m = '';
@@ -1283,6 +1313,7 @@ markup.comment = function( comment ) {
 
 
 markup.commentMeta = function( comment ) {
+    if ( isEmpty(comment.like) ) comment.like = '';
     var m = '' +
         '<div class="comment-meta">' +
         '   <span class="no">' +
@@ -1291,12 +1322,12 @@ markup.commentMeta = function( comment ) {
         '   </span>' +
         '   <span class="author">' +
         '       <span class="caption">Author</span>' +
-        '       <span class="text">'+comment.author+'</span>' +
+        '       <span class="text">'+comment.comment_author+'</span>' +
         '   </span>' +
         '   <div class="buttons">' +
         '       <span class="comment-edit-button">edit</span>' +
         '       <span class="comment-delete-button">delete</span>' +
-        '       <span class="comment-like-button">like<span class="no"></span></span>' +
+        '       <span class="comment-like-button">like<span class="no">'+comment.like+'</span></span>' +
         '       <span class="comment-report-button">report</span>' +
         '       <span class="comment-copy-button">copy</span>' +
         '       <span class="comment-move-button">move</span>' +
@@ -1311,6 +1342,7 @@ markup.commentMeta = function( comment ) {
 
 markup.commentContent = function( comment ) {
 
+    ///console.log(comment.comment_content );
     var m = '' +
         '<div class="comment-content">' +
         sanitize_content( comment.comment_content ) +
@@ -1344,7 +1376,7 @@ function trim(text) {
 }
 
 function sanitize_content ( content ) {
-    return nl2br( s.stripTags( trim( content ) ) );
+    return nl2br( trim( content ) );
 }
 
 
