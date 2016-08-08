@@ -264,7 +264,8 @@ x.loadForum = function (e) {
      * @note 'this' must be a form object.
      */
     $.fn.isComment = function()  {
-        return isEmpty(this.value('slug'));
+        // return isEmpty(this.value('slug'));
+        return this.getForm().hasClass('comment-write');
     };
 
     /**
@@ -294,10 +295,6 @@ x.loadForum = function (e) {
     $.fn.getForm = function() {
         return this.closest( '.form' );
     };
-    $.fn.getPost = function(post_ID) {
-        if ( post_ID ) return $('.post[no="'+post_ID+'"]');
-        else return this.closest( '.post' );
-    };
     $.fn.getComment = function(comment_ID) {
         if ( comment_ID ) return $('.comment[no="'+comment_ID+'"]');
         else {
@@ -316,9 +313,17 @@ x.loadForum = function (e) {
         this.find('button').prop('disabled', false);
         return this;
     };
+    ///
+    /*
     $.fn.findPost = function( post_ID ) {
         return $('.post[no="'+post_ID+'"]');
     };
+    */
+    $.fn.findPost = $.fn.getPost = function(post_ID) {
+        if ( post_ID ) return $('.post[no="'+post_ID+'"]');
+        else return this.closest( '.post' );
+    };
+
     $.fn.showLoader = function( o ) {
         this.find('.loader').html( getLoader( o ) );
         return this;
@@ -377,17 +382,6 @@ x.loadForum = function (e) {
             .setContent( comment_deleted )
             .addClass('deleted');
         return this;
-    };
-    /**
-     * Returns <textarea name='content'> or <textarea name='comment_content'>
-     *
-     * @note
-     *
-     * @returns {*}
-     */
-    $.fn.getContent = function() {
-        if ( this.isComment() ) return this.find('[name="comment_content"]');
-        else return this.find('[name="content"]');
     };
     /**
      * Add a string value into a form input/textarea.
@@ -522,11 +516,22 @@ x.loadForum = function (e) {
         this.remove();
         console.log("A post added");
     };
+
+    /**
+     *
+     * 'this' is '.form'
+     *
+     * @param re
+     */
     $.fn.updatePost = function(re) {
         var post_ID = this.find('[name="post_ID"]').val();
         var $post = this.findPost( post_ID );
-        $post.next().remove();
-        $post.replaceWith( re.data.markup );
+        //var $form = $post.find('.form');
+        //$post.replaceWith( markup.post( p ) );
+        $post.find('.title').html( this.getTitle().val() );
+        $post.find('.content').html(sanitize_content(this.getContent().val()) );
+        this.remove();
+        $post.find('.data').show();
         console.log("A post updated");
     };
     $.fn.getData = function() {
@@ -553,20 +558,41 @@ x.loadForum = function (e) {
         return this;
     };
     /**
-     * 'this' must be '.post'
+     * 'this' must be '.form'
      */
     $.fn.setTitle = function(str) {
         this.find('.title').text( str );
         return this;
     };
     /**
-     * 'this' must be '.post' or '.content'
+     * 'this' should be '.form'
      */
     $.fn.setContent = function(str) {
         if ( this.hasClass('post') ) this.find('.content').html( str );
         else this.find('.comment-content').html( str );
         return this;
     };
+
+    $.fn.getTitle = function() {
+        return this.find('[name="title"]');
+    };
+
+    /**
+     *
+     * @attention 'this' must be 'form' tag itself.
+     *
+     * Returns <textarea name='content'> or <textarea name='comment_content'>
+     *
+     * @note
+     *
+     * @returns {*}
+     */
+    $.fn.getContent = function() {
+        if ( this.isComment() ) return this.find('[name="comment_content"]');
+        else return this.find('[name="content"]');
+    };
+
+
 
 
 
@@ -1207,7 +1233,7 @@ markup.postTitle = function(post) {
 
 markup.postContent = function( post ) {
     return '<div class="content">' +
-        post.post_content +
+        sanitize_content(post.post_content) +
         '</div>';
 };
 
