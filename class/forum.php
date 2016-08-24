@@ -12,7 +12,9 @@ class forum {
     use Url;
 
 
-    const deleted = 'deleted, ...';
+    const post_title_deleted = 'post title deleted, ...';
+    const post_content_deleted = 'post comment deleted, ...';
+    const comment_deleted = 'comment deleted, ...';
     const log_msg_comment_like = 'comment_like';
     const log_msg_post_like = 'post_like';
     static $entity;
@@ -293,8 +295,8 @@ class forum {
         $content = in('content');
 
         if ( empty( $slug ) && empty( $post_ID ) ) ferror(-50044, 'slug ( category_slug ) or post_ID are not provided');
-        if ( ! $title ) ferror(-50045, 'title is not provided');
-        if ( ! $content ) ferror(-50046,'content is not provided');
+        if ( ! $title ) ferror(-50045, 'post title is not provided');
+        if ( ! $content ) ferror(-50046,'post content is not provided');
         $user_ID = $this->get_post_author();
         if ( empty($user_ID) ) ferror( -50047, "login  first");
 
@@ -402,7 +404,11 @@ class forum {
 
         if ( $re ) {
             if ( in('response') == 'ajax' ) {
-                $this->response( ['post_ID' => $post_ID, 'comment_ID', 'comment' => comment()->get_comment_with_meta( $comment_ID ) ] );
+                $this->response( [
+                    'post_ID' => $post_ID,
+                    'comment_ID' => $comment_ID,
+                    // 'comment' => comment()->get_comment_with_meta( $comment_ID ) // @since xapp-0.3, it does not return comment
+                ] );
             }
             else {
                 add_query_var('response', 'view');
@@ -527,22 +533,12 @@ class forum {
             else wp_die("forum()->response() : no post_ID or comment_ID provided.");
         }
         else if ( $res == 'ajax' ) {
-            /**
-            $json = [];
-            if ( $slug ) $json['slug'] = $slug;
-            if ( $post_ID ) $json['post_ID'] = $post_ID;
-            if ( $comment_ID ) $json['comment_ID'] = $comment_ID;
-            if ( $data ) $json['html'] = $data;
-            */
-            /*
-            $json = [
-                'slug' => $slug,
-                'post_ID' => $post_ID,
-                'comment_ID' => $comment_ID,
-                'html' => $data
-            ];
-            */
-            //wp_send_json_success( $json );
+            wp_send_json_success( $o );
+        }
+        else if ( strpos($res,'template/') !== false ) {
+            ob_start();
+            include DIR_XFORUM . "$res.php";
+            $o['markup'] = ob_get_clean();
             wp_send_json_success( $o );
         }
         else if ( $o ) {
@@ -571,7 +567,7 @@ class forum {
             $url .= "&error_code=$code&error_message=$message";
             $this->url_redirect( $url );
         }
-        else if ( in('response') == 'ajax' ) {
+        else if ( in('response') == 'ajax' || strpos(in('response'), 'template') !== false ) {
             wp_send_json_error( ['code'=>$code, 'message'=>$message]);
         }
         else {
@@ -729,6 +725,7 @@ class forum {
      */
     private function comment_edit_submit( ) {
 
+        if ( ! ( in('post_ID') || in('comment_ID') || in('comment_parent') ) ) ferror(-500481, "None of post_ID, comment_ID, comment_parent has provided.");
         $comment_ID = in( 'comment_ID' );
         $update = $comment_ID ? true : false;
         
@@ -739,20 +736,24 @@ class forum {
         }
         else {
             $post_ID = in('post_ID');
+            if ( empty( $post_ID ) ) {
+                $comment = get_comment(in('comment_parent'));
+                $post_ID = $comment->comment_post_ID;
+            }
         }
         forum()->setCategoryByPostID($post_ID);
-
-
 
 
 
         //
         if ( $update ) { // update
             $this->endIfNotMyComment( $comment_ID );
+            remove_filter( 'pre_comment_content', 'wp_filter_kses' );
             $re = wp_update_comment([
                 'comment_ID' => $comment_ID,
                 'comment_content' => in('comment_content')
             ]);
+            add_filter( 'pre_comment_content', 'wp_filter_kses' );
 
             if ( ! $re ) {
                 // error or content has not changed.
@@ -793,7 +794,7 @@ class forum {
 
 
         $o = [ 'post_ID' => $post_ID, 'comment_ID' => $comment_ID ];
-        if ( in('response') == 'ajax' ) $o['comment'] = comment()->get_comment_with_meta( $comment_ID );
+        // if ( in('response') == 'ajax' ) $o['comment'] = comment()->get_comment_with_meta( $comment_ID );
         $this->response( $o );
     }
     /**
@@ -1281,10 +1282,17 @@ class forum {
      *
      *          - 그런데, 현재 forum()->getCategory() 에 값이 없으면서, this->locateTemplate( 'abc' ) 와 같이 하면, -50052 에러가 난다.
      *
+     *
      */
     public function locateTemplate( $slug, $page = null )
     {
-        if ( empty($slug) ) ferror(-50051, "slug or page shouldn't be empty on locateTemplate()");
+        /**
+         * @doc http://new.philgo.org/?forum=all 에서 에러가 발생하는데 이를 피하기 위한 것이다.
+         */
+        if ( in('forum') == 'all' ) {
+
+        }
+        else if ( empty($slug) ) ferror(-50051, "slug or page shouldn't be empty on locateTemplate()");
 
         if ( empty( $page ) ) {
             $page = $slug;
@@ -1342,7 +1350,7 @@ class forum {
         if ( $this->category ) return;
         $this->category = get_category_by_slug( $category_slug );
         if ( empty($this->category) ) {
-            wp_die("Error: Category(slug) - $category_slug - does not exists.");
+            ferror(-500150, "Error: Category(slug) - $category_slug - does not exists.");
         }
         $this->loadConfig();
     }
@@ -1633,6 +1641,7 @@ class forum {
             [
                 'session_id' => $user->get_session_id(),
                 'user_login' => $user->user_login,
+                'user_nicename' => $user->user_nicename,
             ]
         );
 
@@ -1640,6 +1649,8 @@ class forum {
 
     /**
      *
+     * It does User login.
+     * 
      *
      * @attention this is only for web-login. Use user_login_check() for mobile login check.
      *
@@ -1824,8 +1835,20 @@ EOH;
     }
 
 
-
-
+    /**
+     *
+     * Returns list of posts that maches the search keywords.
+     *
+     * @attention This is for general use. It should used in all cases.
+     *
+     * @use to autocomplete a search box.
+     *
+     * @input
+     *      in('attributes') - array.
+     *          it gets fields and metas and puts it in '.post' attributes.
+     *
+     * @see its/list.php & its/view.php for more example.
+     */
     function ajax_search() {
 
         $q = new WP_Query(
@@ -1835,6 +1858,7 @@ EOH;
             ]
         );
 
+        $attributes = in('attributes');
         $html = null;
         if ( $q->have_posts() ) {
             $html .= "<div class='no-of-posts'>No. of search result : " . $q->found_posts . "</div>";
@@ -1842,8 +1866,16 @@ EOH;
                 post()->setup( $q );
                 $m = get_the_title();
                 $url = get_the_permalink();
+                $post_ID = get_the_ID();
+                if ( $attributes && is_array( $attributes ) ) {
+                    $attrs = '';
+                    foreach ( $attributes as $key ) {
+                        $value = post()->$key;
+                        $attrs .= "$key=\"$value\"";
+                    }
+                }
                 $html .= <<<EOH
-<div class="post"><a href="$url">$m</a></div>
+<div class="post" no="$post_ID" $attrs><a href="$url">$m</a></div>
 EOH;
             }
         }
@@ -1883,6 +1915,7 @@ EOH;
             if ( comment()->isMine($id) ) wp_send_json_error( json_error(-11013, "You cannot like on your own comment."));
             if ( $this->comment_like_already( $id )) wp_send_json_error( json_error(-100405, "You have already voted on this comment."));
             $like = get_comment_meta( $id, 'like', true);
+            if ( empty($like) ) $like = 0;
             $like ++;
             update_comment_meta( $id, 'like', $like);
             $this->comment_like_log( $id );

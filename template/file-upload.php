@@ -12,7 +12,7 @@ if ( empty($action) ) {
 <div class="file-upload-form" post_ID="<?php the_ID()?>" parent_ID="<%=parent_ID%>" comment_ID="<%=comment_ID%>">
     <form action="<?php echo $action?>" target="xforum_hidden_iframe" method="post" enctype="multipart/form-data">
         <input type="hidden" name="domain" value="philgo">
-        <input type="hidden" name="uid" value="<?php user()->uniqid()?>">
+        <input type="hidden" name="uid" value="<?php echo user()->get_session_id()?>">
         <input type="file" name="userfile" placeholder="Choose file" onchange="on_file_upload_submit(this);">
     </form>
 </div>

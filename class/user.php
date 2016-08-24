@@ -431,9 +431,10 @@ class user extends WP_User {
         }
         return $uid;
     }
-
-
+    
     /**
+     *
+     * Returns user ID if session_id is correct. Or false will be returned.
      *
      * @attention this method does not need any user object instance on $this.
      *
@@ -520,8 +521,9 @@ class user extends WP_User {
                 if ( $user->exists() ) ferror( -40132, "Wrong password" );
                 else ferror( -40131, "Wrong username" );
             }
-            else
+            else {
                 return false;
+            }
         }
         else {
             if ( in('response') == 'ajax' ) wp_send_json_success();

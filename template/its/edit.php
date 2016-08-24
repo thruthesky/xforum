@@ -18,6 +18,11 @@ else {
 }
 
 
+$parent = in('parent');
+if ( empty($parent) ) {
+    $parent = post()->parent;
+}
+
 
 
 ?>
@@ -87,7 +92,7 @@ else {
 
     <form action="?" method="post">
         <input type="hidden" name="forum" value="edit_submit">
-        <input type="hidden" name="parent" value="<?php echo in('parent')?>">
+        <input type="hidden" name="parent" value="<?php echo $parent?>">
         <?php if ( in('slug') ) { ?>
             <input type="hidden" name="slug" value="<?php echo in('slug')?>">
         <?php } else { ?>

@@ -153,7 +153,7 @@ class post {
         // $post = wp_delete_post($post_ID);
         // return $post;
 
-        $post_ID = wp_update_post( ['ID'=> $post_ID, 'post_title' => forum::deleted, 'post_content' => forum::deleted ] );
+        $post_ID = wp_update_post( ['ID'=> $post_ID, 'post_title' => forum::post_title_deleted, 'post_content' => forum::post_content_deleted ] );
         return $this->returnResult( $post_ID );
     }
 
@@ -249,7 +249,11 @@ class post {
     public function content()
     {
         if ( self::$post ) {
-            return self::$post->post_content;
+            $content = self::$post->post_content;
+            if ( $this->content_type == 'text/plain' ) {
+                $content = nl2br($content);
+            }
+            return $content;
         }
         else return null;
     }
@@ -259,6 +263,8 @@ class post {
      * Magical methods __get()
      *
      * @Warning to use this 'magical __get()', the Object must be instantiated with 'post()' and must have a valid post data.
+     *
+     * @Warning This function is a mistake. It should use WP_Post::__get()
      *
      *
      * @param $property
@@ -418,17 +424,18 @@ class post {
      *
      * @code example of best use
      *
-            $mq = new WP_Query( $args );
-            if ( $mq->have_posts() ) {
-                while ( $mq->have_posts() ) {
-                    post()->setup( $mq );
-                    post()->worker;
-                }
-            }
+     * $mq = new WP_Query( $args );
+     * if ( $mq->have_posts() ) {
+     * while ( $mq->have_posts() ) {
+     * post()->setup( $mq );
+     * post()->worker;
+     * }
+     * }
      *
      * @endcode
      *
      * @todo add test code on setup( WP_Query ) and setup( WP_Post )
+     * @return $this
      */
     public function setup($query)
     {
@@ -508,13 +515,36 @@ class post {
         return $this->post_author == forum()->get_user_id();
     }
 
+    public function author() {
+        echo user($this->post_author)->user_nicename;
+    }
+    public function date_short($post_id=0) {
+        echo $this->get_date_short( $post_id );
+    }
 
+    public function get_date_short( $post_id = 0 ) {
+        if ( empty($post_id) ) $post_id = $this->ID;
+        $time = get_the_time( 'U', $post_id );
+        $date = date('Y-m-d', $time);
+        $today_date = date('Y-m-d');
+        if ( $date == $today_date ) return date("h:i a", $time);
+        else return $date;
+    }
+
+
+    /**
+     * Returns true if the post is deleted by 'api'.
+     * @return bool
+     */
+    public function isDeleted() {
+        return $this->title() == forum::post_title_deleted;
+    }
 }
 
 
 /**
  *
- * @param null $deprecated
+ *
  * @return post
  * @todo add test code.
  *
@@ -524,6 +554,14 @@ class post {
  *
  * @see post:load()
  *
+ *
+ * @use in loop like below
+ * @code
+ *
+ *      while ( $q->have_posts() ) {
+ *          post()->setup( $q );
+ *
+ * @endcode
  */
 function post( $pid = null ) {
     if ( $pid ) {

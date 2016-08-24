@@ -8,23 +8,22 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 # ITS
 
 * http://dev.withcenter.com/ 에서 모든 작업을 관리한다.
-
-* 모든 TODO 나 모든 작업을 위 ITS 옮긴다.
-
-    * 모든 문서를 다 찾아서 하나 하나 재 검토하고 옮긴다.
-
-  
-
-  
-## CHANGES
-  
-* 2016-07-13 Now, all pages ( list, view, edit, edit_submit, comment_edit_submit, post_delete_submit, comment_delete_submit and all)
-
-        are loading 'init.php' of the template.
-        
         
   
+
 # Work Environment
+
+* @since Aug 1st, 2016. xapp is now installed on xforum/etc/xapp
+
+    * http://new.philgo.org/wp-content/plugins/xforum/etc/xapp/index.html
+
+* @since Aug 1st, 2016. xforum now works as sub-module in sapcms_1_2/etc/wordpress
+
+    It must be addressed with
+
+    * http://new.philgo.org
+    * or
+    * http://new.philgo.com
 
 * DB server & File server are on http://dev.withcenter.com
     ( 소스는 현재 컴퓨터에 있고, DB 서버와 파일 서버를 실제서버에서 하는 경우 )
@@ -35,8 +34,12 @@ https://docs.google.com/document/d/1wuYQzA0qZlviz9vxW7bM2Zvbj5YpL5ubNLSxZte5kEo/
 * ITS is also in http://dev.withcenter.com
 
 
-
 # TODO
+
+* For panel, don't scroll down all other page content. it's very slow.
+
+Make it absolute. so, the page content is moved.
+
 
 * let anonymous post. ( 익명으로 글 쓰기 )
 * set an option on admin setting for the forum for private post between admin and user. ( 비밀게시판 )
@@ -235,6 +238,13 @@ $ curl "http://work.org/wordpress-4.5.3/?script=post-generate"
 
 
 # Submission & Response - How submission works.
+
+* @since aug 2, 2016. If response value begins with 'template/',
+    
+    It does the same as 'response=ajax' except, it loads the template and save the markup into data['markup']. 
+ 
+    <input type="hidden" name="response" value="template/api/view">
+    
 
 * When you submit a form of xforum, you do the form submission as
 

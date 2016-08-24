@@ -31,8 +31,15 @@ class comment
     ];
 
 
+    /**
+     * $comment = comment()->set( get_comment($o['comment_ID']) );
+     * @param WP_Comment $comment
+     * @return $this
+     *
+     */
     public function set( WP_Comment $comment ) {
         self::$comment = $comment;
+        return $this;
     }
 
 
@@ -44,12 +51,16 @@ class comment
      *      $comment_ID = comment()->comment_ID;
      * @endcode
      *
+     * @since Aug 3, 2016. It uses parent's magical get.
+     *
      * @todo add test code
+     *
      */
     public function __get( $prop ) {
-        if ( isset( self::$comment ) && isset( self::$comment->$prop ) ) return self::$comment->$prop;
+        if ( self::$comment ) return self::$comment->$prop;
         else return false;
     }
+
 
     /**
      *
@@ -132,13 +143,17 @@ class comment
 
     /**
      * @param $post_ID
+     * @param array $fields - select fields. 원하는 필드만 가져 올 수 있다.
+     * @code
+     *      $post->comments = comment()->get_nested_comments_with_meta( $post->ID, ['comment_ID', 'comment_author', 'comment_content', 'depth'] );
+     * @endcode
      * @return array
      * @code
      *      di ( comment()->get_nested_comments_with_meta( get_the_ID() ) );
      * @endcode
      *
      */
-    public function get_nested_comments_with_meta( $post_ID ) {
+    public function get_nested_comments_with_meta( $post_ID, $fields = [] ) {
         self::$nest_comments = [];
         if ( ! get_comments_number( $post_ID ) ) return [];
         $comments = get_comments( [ 'post_id' => $post_ID ] );
@@ -158,7 +173,17 @@ class comment
             ],
             $comments);
         $trash = ob_get_clean();
-        return self::$nest_comments;
+        if ( empty(self::$nest_comments) || empty($fields) ) return self::$nest_comments;
+
+        $_comments = [];
+        foreach ( self::$nest_comments as $comment ) {
+            $_comment = new stdClass();
+            foreach( $fields as $field ) {
+                $_comment->$field = $comment->$field;
+            }
+            $_comments[] = $_comment;
+        }
+        return $_comments;
     }
 
     /**
@@ -170,7 +195,7 @@ class comment
     {
         return wp_update_comment([
             'comment_ID' => $comment_ID,
-            'comment_content' => forum::deleted
+            'comment_content' => forum::comment_deleted
         ]);
     }
 

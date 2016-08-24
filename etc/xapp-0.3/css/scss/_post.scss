@@ -1,0 +1,170 @@
+$post-padding: .6em;
+$post-background-color: #f7f7f7;
+$comment-background-color: #ececec;
+
+/// page-list
+.page-list {
+  .desc {
+    margin-bottom: $post-padding;
+    padding: 1em;
+    background-color: #efefef;
+  }
+}
+
+
+/// post
+.post {
+  margin-bottom: 1em;
+
+  .meta {
+    padding: $post-padding;
+    background-color: #ebefef;
+    font-size: .85em;
+  }
+
+  .title {
+    padding: $post-padding;
+    background-color: $post-background-color;
+  }
+
+  .content {
+    margin-bottom: 1em;
+    padding: $post-padding;
+    background-color: $post-background-color;
+  }
+
+  /// post button
+  .buttons {
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    li {
+      display:inline;
+      cursor: pointer;
+      &:hover {
+        color: #B22222;
+      }
+    }
+  }
+}
+
+
+/// deleted style for post only
+.post.deleted {
+  .title { display: none; }
+  .meta {
+    padding: .25em;
+    .buttons {
+      display: none;
+    }
+  }
+}
+
+
+
+.comment {
+  margin: 0 0 1em;
+  background-color: $post-background-color;
+
+  .comment-meta {
+    padding: 1em;
+    background-color: #ded3c6;
+  }
+
+
+  .comment-content {
+    background-color: white;
+  }
+  .buttons {
+    span {
+      cursor: pointer;
+    }
+  }
+
+  &[depth="1"] { margin-left: 1.2em; }
+  &[depth="2"] { margin-left: 2.2em; }
+  &[depth="3"] { margin-left: 3.2em; }
+  &[depth="4"] { margin-left: 4em; }
+  &[depth="5"] { margin-left: 4.8em; }
+  &[depth="6"] { margin-left: 5.6em; }
+  &[depth="7"] { margin-left: 6.4em; }
+  &[depth="8"] { margin-left: 7em; }
+  &[depth="9"] { margin-left: 4.6em; }
+  &[depth="10"] { margin-left: 5em; }
+
+
+}
+
+/// deleted style for comment only
+.comment.deleted {
+  .comment-meta {
+    padding: .25em;
+    .buttons {
+      display: none;
+    }
+  }
+}
+
+
+  /// post write form
+.form.post-write {
+  [name="title"] {
+    width: 100%;
+  }
+  [name="content"] {
+    width: 100%;
+  }
+}
+/// comment write form
+.form.comment-write {
+  [name='comment_content'] {
+    width: 100%;
+    height: 1.4em;
+  }
+  .buttons {
+    display: none;
+  }
+  &.selected {
+    [name='comment_content'] {
+      height: 10em;
+    }
+    .buttons {
+      display: block;
+    }
+    .icon {
+      font-size: 1.6rem;
+    }
+  }
+}
+
+
+  /// file upload button
+.file-upload {
+  position: relative;
+  cursor: pointer;
+  input {
+    position: absolute;
+    top:0;
+    z-index: 123;
+    width: 36px;
+    height: 32px;
+    font-size:10em;
+    overflow: hidden;
+    opacity: .5;
+    cursor: pointer;
+  }
+  .icon {
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+}
+
+.files {
+  img {
+    max-width:120px;
+    max-height: 120px;
+    overflow:hidden;
+  }
+}

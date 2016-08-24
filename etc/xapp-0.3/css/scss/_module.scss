@@ -1,0 +1,12 @@
+///
+
+
+form .message {
+  margin: .25rem 0;
+  padding: .4rem;
+  background-color: white;
+}
+form .message:empty {
+  display:none;
+}
+
