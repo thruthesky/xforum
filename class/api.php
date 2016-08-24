@@ -18,7 +18,6 @@ class api {
         wp_send_json_success( get_categories() );
     }
 
-
     /**
      *
      * @note it adds author's nicename to 'author_name' property.
@@ -36,7 +35,6 @@ class api {
             'paged' => in('page'),
         ];
 
-
         $in = in();
         $category = forum()->getCategory();
         $posts = get_posts($args);
@@ -52,25 +50,6 @@ class api {
                     $post->$k = $arr[0];
                 }
                 $post->comments = comment()->get_nested_comments_with_meta( $post->ID );
-                /*
-                if ( get_comments_number( $post->ID ) ) {
-
-                    $comment_args = array(
-                        'post_id' => $post->ID,
-                    );
-                    $comments = get_comments( $comment_args );
-                    // load comment meta
-                    foreach( $comments as $comment ) {
-                        $meta = get_comment_meta( $comment->comment_ID );
-                        foreach( $meta as $k => $arr ) {
-                            $comment->$k = $arr[0];
-                        }
-                    }
-
-                    $post->comments = $comments;
-
-                }
-                */
             }
         }
 
