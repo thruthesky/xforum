@@ -60,7 +60,7 @@ if ( $ex ) {
         'relation' => 'OR',
         [
             'key'       => 'process',
-            'value'     => ['A'],
+            'value'     => ['A', 'R', 'V'],
             'type'      => 'CHAR',
             'compare'   => 'NOT IN',
         ],
